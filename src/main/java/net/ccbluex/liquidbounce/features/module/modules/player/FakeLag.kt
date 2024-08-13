@@ -1,13 +1,17 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.GameLoopEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.PLAYER
 import net.ccbluex.liquidbounce.features.module.modules.render.Breadcrumbs
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -18,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.Packet
 import net.minecraft.network.handshake.client.C00Handshake
@@ -34,10 +38,10 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-object FakeLag : Module("FakeLag", ModuleCategory.PLAYER, gameDetecting = false, hideModule = false) {
+object FakeLag : Module("FakeLag", PLAYER, gameDetecting = false) {
 
-    private val delay by IntegerValue("Delay", 550, 0..1000)
-    private val recoilTime by IntegerValue("RecoilTime", 750, 0..2000)
+    private val delay by IntValue("Delay", 550, 0..1000)
+    private val recoilTime by IntValue("RecoilTime", 750, 0..2000)
     private val distanceToPlayers by FloatValue("AllowedDistanceToPlayers", 3.5f, 0.0f..6.0f)
 
     private val packetQueue = LinkedHashMap<Packet<*>, Long>()
@@ -53,12 +57,12 @@ object FakeLag : Module("FakeLag", ModuleCategory.PLAYER, gameDetecting = false,
         blink()
     }
 
-    @EventTarget
+    @EventTarget(priority = -1)
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
         if (!handleEvents())
             return
+
+        val packet = event.packet
 
         if (mc.thePlayer == null || mc.thePlayer.isDead)
             return

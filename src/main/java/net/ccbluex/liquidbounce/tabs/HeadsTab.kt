@@ -1,12 +1,15 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.tabs
 
 import com.google.gson.JsonParser
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.inventory.ItemUtils
@@ -16,7 +19,7 @@ import net.minecraft.init.Items
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 
-class HeadsTab : CreativeTabs("Heads") {
+object HeadsTab : CreativeTabs("Heads") {
 
     // List of heads
     private val heads = arrayListOf<ItemStack>()
@@ -31,6 +34,9 @@ class HeadsTab : CreativeTabs("Heads") {
         GlobalScope.launch { loadHeads() }
     }
 
+    /**
+     * Load all heads from the database
+     */
     private suspend fun loadHeads() {
         runBlocking {
             runCatching {
@@ -71,8 +77,7 @@ class HeadsTab : CreativeTabs("Heads") {
                     }
 
                     LOGGER.info("Loaded ${heads.size} heads from HeadDB.")
-                } else
-                    LOGGER.info("Heads are disabled.")
+                } else LOGGER.info("Heads are disabled.")
             }.onFailure {
                 LOGGER.error("Error while reading heads.", it)
             }

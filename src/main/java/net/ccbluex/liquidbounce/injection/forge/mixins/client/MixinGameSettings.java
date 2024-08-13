@@ -1,3 +1,8 @@
+/*
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
+ */
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.minecraft.client.settings.GameSettings;
@@ -9,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameSettings.class)
 public class MixinGameSettings {
-
     @Shadow public int guiScale;
 
     /**
@@ -22,5 +26,4 @@ public class MixinGameSettings {
     private void injectGuiScaleDefault(final CallbackInfo callbackInfo) {
         this.guiScale = 2;
     }
-
 }

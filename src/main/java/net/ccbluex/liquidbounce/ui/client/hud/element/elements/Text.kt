@@ -1,13 +1,13 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CREATOR
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
+import net.ccbluex.liquidbounce.LiquidBounce.clientCommit
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.blockStatus
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
@@ -16,9 +16,16 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.*
+import net.ccbluex.liquidbounce.utils.BPSUtils.bps
+import net.ccbluex.liquidbounce.utils.CPSCounter
+import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton.*
 import net.ccbluex.liquidbounce.utils.MovementUtils.speed
-import net.ccbluex.liquidbounce.utils.extensions.getPing
+import net.ccbluex.liquidbounce.utils.PPSCounter
+import net.ccbluex.liquidbounce.utils.PPSCounter.PacketType.RECEIVED
+import net.ccbluex.liquidbounce.utils.PPSCounter.PacketType.SEND
+import net.ccbluex.liquidbounce.utils.ServerUtils
+import net.ccbluex.liquidbounce.utils.TimerBalanceUtils.balance
+import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect2
@@ -69,15 +76,15 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private val textColorMode by ListValue("Text-Color", arrayOf("Custom", "Random", "Rainbow", "Gradient"), "Custom")
 
-    private var alpha by IntegerValue("Alpha", 255, 0..255) { textColorMode != "Rainbow" }
-    private var red by IntegerValue("Red", 255, 0..255) { textColorMode == "Custom" && alpha > 0 }
-    private var green by IntegerValue("Green", 255, 0..255) { textColorMode == "Custom" && alpha > 0 }
-    private var blue by IntegerValue("Blue", 255, 0..255) { textColorMode == "Custom" && alpha > 0 }
+    private var alpha by IntValue("Alpha", 255, 0..255) { textColorMode != "Rainbow" }
+    private var red by IntValue("Red", 255, 0..255) { textColorMode == "Custom" && alpha > 0 }
+    private var green by IntValue("Green", 255, 0..255) { textColorMode == "Custom" && alpha > 0 }
+    private var blue by IntValue("Blue", 255, 0..255) { textColorMode == "Custom" && alpha > 0 }
 
-    private val backgroundAlpha by IntegerValue("BackgroundAlpha", 0, 0..255)
-    private val backgroundRed by IntegerValue("BackgroundRed", 0, 0..255) { backgroundAlpha > 0 }
-    private val backgroundGreen by IntegerValue("BackgroundGreen", 0, 0..255) { backgroundAlpha > 0 }
-    private val backgroundBlue by IntegerValue("BackgroundBlue", 0, 0..255) { backgroundAlpha > 0 }
+    private val backgroundAlpha by IntValue("BackgroundAlpha", 0, 0..255)
+    private val backgroundRed by IntValue("BackgroundRed", 0, 0..255) { backgroundAlpha > 0 }
+    private val backgroundGreen by IntValue("BackgroundGreen", 0, 0..255) { backgroundAlpha > 0 }
+    private val backgroundBlue by IntValue("BackgroundBlue", 0, 0..255) { backgroundAlpha > 0 }
 
     // TODO: Make Color picker to fix this mess :/
     private val gradientTextRed1 by FloatValue("Text-Gradient-R1", 255f, 0f..255f) { textColorMode == "Gradient" }
@@ -101,7 +108,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
     private val gradientX by FloatValue("Gradient-X", -500F, -2000F..2000F) { textColorMode == "Gradient" }
     private val gradientY by FloatValue("Gradient-Y", -1500F, -2000F..2000F) { textColorMode == "Gradient" }
 
-    private var shadow by BoolValue("Shadow", true)
+    private var shadow by BooleanValue("Shadow", true)
     private val font by FontValue("Font", Fonts.font40)
 
     private var editMode = false
@@ -142,7 +149,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 "ydp" -> return thePlayer.posY
                 "zdp" -> return thePlayer.posZ
                 "velocity" -> return DECIMAL_FORMAT.format(speed)
-                "ping" -> return thePlayer.getPing()
+                "ping" -> return thePlayer.ping
                 "health" -> return DECIMAL_FORMAT.format(thePlayer.health)
                 "maxhealth" -> return DECIMAL_FORMAT.format(thePlayer.maxHealth)
                 "yaw" -> return DECIMAL_FORMAT.format(thePlayer.rotationYaw)
@@ -151,14 +158,16 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
                 "pitchint" -> return DECIMAL_FORMAT.format(thePlayer.rotationPitch).toInt()
                 "food" -> return thePlayer.foodStats.foodLevel
                 "onground" -> return thePlayer.onGround
-                "tbalance", "timerbalance" -> return "${TimerBalanceUtils.getBalance()}ms"
+                "bal", "tbal", "timerbal", "balance", "tbalance", "timerbalance" -> return "$balance"
+                "pps_sent" -> return PPSCounter.getPPS(SEND)
+                "pps_received" -> return PPSCounter.getPPS(RECEIVED)
                 "block", "blocking" -> return (thePlayer.heldItem?.item is ItemSword && (blockStatus || thePlayer.isUsingItem || thePlayer.isBlocking))
                 "sneak", "sneaking" -> return (thePlayer.isSneaking || mc.gameSettings.keyBindSneak.isKeyDown)
                 "sprint", "sprinting" -> return (thePlayer.serverSprintState || thePlayer.isSprinting || mc.gameSettings.keyBindSprint.isKeyDown)
                 "inventory", "inv" -> return mc.currentScreen is GuiInventory || mc.currentScreen is GuiContainer
                 "serverslot" -> return serverSlot
                 "clientslot" -> return thePlayer.inventory?.currentItem
-                "bps", "blockpersecond" -> return DECIMAL_FORMAT.format(BPSUtils.getBPS())
+                "bps", "blockpersecond" -> return DECIMAL_FORMAT.format(bps)
             }
         }
 
@@ -172,12 +181,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())
             "serverip" -> ServerUtils.remoteIp
-            "cps", "lcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.LEFT)
-            "mcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE)
-            "rcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT)
-            "pps_sent" -> return PPSCounter.getPPS(PPSCounter.PacketType.SEND)
-            "pps_received" -> return PPSCounter.getPPS(PPSCounter.PacketType.RECEIVED)
-            else -> null // Null = don't replace
+            "cps", "lcps" -> return CPSCounter.getCPS(LEFT)
+            "mcps" -> return CPSCounter.getCPS(MIDDLE)
+            "rcps" -> return CPSCounter.getCPS(RIGHT)
+            else -> null // don't replace
         }
     }
 

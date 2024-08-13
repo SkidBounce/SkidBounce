@@ -1,126 +1,86 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.AttackEvent
+import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.component1
-import net.ccbluex.liquidbounce.utils.extensions.component2
-import net.ccbluex.liquidbounce.utils.extensions.component3
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticalsmodes.CriticalsMode
+import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
-object Criticals : Module("Criticals", ModuleCategory.COMBAT, hideModule = false) {
+object Criticals : Module("Criticals", COMBAT) {
+    private val criticalsModes = javaClass.`package`.getAllObjects<CriticalsMode>().sortedBy { it.modeName }
+    private val modeModule get() = criticalsModes.find { it.modeName == mode }!!
 
-    val mode by ListValue(
-        "Mode",
-        arrayOf("Packet", "NCPPacket", "BlocksMC", "BlocksMC2", "NoGround", "Hop", "TPHop", "Jump", "LowJump", "CustomMotion", "Visual"),
-        "Packet"
-    )
+    private val mode by ListValue("Mode", criticalsModes.map { it.modeName }.toTypedArray(), "Packet")
 
-    val delay by IntegerValue("Delay", 0, 0..500)
-    private val hurtTime by IntegerValue("HurtTime", 10, 0..10)
-    private val customMotionY by FloatValue("Custom-Y", 0.2f, 0.01f..0.42f) { mode == "CustomMotion" }
+    // Ones that only use `onPacket`
+    val settings get() = mode !in arrayOf("NoGround", "Redesky")
 
-    val msTimer = MSTimer()
+    private val delay by IntValue("Delay", 0, 0..5000) { settings }
+    private val attacks by IntValue("Attacks", 0, 0..10) { settings }
+    private val ticks by IntValue("Ticks", 1, 1..10) { settings }
+    private val hurtTime by IntValue("HurtTime", 10, 0..10) { settings }
+    private val onlyAura by BooleanValue("OnlyAura", false) { settings }
+    private val onlyGround by BooleanValue("OnlyGround", false) { settings }
+    private val noMotionUp by BooleanValue("NoMotionUp", false) { settings }
+    private val noMotionDown by BooleanValue("NoMotionDown", false) { settings }
+    private val noRiding by BooleanValue("NoRiding", true) { settings }
+    private val noWeb by BooleanValue("NoWeb", false) { settings }
+    private val noClimbing by BooleanValue("NoClimbing", true) { settings }
+    private val noWater by BooleanValue("NoWater", true) { settings }
+    private val noLava by BooleanValue("NoLava", false) { settings }
+    private val noFly by BooleanValue("NoFly", false) { settings }
 
-    override fun onEnable() {
-        if (mode == "NoGround")
-            mc.thePlayer.tryJump()
-    }
+    val motionY by FloatValue("Motion-Y", 0.2f, 0.01f..0.42f) { mode == "Motion" }
+    val motionBoost by BooleanValue("Motion-Boost", true) { mode == "Motion" }
+
+    private val delayTimer = MSTimer()
+    private var attackCounter = 0
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if (event.targetEntity is EntityLivingBase) {
-            val thePlayer = mc.thePlayer ?: return
-            val entity = event.targetEntity
+        mc.thePlayer ?: return
+        if (event.targetEntity !is EntityLivingBase ||
+            !delayTimer.hasTimePassed(delay) ||
+            mc.thePlayer.ticksExisted % ticks != 0 ||
+            (noMotionUp && mc.thePlayer.motionY > 0) ||
+            (noMotionDown && mc.thePlayer.motionY < 0 && !mc.thePlayer.onGround) ||
+            (noFly && mc.thePlayer.capabilities.isFlying) ||
+            event.targetEntity.hurtTime > hurtTime ||
+            (noLava && mc.thePlayer.isInLava) ||
+            (onlyGround && !mc.thePlayer.onGround) ||
+            (noWeb && mc.thePlayer.isInWeb) ||
+            (noWater && mc.thePlayer.isInWater) ||
+            (noRiding && mc.thePlayer.isRiding) ||
+            (noClimbing && mc.thePlayer.isOnLadder) ||
+            (onlyAura && !KillAura.handleEvents())
+        ) return
 
-            if (!thePlayer.onGround || thePlayer.isOnLadder || thePlayer.isInWeb || thePlayer.isInWater ||
-                thePlayer.isInLava || thePlayer.ridingEntity != null || entity.hurtTime > hurtTime ||
-                Fly.handleEvents() || !msTimer.hasTimePassed(delay)
-            )
-                return
+        ++attackCounter
 
-            val (x, y, z) = thePlayer
+        if (attackCounter < attacks)
+            return
 
-            when (mode.lowercase()) {
-                "packet" -> {
-                    sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.0625, z, true),
-                        C04PacketPlayerPosition(x, y, z, false)
-                    )
-                    thePlayer.onCriticalHit(entity)
-                }
-
-                "ncppacket" -> {
-                    sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.11, z, false),
-                        C04PacketPlayerPosition(x, y + 0.1100013579, z, false),
-                        C04PacketPlayerPosition(x, y + 0.0000013579, z, false)
-                    )
-                    mc.thePlayer.onCriticalHit(entity)
-                }
-
-                "blocksmc" -> {
-                    sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.001091981, z, true),
-                        C04PacketPlayerPosition(x, y, z, false)
-                    )
-                }
-
-                "blocksmc2" -> {
-                    if (thePlayer.ticksExisted % 4 == 0) {
-                        sendPackets(
-                            C04PacketPlayerPosition(x, y + 0.0011, z, true),
-                            C04PacketPlayerPosition(x, y, z, false)
-                        )
-                    }
-                }
-
-                "hop" -> {
-                    thePlayer.motionY = 0.1
-                    thePlayer.fallDistance = 0.1f
-                    thePlayer.onGround = false
-                }
-
-                "tphop" -> {
-                    sendPackets(
-                        C04PacketPlayerPosition(x, y + 0.02, z, false),
-                        C04PacketPlayerPosition(x, y + 0.01, z, false)
-                    )
-                    thePlayer.setPosition(x, y + 0.01, z)
-                }
-
-                "jump" -> thePlayer.motionY = 0.42
-                "lowjump" -> thePlayer.motionY = 0.3425
-                "custommotion" -> thePlayer.motionY = customMotionY.toDouble()
-                "visual" -> thePlayer.onCriticalHit(entity)
-            }
-
-            msTimer.reset()
-        }
+        modeModule.onAttack(event.targetEntity)
+        attackCounter = 0
+        delayTimer.reset()
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is C03PacketPlayer && mode == "NoGround")
-            packet.onGround = false
+        modeModule.onPacket(event)
     }
 
     override val tag

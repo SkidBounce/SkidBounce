@@ -1,11 +1,11 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.hud.designer
 
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.guiColor
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.ELEMENTS
@@ -315,7 +315,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             if (!value.isSupported()) continue
 
             when (value) {
-                is BoolValue -> {
+                is BooleanValue -> {
                     // Title
                     Fonts.font35.drawString(value.name, x + 2, y + height, if (value.get()) Color.WHITE.rgb else Color.GRAY.rgb)
 
@@ -370,7 +370,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                     realHeight += 20
                 }
 
-                is IntegerValue -> {
+                is IntValue -> {
                     val current = value.get()
                     val min = value.minimum
                     val max = value.maximum
@@ -389,8 +389,10 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
                     // Slider mark
                     val sliderValue = x + ((prevWidth - 18F) * (current - min) / (max - min))
-                    drawRectNew(8F + sliderValue, y + height + 9F, sliderValue + 11F, y + height
-                            + 15F, Color(37, 126, 255).rgb)
+                    drawRectNew(
+                        8F + sliderValue, y + height + 9F, sliderValue + 11F, y + height
+                                + 15F, Color(37, 126, 255).rgb
+                    )
 
                     // Slider changer
                     if (Mouse.isButtonDown(0) && mouseX in x + 8..x + prevWidth && mouseY in y + height + 9..y + height + 15) {

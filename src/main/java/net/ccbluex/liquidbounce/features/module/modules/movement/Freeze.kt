@@ -1,19 +1,19 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.MOVEMENT
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
-object Freeze : Module("Freeze", ModuleCategory.MOVEMENT) {
+object Freeze : Module("Freeze", MOVEMENT) {
     private var motionX = 0.0
     private var motionY = 0.0
     private var motionZ = 0.0
@@ -42,9 +42,8 @@ object Freeze : Module("Freeze", ModuleCategory.MOVEMENT) {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer) {
+        if (event.packet is C03PacketPlayer)
             event.cancelEvent()
-        }
         if (event.packet is S08PacketPlayerPosLook) {
             x = event.packet.x
             y = event.packet.y

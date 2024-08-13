@@ -1,42 +1,47 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.vulcan
 
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
+import net.ccbluex.liquidbounce.utils.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.*
 
+/**
+ * fixme: clips into blocks sometimes
+ * @author SkidderMC/FDPClient
+ */
 object VulcanLowHop : SpeedMode("VulcanLowHop") {
+    private var ticks = 0
+    private var launchY = 0.0
+
+    override fun onToggle(state: Boolean) {
+        ticks = 0
+        launchY = mc.thePlayer.posY
+    }
+
     override fun onUpdate() {
-        val player = mc.thePlayer ?: return
-        if (player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
+        ticks++
 
-        if (isMoving) {
-            if (!player.onGround && player.fallDistance > 1.1) {
-                mc.timer.timerSpeed = 1f
-                player.motionY = -0.25
-                return
-            }
+        mc.thePlayer.jumpMovementFactor = 0.0245f
 
-            if (player.onGround) {
-                player.tryJump()
-                strafe(0.4815f)
-                mc.timer.timerSpeed = 1.263f
-            } else if (player.ticksExisted % 4 == 0) {
-                if (player.ticksExisted % 3 == 0) {
-                    player.motionY = -0.01 / player.motionY
-                } else {
-                    player.motionY = -player.motionY / player.posY
-                }
-                mc.timer.timerSpeed = 0.8985f
-            }
+        if (mc.thePlayer.onGround && isMoving) {
+            mc.thePlayer.jmp()
+            ticks = 0
+            strafe()
+            if (speed < 0.5f)
+                strafe(0.484f)
+            launchY = mc.thePlayer.posY
+        } else if (mc.thePlayer.posY > launchY && ticks <= 1)
+            mc.thePlayer.setPosition(mc.thePlayer.posX, launchY, mc.thePlayer.posZ)
+        else if (ticks == 5)
+            mc.thePlayer.motionY = -0.17
 
-        } else {
-            mc.timer.timerSpeed = 1f
-        }
+        if (speed < 0.215)
+            strafe(0.215f)
     }
 }

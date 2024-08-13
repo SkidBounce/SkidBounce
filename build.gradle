@@ -5,7 +5,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
-    id "com.gorylenko.gradle-git-properties" version "2.4.0"
+    id "com.gorylenko.gradle-git-properties" version "2.4.2"
 }
 
 repositories {
@@ -56,19 +56,19 @@ dependencies {
 
     include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    include "com.jagrosh:DiscordIPC:0.4"
-
+    include("com.jagrosh:DiscordIPC:0.4")
     include("com.github.CCBlueX:Elixir:1.2.6") {
         exclude module: "kotlin-stdlib"
         exclude module: "authlib"
     }
-
     include 'com.github.TheAltening:TheAltening4j:d0771f42d3'
     include 'com.github.TheAltening:API-Java-AuthLib:63a9702615'
 
-    include "org.apache.httpcomponents:httpmime:4.5.14"
+    include 'org.apache.httpcomponents:httpmime:4.5.14'
 
-    include "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
+    include 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
+
 
     include fileTree(include: ["*.jar"], dir: "libs")
 }
@@ -101,8 +101,10 @@ processResources {
 
 task moveResources {
     doLast {
-        ant.move file: "${buildDir}/resources/main",
-                todir: "${buildDir}/classes/java"
+        copy {
+            from "${buildDir}/resources/main"
+            into "${buildDir}/classes/java"
+        }
     }
 }
 
@@ -138,9 +140,4 @@ reobf {
 
 tasks.reobfJar.dependsOn(shadowJar)
 
-task copyZipInclude(type: Copy) {
-    from 'zip_include/'
-    into 'build/libs/zip'
-}
-
-build.dependsOn copyZipInclude
+build.dependsOn compileKotlin

@@ -19,11 +19,7 @@ public class MixinMinecraftServer {
      * @param byteBuf The ByteBuf object to be released.
      * @return The ByteBuf object after release.
      */
-    @ModifyVariable(
-            method = "addFaviconToStatusResponse",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ServerStatusResponse;setFavicon(Ljava/lang/String;)V", shift = At.Shift.AFTER),
-            ordinal = 1
-    )
+    @ModifyVariable(method = "addFaviconToStatusResponse", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/ServerStatusResponse;setFavicon(Ljava/lang/String;)V", shift = At.Shift.AFTER), ordinal = 1)
     private ByteBuf releaseFaviconByteBuf(ByteBuf byteBuf) {
         try {
             ClientUtils.INSTANCE.getLOGGER().info("Releasing favicon ByteBuf: {}", byteBuf);

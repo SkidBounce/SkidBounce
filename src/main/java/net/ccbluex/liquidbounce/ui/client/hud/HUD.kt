@@ -1,13 +1,14 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.hud
 
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.*
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Target
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -40,23 +41,19 @@ object HUD : MinecraftInstance() {
           SpeedGraph::class.java,
           Cooldown::class.java,
           BlockCounter::class.java,
-          Taco::class.java
+          Taco::class.java,
       )
 
   /** Create default HUD */
   fun setDefault() {
       elements.clear()
 
-      addElement(Text.defaultClient())
-      addElement(TabGUI())
       addElement(Arraylist())
       addElement(ScoreboardElement())
       addElement(Armor())
       addElement(Effects())
       addElement(Notifications())
       addElement(BlockCounter())
-
-    // addElement(SpeedGraph()) / not as default pls
   }
 
   /** Render all elements */

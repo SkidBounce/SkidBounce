@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
@@ -12,32 +12,22 @@ import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.enchantment.EnchantmentProtection
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.SharedMonsterAttributes
-import net.minecraft.entity.ai.attributes.BaseAttributeMap
-import net.minecraft.entity.ai.attributes.IAttribute
-import net.minecraft.entity.ai.attributes.IAttributeInstance
-import net.minecraft.entity.ai.attributes.ServersideAttributeMap
-import net.minecraft.entity.item.EntityBoat
-import net.minecraft.entity.item.EntityMinecart
+import net.minecraft.enchantment.*
+import net.minecraft.entity.*
+import net.minecraft.entity.ai.attributes.*
+import net.minecraft.entity.item.*
 import net.minecraft.entity.player.PlayerCapabilities
 import net.minecraft.init.Blocks
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.potion.Potion
-import net.minecraft.potion.PotionEffect
+import net.minecraft.potion.*
 import net.minecraft.util.*
 import net.minecraft.util.BlockPos.MutableBlockPos
 import net.minecraft.world.World
 import net.minecraft.world.biome.BiomeGenBase
 import net.minecraft.world.border.WorldBorder
-import net.minecraft.world.chunk.Chunk
-import net.minecraft.world.chunk.IChunkProvider
+import net.minecraft.world.chunk.*
 import net.minecraftforge.common.ForgeModContainer
-import kotlin.math.abs
-import kotlin.math.ceil
+import kotlin.math.*
 
 /**
  * Compatible with client user ONLY. Useful for predicting movement ticks ahead.
@@ -87,6 +77,8 @@ class SimulatedPlayer(
 ) : MinecraftInstance() {
     val pos: Vec3
         get() = Vec3(posX, posY, posZ)
+
+    var stepConfirm: () -> Unit = {}
 
     private var moveForward = 0f
     private var moveStrafing = 0f
@@ -742,6 +734,8 @@ class SimulatedPlayer(
                     velocityY = d7
                     velocityZ = d8
                     this.setEntityBoundingBox(axisalignedbb3)
+                } else {
+                    stepConfirm()
                 }
             }
             resetPositionToBB()
@@ -837,7 +831,7 @@ class SimulatedPlayer(
 
     private fun isWet(): Boolean {
         return inWater || isRainingAt(BlockPos(posX, posY, posZ))
-            || isRainingAt(BlockPos(posX, posY + this.height.toDouble(), posZ))
+                || isRainingAt(BlockPos(posX, posY + this.height.toDouble(), posZ))
     }
 
     private fun doBlockCollisions() {

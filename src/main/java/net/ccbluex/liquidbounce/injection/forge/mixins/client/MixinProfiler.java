@@ -1,12 +1,12 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.Render2DEvent;
+import net.ccbluex.liquidbounce.event.events.Render2DEvent;
 import net.ccbluex.liquidbounce.utils.ClassUtils;
 import net.minecraft.profiler.Profiler;
 import org.spongepowered.asm.mixin.Mixin;

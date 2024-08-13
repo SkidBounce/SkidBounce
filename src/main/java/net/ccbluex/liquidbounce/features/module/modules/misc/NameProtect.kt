@@ -1,51 +1,53 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.MISC
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.TextValue
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S40PacketDisconnect
-import kotlin.random.Random
 import java.util.*
+import kotlin.random.Random
 
-object NameProtect : Module("NameProtect", ModuleCategory.MISC, subjective = true, gameDetecting = false, hideModule = false) {
+object NameProtect : Module("NameProtect", MISC, subjective = true, gameDetecting = false) {
 
-    val allPlayers by BoolValue("AllPlayers", false)
+    val allPlayers by BooleanValue("AllPlayers", false)
 
-    val skinProtect by BoolValue("SkinProtect", true)
+    val skinProtect by BooleanValue("SkinProtect", true)
     private val fakeName by TextValue("FakeName", "&cMe")
 
-    private val randomNames by BoolValue("RandomNames", false) { allPlayers }
-    private val randomNameLength by BoolValue("RandomNameLength", false) { randomNames }
+    private val randomNames by BooleanValue("RandomNames", false) { allPlayers }
+    private val randomNameLength by BooleanValue("RandomNameLength", false) { randomNames }
 
-    private var nameLength by IntegerValue("NameLength", 6, 6..16) {
+    private var nameLength by IntValue("NameLength", 6, 6..16) {
         randomNames && allPlayers && !randomNameLength
     }
 
-    private val minNameLength: IntegerValue = object : IntegerValue("MinNameLength", 6, 6..16) {
-        override fun isSupported() = randomNames && randomNameLength
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxNameLength.get())
-    }
+    private val minNameLength: IntValue =
+        object : IntValue("MinNameLength", 6, 6..16) {
+            override fun isSupported() = randomNames && randomNameLength
+            override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxNameLength.get())
+        }
 
-    private val maxNameLength: IntegerValue = object : IntegerValue("MaxNameLength", 14, 6..16) {
-        override fun isSupported() = randomNames && randomNameLength
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minNameLength.get())
-    }
+    private val maxNameLength: IntValue =
+        object : IntValue("MaxNameLength", 14, 6..16) {
+            override fun isSupported() = randomNames && randomNameLength
+            override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minNameLength.get())
+        }
 
     private val playerRandomNames = mutableMapOf<UUID, Pair<String, Int>>()
-    private val characters =  ('a'..'z') + ('0'..'9') + ('A'..'Z') + "_"
+    private val characters = ('a'..'z') + ('0'..'9') + ('A'..'Z') + "_"
 
     private var savedName = -1
     private var savedMinName = -1
@@ -78,8 +80,8 @@ object NameProtect : Module("NameProtect", ModuleCategory.MISC, subjective = tru
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (mc.thePlayer == null || mc.theWorld == null)
-            return
+        mc.thePlayer ?: return
+        mc.theWorld ?: return
 
         // Check for new players
         if (packet is S01PacketJoinGame) {
@@ -132,7 +134,7 @@ object NameProtect : Module("NameProtect", ModuleCategory.MISC, subjective = tru
         val p = mc.thePlayer ?: return text
 
         // If the message includes the client name, don't change it
-        if ("§8[§9§l$CLIENT_NAME§8] §3" in text) {
+        if ("§8[§9$CLIENT_NAME§8] §r" in text) {
             return text
         }
 
@@ -172,7 +174,6 @@ object NameProtect : Module("NameProtect", ModuleCategory.MISC, subjective = tru
                         savedMinName = minNameLength.get()
                         savedMaxName = maxNameLength.get()
                     }
-
                 } else {
                     // Default
                     newText = newText.replace(playerInfo.gameProfile.name, "Protected User")

@@ -1,31 +1,31 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState.*
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
-import net.ccbluex.liquidbounce.script.api.global.Chat
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.utils.BlinkUtils
+import net.ccbluex.liquidbounce.features.module.modules.targets.Dead
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.PacketUtils.queuedPackets
 import net.ccbluex.liquidbounce.utils.RotationUtils.searchCenter
 import net.ccbluex.liquidbounce.utils.SimulatedPlayer
+import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
@@ -33,7 +33,7 @@ import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.*
 import java.awt.Color
 
-object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = false) {
+object TimerRange : Module("TimerRange", COMBAT), IBlink {
 
     private var playerTicks = 0
     private var smartTick = 0
@@ -42,7 +42,6 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
     private val packets = mutableListOf<Packet<*>>()
     private val packetsReceived = mutableListOf<Packet<*>>()
-    private var blinked = false
 
     // Condition to confirm
     private var confirmTick = false
@@ -54,7 +53,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
     private val timerBoostMode by ListValue("TimerMode", arrayOf("Normal", "Smart", "Modern"), "Modern")
 
-    private val ticksValue by IntegerValue("Ticks", 10, 1..20)
+    private val ticksValue by IntValue("Ticks", 10, 1..20)
 
     // Min & Max Boost Delay Settings
     private val timerBoostValue by FloatValue("TimerBoost", 1.5f, 0.01f..35f)
@@ -80,7 +79,11 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
     // Normal Mode Settings
     private val rangeValue by FloatValue("Range", 3.5f, 1f..5f) { timerBoostMode == "Normal" }
-    private val cooldownTickValue by IntegerValue("CooldownTick", 10, 1..50) { timerBoostMode == "Normal" }
+    private val cooldownTickValue by IntValue(
+        "CooldownTick",
+        10,
+        1..50
+    ) { timerBoostMode == "Normal" }
 
     // Smart & Modern Mode Range
     private val minRange: FloatValue = object : FloatValue("MinRange", 1f, 0.5f..8f) {
@@ -94,17 +97,19 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
     }
 
     // Min & Max Tick Delay
-    private val minTickDelay: IntegerValue = object : IntegerValue("MinTickDelay", 50, 1..500) {
-        override fun isSupported() = timerBoostMode != "Normal"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxTickDelay.get())
-    }
-    private val maxTickDelay: IntegerValue = object : IntegerValue("MaxTickDelay", 100, 1..500) {
-        override fun isSupported() = timerBoostMode != "Normal"
-        override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minTickDelay.get())
-    }
+    private val minTickDelay: IntValue =
+        object : IntValue("MinTickDelay", 50, 1..500) {
+            override fun isSupported() = timerBoostMode != "Normal"
+            override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxTickDelay.get())
+        }
+    private val maxTickDelay: IntValue =
+        object : IntValue("MaxTickDelay", 100, 1..500) {
+            override fun isSupported() = timerBoostMode != "Normal"
+            override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minTickDelay.get())
+        }
 
     // Min & Max Stop Settings
-    private val stopRange by BoolValue("StopRange", false)
+    private val stopRange by BooleanValue("StopRange", false)
     private val minStopRange: FloatValue = object : FloatValue("MinStopRange", 2f, 0.1f..4f) {
         override fun isSupported() = stopRange
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxStopRange.get())
@@ -115,25 +120,29 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
     }
 
     // Blink Option
-    private val blink by BoolValue("Blink", false)
+    private val blink by BooleanValue("Blink", false)
 
     // Prediction Settings
-    private val predictClientMovement by IntegerValue("PredictClientMovement", 2, 0..5)
-    private val predictEnemyPosition by FloatValue("PredictEnemyPosition", 1.5f, -1f..2f)
+    private val predictClientMovement by IntValue(
+        "PredictClientMovement",
+        2,
+        0..5
+    )
+    private val predictEnemyPosition by DoubleValue("PredictEnemyPosition", 1.5, -1.0..2.0)
 
-    private val maxAngleDifference by FloatValue("MaxAngleDifference", 5f, 5f..90f) { timerBoostMode == "Modern" }
+    private val maxAngleDifference by DoubleValue("MaxAngleDifference", 5.0, 5.0..90.0) { timerBoostMode == "Modern" }
 
     // Mark Option
     private val markMode by ListValue("Mark", arrayOf("Off", "Box", "Platform"), "Off") { timerBoostMode == "Modern" }
-    private val outline by BoolValue("Outline", false) { timerBoostMode == "Modern" && markMode == "Box" }
+    private val outline by BooleanValue("Outline", false) { timerBoostMode == "Modern" && markMode == "Box" }
 
     // Optional
-    private val onWeb by BoolValue("OnWeb", false)
-    private val onWater by BoolValue("OnWater", false)
-    private val resetOnlagBack by BoolValue("ResetOnLagback", false)
-    private val resetOnKnockback by BoolValue("ResetOnKnockback", false)
-    private val chatDebug by BoolValue("ChatDebug", true) { resetOnlagBack || resetOnKnockback }
-    private val notificationDebug by BoolValue("NotificationDebug", false) { resetOnlagBack || resetOnKnockback }
+    private val onWeb by BooleanValue("OnWeb", false)
+    private val onWater by BooleanValue("OnWater", false)
+    private val resetOnLagback by BooleanValue("ResetOnLagback", false)
+    private val resetOnKnockback by BooleanValue("ResetOnKnockback", false)
+    private val chatDebug by BooleanValue("ChatDebug", true) { resetOnLagback || resetOnKnockback }
+    private val notificationDebug by BooleanValue("NotificationDebug", false) { resetOnLagback || resetOnKnockback }
 
     private fun timerReset() {
         if (shouldResetTimer())
@@ -146,13 +155,12 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
     override fun onDisable() {
         timerReset()
-        BlinkUtils.unblink()
 
         smartTick = 0
         cooldownTick = 0
         playerTicks = 0
 
-        blinked = false
+        blinkingServer = false
 
         confirmTick = false
         confirmMove = false
@@ -242,7 +250,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
         }
 
         if (isPlayerMoving() && !confirmStop) {
-            if (isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) {
+            if (isLookingOnEntities(nearbyEntity, maxAngleDifference)) {
                 val entityDistance = mc.thePlayer.getDistanceToEntityBox(nearbyEntity)
                 if (confirmTick && entityDistance <= randomRange) {
                     if (updateDistance(nearbyEntity)) {
@@ -261,7 +269,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
         val player = mc.thePlayer ?: return false
 
         val (predictX, predictY, predictZ) = entity.currPos.subtract(entity.prevPos)
-            .times(2 + predictEnemyPosition.toDouble())
+            .times(2 + predictEnemyPosition)
 
         val boundingBox = entity.hitBox.offset(predictX, predictY, predictZ)
         val (currPos, oldPos) = player.currPos to player.prevPos
@@ -274,7 +282,8 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
         player.setPosAndPrevPos(simPlayer.pos)
 
-        val distance = searchCenter(boundingBox,
+        val distance = searchCenter(
+            boundingBox,
             outborder = false,
             random = false,
             gaussianOffset = false,
@@ -308,7 +317,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
             confirmStop = false
         }
 
-        if (blink && event.eventState == EventState.POST) {
+        if (blink && event.eventState == POST) {
             synchronized(packetsReceived) {
                 queuedPackets.addAll(packetsReceived)
             }
@@ -344,9 +353,8 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
         if (playerTicks <= 0 || confirmStop) {
             timerReset()
 
-            if (blink && blinked) {
-                BlinkUtils.unblink()
-                blinked = false
+            if (blink && blinkingServer) {
+                blinkingServer = false
             }
 
             return
@@ -379,7 +387,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
             if (entityDistance !in minRange.get()..maxRange.get()) return@let
 
-            val color = if (isLookingOnEntities(nearbyEntity, maxAngleDifference.toDouble())) {
+            val color = if (isLookingOnEntities(nearbyEntity, maxAngleDifference)) {
                 Color(37, 126, 255, 70)
             } else {
                 Color(210, 60, 60, 70)
@@ -441,9 +449,10 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
         val nearestEntity = getNearestEntityInRange()
 
         if (mc.thePlayer != null && (mc.thePlayer.isSpectator || mc.thePlayer.isDead
-                || mc.thePlayer.isInWater || mc.thePlayer.isInLava
-                || mc.thePlayer.isInWeb || mc.thePlayer.isOnLadder
-                || mc.thePlayer.isRiding)) {
+                    || mc.thePlayer.isInWater || mc.thePlayer.isInLava
+                    || mc.thePlayer.isInWeb || mc.thePlayer.isOnLadder
+                    || mc.thePlayer.isRiding)
+        ) {
             return true
         }
 
@@ -453,7 +462,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
 
         return nearestEntity != null &&
                 (mc.timer.timerSpeed < 1.0 || mc.timer.timerSpeed > 1.0) ||
-                (EntityUtils.targetDead && nearestEntity?.isDead == true)
+                (Dead.state && nearestEntity?.isDead == true)
     }
 
     /**
@@ -468,23 +477,22 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
             return
 
         if (blink) {
-            if (playerTicks > 0 && !blinked) {
-                BlinkUtils.blink(packet, event, sent = false, receive = true)
-                blinked = true
+            if (playerTicks > 0 && !blinkingServer) {
+                blinkingServer = true
             }
 
-            if (blink && blinked) {
+            if (blink && blinkingServer) {
                 when (packet) {
                     // Flush on doing/getting action.
                     is S08PacketPlayerPosLook, is C07PacketPlayerDigging, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
-                        BlinkUtils.unblink()
+                        release()
                         return
                     }
 
                     // Flush on explosion
                     is S27PacketExplosion -> {
                         if (packet.field_149153_g != 0f || packet.field_149152_f != 0f || packet.field_149159_h != 0f) {
-                            BlinkUtils.unblink()
+                            release()
                             return
                         }
                     }
@@ -492,7 +500,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
                     // Flush on damage
                     is S06PacketUpdateHealth -> {
                         if (packet.health < mc.thePlayer.health) {
-                            BlinkUtils.unblink()
+                            release()
                             return
                         }
                     }
@@ -503,11 +511,11 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
         if (shouldResetTimer()) {
 
             // Check for lagback
-            if (resetOnlagBack && packet is S08PacketPlayerPosLook) {
+            if (resetOnLagback && packet is S08PacketPlayerPosLook) {
                 timerReset()
 
                 if (chatDebug) {
-                    Chat.print("Lagback Received | Timer Reset")
+                    displayClientMessage("Lagback Received | Timer Reset")
                 }
                 if (notificationDebug) {
                     hud.addNotification(Notification("Lagback Received | Timer Reset", 1000F))
@@ -519,7 +527,7 @@ object TimerRange : Module("TimerRange", ModuleCategory.COMBAT, hideModule = fal
                 timerReset()
 
                 if (chatDebug) {
-                    Chat.print("Knockback Received | Timer Reset")
+                    displayClientMessage("Knockback Received | Timer Reset")
                 }
                 if (notificationDebug) {
                     hud.addNotification(Notification("Knockback Received | Timer Reset", 1000F))

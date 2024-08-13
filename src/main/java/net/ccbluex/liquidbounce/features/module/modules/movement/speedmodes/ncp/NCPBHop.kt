@@ -1,11 +1,12 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.ncp
 
-import net.ccbluex.liquidbounce.event.MoveEvent
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.MoveEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
@@ -17,6 +18,9 @@ import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+/**
+ * @author CCBlueX/LiquidBounce
+ */
 object NCPBHop : SpeedMode("NCPBHop") {
     private var level = 1
     private var moveSpeed = 0.2873
@@ -24,16 +28,20 @@ object NCPBHop : SpeedMode("NCPBHop") {
     private var timerDelay = 0
     override fun onEnable() {
         mc.timer.timerSpeed = 1f
-        level = if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, mc.thePlayer.motionY, 0.0)).size > 0 || mc.thePlayer.isCollidedVertically) 1 else 4
+        level =
+            if (mc.theWorld.getCollidingBoundingBoxes(
+                    mc.thePlayer,
+                    mc.thePlayer.entityBoundingBox.offset(0.0, mc.thePlayer.motionY, 0.0)
+                ).size > 0 || mc.thePlayer.isCollidedVertically
+            ) 1 else 4
     }
 
     override fun onDisable() {
-        mc.timer.timerSpeed = 1f
         moveSpeed = baseMoveSpeed
         level = 0
     }
 
-    override fun onMotion() {
+    override fun onMotion(event: MotionEvent) {
         val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
         val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)
@@ -75,7 +83,15 @@ object NCPBHop : SpeedMode("NCPBHop") {
             val difference = 0.66 * (lastDist - baseMoveSpeed)
             moveSpeed = lastDist - difference
         } else {
-            if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, mc.thePlayer.motionY, 0.0)).isNotEmpty() || mc.thePlayer.isCollidedVertically) level = 1
+            if (mc.theWorld.getCollidingBoundingBoxes(
+                    mc.thePlayer,
+                    mc.thePlayer.entityBoundingBox.offset(
+                        0.0,
+                        mc.thePlayer.motionY,
+                        0.0
+                    )
+                ).isNotEmpty() || mc.thePlayer.isCollidedVertically
+            ) level = 1
             moveSpeed = lastDist - lastDist / 159.0
         }
         moveSpeed = max(moveSpeed, baseMoveSpeed)
@@ -112,7 +128,8 @@ object NCPBHop : SpeedMode("NCPBHop") {
         get() {
             var baseSpeed = 0.2873
             if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.thePlayer.getActivePotionEffect(
-                Potion.moveSpeed)).amplifier + 1
+                Potion.moveSpeed
+            )).amplifier + 1
             return baseSpeed
         }
 

@@ -1,15 +1,18 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.ClickBlockEvent
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.TickEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.WORLD
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.RotationUtils.limitAngleChange
@@ -17,27 +20,27 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.extensions.rotation
+import net.ccbluex.liquidbounce.utils.extensions.swing
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.SwingValue
 import net.minecraft.init.Blocks.air
 import net.minecraft.init.Blocks.bedrock
 import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.START_DESTROY_BLOCK
-import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK
-import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.*
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.awt.Color
 
-object CivBreak : Module("CivBreak", ModuleCategory.WORLD) {
+object CivBreak : Module("CivBreak", WORLD) {
 
     private val range by FloatValue("Range", 5F, 1F..6F)
-    private val visualSwing by BoolValue("VisualSwing", true, subjective = false)
+    private val swing by SwingValue()
 
-    private val rotations by BoolValue("Rotations", true)
+    private val rotations by BooleanValue("Rotations", true)
     private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { rotations }
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { rotations }
 
@@ -51,10 +54,11 @@ object CivBreak : Module("CivBreak", ModuleCategory.WORLD) {
     private val minTurnSpeed by object : FloatValue("MinTurnSpeed", 80f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxTurnSpeed)
 
-        override fun isSupported() = !maxTurnSpeedValue.isMinimal() && rotations
+        override fun isSupported() = !maxTurnSpeedValue.isMinimal && rotations
     }
 
     private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { rotations }
+    private val grim by BooleanValue("Grim", false)
 
     private var blockPos: BlockPos? = null
     private var enumFacing: EnumFacing? = null
@@ -69,10 +73,9 @@ object CivBreak : Module("CivBreak", ModuleCategory.WORLD) {
         enumFacing = event.enumFacing ?: return
 
         // Break
-        sendPackets(
-            C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, enumFacing),
-            C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, enumFacing)
-        )
+        sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, enumFacing))
+        if (grim) sendPacket(C07PacketPlayerDigging(ABORT_DESTROY_BLOCK, blockPos!!.down(Int.MIN_VALUE), enumFacing))
+        sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, enumFacing))
     }
 
     @EventTarget
@@ -117,17 +120,11 @@ object CivBreak : Module("CivBreak", ModuleCategory.WORLD) {
         blockPos ?: return
         enumFacing ?: return
 
-        if (visualSwing) {
-            mc.thePlayer.swingItem()
-        } else {
-            sendPacket(C0APacketAnimation())
-        }
+        mc.thePlayer.swing(swing)
 
         // Break
-        sendPackets(
-            C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, enumFacing),
-            C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, enumFacing)
-        )
+        if (!grim) sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, blockPos, enumFacing))
+        sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, blockPos, enumFacing))
 
         mc.playerController.clickBlock(blockPos, enumFacing)
     }

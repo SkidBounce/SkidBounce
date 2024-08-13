@@ -1,42 +1,42 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.minecraft.potion.PotionEffect
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.PLAYER
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.potion.Potion.*
+import net.minecraft.potion.PotionEffect
 
-object PotionSpoof : Module("PotionSpoof", ModuleCategory.PLAYER, hideModule = false) {
+object PotionSpoof : Module("PotionSpoof", PLAYER) {
 
-    private val level by object : IntegerValue("PotionLevel", 2, 1..5) {
+    private val level by object : IntValue("PotionLevel", 2, 1..5) {
         override fun onChanged(oldValue: Int, newValue: Int) = onDisable()
     }
 
-    private val speedValue = BoolValue("Speed", false)
-    private val moveSlowDownValue = BoolValue("Slowness", false)
-    private val hasteValue = BoolValue("Haste", false)
-    private val digSlowDownValue = BoolValue("MiningFatigue", false)
-    private val blindnessValue = BoolValue("Blindness", false)
-    private val strengthValue = BoolValue("Strength", false)
-    private val jumpBoostValue = BoolValue("JumpBoost", false)
-    private val weaknessValue = BoolValue("Weakness", false)
-    private val regenerationValue = BoolValue("Regeneration", false)
-    private val witherValue = BoolValue("Wither", false)
-    private val resistanceValue = BoolValue("Resistance", false)
-    private val fireResistanceValue = BoolValue("FireResistance", false)
-    private val absorptionValue = BoolValue("Absorption", false)
-    private val healthBoostValue = BoolValue("HealthBoost", false)
-    private val poisonValue = BoolValue("Poison", false)
-    private val saturationValue = BoolValue("Saturation", false)
-    private val waterBreathingValue = BoolValue("WaterBreathing", false)
+    private val speedValue = BooleanValue("Speed", false)
+    private val moveSlowDownValue = BooleanValue("Slowness", false)
+    private val hasteValue = BooleanValue("Haste", false)
+    private val digSlowDownValue = BooleanValue("MiningFatigue", false)
+    private val blindnessValue = BooleanValue("Blindness", false)
+    private val strengthValue = BooleanValue("Strength", false)
+    private val jumpBoostValue = BooleanValue("JumpBoost", false)
+    private val weaknessValue = BooleanValue("Weakness", false)
+    private val regenerationValue = BooleanValue("Regeneration", false)
+    private val witherValue = BooleanValue("Wither", false)
+    private val resistanceValue = BooleanValue("Resistance", false)
+    private val fireResistanceValue = BooleanValue("FireResistance", false)
+    private val absorptionValue = BooleanValue("Absorption", false)
+    private val healthBoostValue = BooleanValue("HealthBoost", false)
+    private val poisonValue = BooleanValue("Poison", false)
+    private val saturationValue = BooleanValue("Saturation", false)
+    private val waterBreathingValue = BooleanValue("WaterBreathing", false)
 
     private val potionMap = mapOf(
         moveSpeed.id to speedValue,

@@ -1,17 +1,17 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animations
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.defaultAnimation
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.client.entity.AbstractClientPlayer
 import net.minecraft.client.renderer.GlStateManager.*
@@ -37,7 +37,7 @@ import org.lwjgl.opengl.GL11.glTranslatef
  *
  * @author CCBlueX
  */
-object Animations : Module("Animations", ModuleCategory.RENDER, gameDetecting = false, hideModule = false) {
+object Animations : Module("Animations", RENDER, gameDetecting = false) {
 
     // Default animation
     val defaultAnimation = OneSevenAnimation()
@@ -46,12 +46,11 @@ object Animations : Module("Animations", ModuleCategory.RENDER, gameDetecting = 
         OneSevenAnimation(),
         PushdownAnimation(),
         OldAnimation()
-    )
+    ).sortedBy { it.name }
 
     private val animationMode by ListValue("Mode", animations.map { it.name }.toTypedArray(), "Pushdown")
-    val oddSwing by BoolValue("OddSwing", false)
-    val swingSpeed by IntegerValue("SwingSpeed", 15, 0..20)
-
+    val oddSwing by BooleanValue("OddSwing", false)
+    val swingSpeed by IntValue("SwingSpeed", 15, 0..20)
 
     fun getAnimation() = animations.firstOrNull { it.name == animationMode }
 

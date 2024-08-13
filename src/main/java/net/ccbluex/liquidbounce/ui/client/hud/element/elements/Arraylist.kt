@@ -1,30 +1,22 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.modules.misc.GameDetector
+import net.ccbluex.liquidbounce.features.module.modules.client.GameDetector
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
-import net.ccbluex.liquidbounce.ui.client.hud.element.Border
-import net.ccbluex.liquidbounce.ui.client.hud.element.Element
-import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
-import net.ccbluex.liquidbounce.ui.client.hud.element.Side
-import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
-import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
-import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.client.hud.element.*
+import net.ccbluex.liquidbounce.ui.client.hud.element.Side.*
+import net.ccbluex.liquidbounce.ui.font.*
 import net.ccbluex.liquidbounce.utils.render.AnimationUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.animation.AnimationUtil
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientFontShader
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.GradientShader
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowFontShader
-import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
+import net.ccbluex.liquidbounce.utils.render.shader.shaders.*
 import net.ccbluex.liquidbounce.value.*
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
@@ -40,10 +32,10 @@ class Arraylist(
     side: Side = Side(Horizontal.RIGHT, Vertical.UP)
 ) : Element(x, y, scale, side) {
 
-    private val textColorMode by ListValue("Text-Color", arrayOf("Custom", "Random", "Rainbow", "Gradient"), "Custom")
-    private val textRed by IntegerValue("Text-R", 0, 0..255) { textColorMode == "Custom" }
-    private val textGreen by IntegerValue("Text-G", 111, 0..255) { textColorMode == "Custom" }
-    private val textBlue by IntegerValue("Text-B", 255, 0..255) { textColorMode == "Custom" }
+    private val textColorMode by ListValue("Text-Color", arrayOf("Custom", "Random", "Rainbow", "Gradient"), "Rainbow")
+    private val textRed by IntValue("Text-R", 0, 0..255) { textColorMode == "Custom" }
+    private val textGreen by IntValue("Text-G", 111, 0..255) { textColorMode == "Custom" }
+    private val textBlue by IntValue("Text-B", 255, 0..255) { textColorMode == "Custom" }
 
     // TODO: Make Color picker to fix this mess :/
     private val gradientTextRed1 by FloatValue("Text-Gradient-R1", 255f, 0f..255f) { textColorMode == "Gradient" }
@@ -64,16 +56,12 @@ class Arraylist(
 
     private val rectMode by ListValue("Rect", arrayOf("None", "Left", "Right"), "None")
     private val roundedRectRadius by FloatValue("RoundedRect-Radius", 0F, 0F..2F)
-    private val rectColorMode by ListValue(
-        "Rect-Color",
-        arrayOf("Custom", "Random", "Rainbow", "Gradient"),
-        "Rainbow"
-    ) { rectMode != "None" }
+    private val rectColorMode by ListValue("Rect-Color", arrayOf("Custom", "Random", "Rainbow", "Gradient"), "Rainbow") { rectMode != "None" }
     private val isCustomRectSupported = { rectMode != "None" && rectColorMode == "Custom" }
-    private val rectRed by IntegerValue("Rect-R", 255, 0..255, isSupported = isCustomRectSupported)
-    private val rectGreen by IntegerValue("Rect-G", 255, 0..255, isSupported = isCustomRectSupported)
-    private val rectBlue by IntegerValue("Rect-B", 255, 0..255, isSupported = isCustomRectSupported)
-    private val rectAlpha by IntegerValue("Rect-Alpha", 255, 0..255, isSupported = isCustomRectSupported)
+    private val rectRed by IntValue("Rect-R", 255, 0..255, isSupported = isCustomRectSupported)
+    private val rectGreen by IntValue("Rect-G", 255, 0..255, isSupported = isCustomRectSupported)
+    private val rectBlue by IntValue("Rect-B", 255, 0..255, isSupported = isCustomRectSupported)
+    private val rectAlpha by IntValue("Rect-Alpha", 255, 0..255, isSupported = isCustomRectSupported)
 
     // TODO: Make Color picker to fix this mess :/
     private val gradientRectRed1 by FloatValue("Rect-Gradient-R1", 255f, 0f..255f) { rectColorMode == "Gradient" }
@@ -94,10 +82,10 @@ class Arraylist(
 
     private val roundedBackgroundRadius by FloatValue("RoundedBackGround-Radius", 0F, 0F..5F)
     private val backgroundMode by ListValue("Background-Color", arrayOf("Custom", "Random", "Rainbow", "Gradient"), "Custom")
-    private val backgroundRed by IntegerValue("Background-R", 0, 0..255) { backgroundMode == "Custom" }
-    private val backgroundGreen by IntegerValue("Background-G", 0, 0..255) { backgroundMode == "Custom" }
-    private val backgroundBlue by IntegerValue("Background-B", 0, 0..255) { backgroundMode == "Custom" }
-    private val backgroundAlpha by IntegerValue("Background-Alpha", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundRed by IntValue("Background-R", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundGreen by IntValue("Background-G", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundBlue by IntValue("Background-B", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundAlpha by IntValue("Background-Alpha", 127, 0..255) { backgroundMode == "Custom" }
 
     // TODO: Make Color picker to fix this mess :/
     private val gradientBackgroundRed1 by FloatValue("Background-Gradient-R1", 255f, 0f..255f) { backgroundMode == "Gradient" }
@@ -125,7 +113,7 @@ class Arraylist(
     private val gradientX by FloatValue("Gradient-X", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
     private val gradientY by FloatValue("Gradient-Y", -1000F, -2000F..2000F) { isColorModeUsed("Gradient") }
 
-    private val tags by BoolValue("Tags", true)
+    private val tags by BooleanValue("Tags", true)
     private val tagsStyle by object : ListValue("TagsStyle", arrayOf("[]", "()", "<>", "-", "|", "Space"), "Space") {
         override fun isSupported() = tags
 
@@ -133,13 +121,13 @@ class Arraylist(
         override fun onUpdate(value: String) = updateTagDetails()
     }
     private val tagsCase by ListValue("TagsCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal") { tags }
-    private val tagsArrayColor by object : BoolValue("TagsArrayColor", false) {
+    private val tagsArrayColor by object : BooleanValue("TagsArrayColor", false) {
         override fun isSupported() = tags
         override fun onUpdate(value: Boolean) = updateTagDetails()
     }
 
-    private val font by FontValue("Font", Fonts.font40)
-    private val textShadow by BoolValue("ShadowText", true)
+    private val font by FontValue("Font", Fonts.minecraftFont)
+    private val textShadow by BooleanValue("ShadowText", true)
     private val moduleCase by ListValue("ModuleCase", arrayOf("Normal", "Uppercase", "Lowercase"), "Normal")
     private val space by FloatValue("Space", 0F, 0F..5F)
     private val textHeight by FloatValue("TextHeight", 11F, 1F..20F)
@@ -149,7 +137,7 @@ class Arraylist(
     private val animationSpeed by FloatValue("AnimationSpeed", 0.2F, 0.01F..1F) { animation == "Smooth" }
 
     companion object {
-        val spacedModules by BoolValue("SpacedModules", false)
+        val spacedModules by BooleanValue("SpacedModules", false)
         val inactiveStyle by ListValue("InactiveModulesStyle", arrayOf("Normal", "Color", "Hide"), "Color")
         { GameDetector.state }
     }
@@ -240,6 +228,7 @@ class Arraylist(
                 }
             }
         }
+
         // Draw arraylist
         val textCustomColor = Color(textRed, textGreen, textBlue, 1).rgb
         val rectCustomColor = Color(rectRed, rectGreen, rectBlue, rectAlpha).rgb
@@ -261,6 +250,7 @@ class Arraylist(
                 module.yAnim = AnimationUtil.base(module.yAnim.toDouble(), yPos.toDouble(), 0.2).toFloat()
                 yPos = module.yAnim
             }
+
             val moduleColor = Color.getHSBColor(module.hue, saturation, brightness).rgb
 
             val markAsInactive = inactiveStyle == "Color" && !module.isActive
@@ -625,7 +615,6 @@ class Arraylist(
             }
         }
 
-
         // Draw border
         if (mc.currentScreen is GuiHudDesigner) {
             x2 = Int.MIN_VALUE
@@ -663,7 +652,7 @@ class Arraylist(
 
     override fun updateElement() {
         modules = moduleManager.modules
-            .filter { it.inArray && it.slide > 0 && !it.hideModuleValues.get()}
+            .filter { it.inArray && it.slide > 0 }
             .sortedBy { -font.getStringWidth(getDisplayString(it)) }
     }
 }

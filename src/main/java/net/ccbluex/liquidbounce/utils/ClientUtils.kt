@@ -1,21 +1,21 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
 import com.google.gson.JsonObject
+import net.ccbluex.liquidbounce.LiquidBounce
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
+import net.minecraft.client.gui.GuiNewChat
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.login.client.C01PacketEncryptionResponse
 import net.minecraft.network.login.server.S01PacketEncryptionRequest
-import net.minecraft.util.IChatComponent
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
+import net.minecraft.util.*
+import net.minecraftforge.fml.relauncher.*
+import org.apache.logging.log4j.*
 import java.lang.reflect.Field
 import java.security.PublicKey
 import javax.crypto.SecretKey
@@ -33,7 +33,7 @@ object ClientUtils : MinecraftInstance() {
         } catch (ignored: NoSuchFieldException) { }
     }
 
-    val LOGGER: Logger = LogManager.getLogger("LiquidBounce")
+    val LOGGER: Logger = LogManager.getLogger("SkidBounce")
 
     fun disableFastRender() {
         try {
@@ -43,30 +43,33 @@ object ClientUtils : MinecraftInstance() {
 
                 it.setBoolean(mc.gameSettings, false)
             }
-        } catch (ignored: IllegalAccessException) {
-        }
+        } catch (ignored: IllegalAccessException) {}
     }
 
     fun sendEncryption(
         networkManager: NetworkManager,
         secretKey: SecretKey?,
         publicKey: PublicKey?,
-        encryptionRequest: S01PacketEncryptionRequest
+        encryptionRequest: S01PacketEncryptionRequest,
     ) {
         networkManager.sendPacket(C01PacketEncryptionResponse(secretKey, publicKey, encryptionRequest.verifyToken),
             { networkManager.enableEncryption(secretKey) }
         )
     }
 
-    fun displayChatMessage(message: String) {
-        if (mc.thePlayer == null) {
-            LOGGER.info("(MCChat) $message")
-            return
-        }
-
-        val prefixMessage = "§8[§9§l$CLIENT_NAME§8]§r $message"
+    @JvmStatic
+    fun displayChatMessage(message: Any? = "") {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("text", prefixMessage)
-        mc.thePlayer.addChatMessage(IChatComponent.Serializer.jsonToComponent(jsonObject.toString()))
+        jsonObject.addProperty("text", message.toString())
+        val chatComponent = IChatComponent.Serializer.jsonToComponent(jsonObject.toString())
+        try {
+            mc.ingameGUI.chatGUI.printChatMessage(chatComponent)
+        } catch (e: Throwable) {
+            LOGGER.error(e)
+        }
     }
+    @JvmStatic
+    fun displayClientMessage(message: Any? = "") = displayChatMessage("§8[§9$CLIENT_NAME§8] §r$message")
+
+    fun resource(directory: String) = ResourceLocation("${CLIENT_NAME.lowercase()}/$directory")
 }

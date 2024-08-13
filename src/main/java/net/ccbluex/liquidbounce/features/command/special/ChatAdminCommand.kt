@@ -1,7 +1,12 @@
+/*
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
+ */
 package net.ccbluex.liquidbounce.features.command.special
 
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.features.module.modules.misc.LiquidChat
+import net.ccbluex.liquidbounce.features.module.modules.client.LiquidChat
 
 object ChatAdminCommand : Command("chatadmin") {
 

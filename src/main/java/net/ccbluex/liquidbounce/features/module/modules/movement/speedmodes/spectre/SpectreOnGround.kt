@@ -1,18 +1,21 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.spectre
 
-import net.ccbluex.liquidbounce.event.MoveEvent
+import net.ccbluex.liquidbounce.event.events.MoveEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import kotlin.math.cos
 import kotlin.math.sin
 
-object SpectreOnGround : SpeedMode("SpectreOnGround") {
+/**
+ * @author CCBlueX/LiquidBounce
+ */
+object SpectreOnGround : SpeedMode("SpectreOnGround", true) {
     private var speedUp = 0
     override fun onMove(event: MoveEvent) {
         if (!isMoving || mc.thePlayer.movementInput.jump) return

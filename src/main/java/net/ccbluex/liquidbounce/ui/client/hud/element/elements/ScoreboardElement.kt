@@ -1,14 +1,13 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_WEBSITE
 import net.ccbluex.liquidbounce.features.module.modules.render.NoScoreboard
-import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
@@ -22,7 +21,6 @@ import net.ccbluex.liquidbounce.value.*
 import net.minecraft.scoreboard.ScoreObjective
 import net.minecraft.scoreboard.ScorePlayerTeam
 import net.minecraft.util.EnumChatFormatting
-import org.apache.commons.lang3.StringUtils
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 
@@ -35,26 +33,26 @@ import java.awt.Color
 class ScoreboardElement(x: Double = 5.0, y: Double = 0.0, scale: Float = 1F,
                         side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.MIDDLE)) : Element(x, y, scale, side) {
 
-    private val textRed by IntegerValue("Text-R", 255, 0..255)
-    private val textGreen by IntegerValue("Text-G", 255, 0..255)
-    private val textBlue by IntegerValue("Text-B", 255, 0..255)
+    private val textRed by IntValue("Text-R", 255, 0..255)
+    private val textGreen by IntValue("Text-G", 255, 0..255)
+    private val textBlue by IntValue("Text-B", 255, 0..255)
 
-    private val backgroundColorRed by IntegerValue("Background-R", 0, 0..255)
-    private val backgroundColorGreen by IntegerValue("Background-G", 0, 0..255)
-    private val backgroundColorBlue by IntegerValue("Background-B", 0, 0..255)
-    private val backgroundColorAlpha by IntegerValue("Background-Alpha", 95, 0..255)
+    private val backgroundColorRed by IntValue("Background-R", 0, 0..255)
+    private val backgroundColorGreen by IntValue("Background-G", 0, 0..255)
+    private val backgroundColorBlue by IntValue("Background-B", 0, 0..255)
+    private val backgroundColorAlpha by IntValue("Background-Alpha", 95, 0..255)
 
     private val roundedRectRadius by FloatValue("Rounded-Radius", 3F, 0F..5F)
 
-    private val rect by BoolValue("Rect", false)
+    private val rect by BooleanValue("Rect", false)
         private val rectColorMode by ListValue("Rect-Color", arrayOf("Custom", "Rainbow"), "Custom") { rect }
-            private val rectColorRed by IntegerValue("Rect-R", 0, 0..255) { rect && rectColorMode == "Custom"}
-            private val rectColorGreen by IntegerValue("Rect-G", 111, 0..255) { rect && rectColorMode == "Custom"}
-            private val rectColorBlue by IntegerValue("Rect-B", 255, 0..255) { rect && rectColorMode == "Custom"}
-            private val rectColorAlpha by IntegerValue("Rect-Alpha", 255, 0..255) { rect && rectColorMode == "Custom"}
+            private val rectColorRed by IntValue("Rect-R", 0, 0..255) { rect && rectColorMode == "Custom"}
+            private val rectColorGreen by IntValue("Rect-G", 111, 0..255) { rect && rectColorMode == "Custom"}
+            private val rectColorBlue by IntValue("Rect-B", 255, 0..255) { rect && rectColorMode == "Custom"}
+            private val rectColorAlpha by IntValue("Rect-Alpha", 255, 0..255) { rect && rectColorMode == "Custom"}
 
     private val serverIp by ListValue("ServerIP", arrayOf("Normal", "None", "Client", "Website"), "Normal")
-    private val shadow by BoolValue("Shadow", false)
+    private val shadow by BooleanValue("Shadow", false)
     private val font by FontValue("Font", Fonts.minecraftFont)
 
     /**

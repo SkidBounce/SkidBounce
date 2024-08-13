@@ -1,11 +1,11 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles
 
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.scale
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledCircle
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRectNewInt
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRectNewInt 
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.StringUtils
@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 @SideOnly(Side.CLIENT)
 object SlowlyStyle : Style() {
@@ -59,7 +60,7 @@ object SlowlyStyle : Style() {
     }
 
     override fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement) {
-        drawRectNewInt(buttonElement.x - 1, buttonElement.y - 1, buttonElement.x + buttonElement.width + 1, buttonElement.y + buttonElement.height + 1,
+        drawRectNewInt (buttonElement.x - 1, buttonElement.y - 1, buttonElement.x + buttonElement.width + 1, buttonElement.y + buttonElement.height + 1,
             getHoverColor(
                 if (buttonElement.color != Int.MAX_VALUE) Color(7, 152, 252) else Color(54, 71, 96),
                 buttonElement.hoverTime
@@ -70,10 +71,10 @@ object SlowlyStyle : Style() {
     }
 
     override fun drawModuleElementAndClick(mouseX: Int, mouseY: Int, moduleElement: ModuleElement, mouseButton: Int?): Boolean {
-        drawRectNewInt(moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1,
+        drawRectNewInt (moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1,
             getHoverColor(Color(54, 71, 96), moduleElement.hoverTime)
         )
-        drawRectNewInt(moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1,
+        drawRectNewInt (moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1,
             getHoverColor(Color(7, 152, 252, moduleElement.slowlyFade), moduleElement.hoverTime, !moduleElement.module.isActive)
         )
 
@@ -103,7 +104,7 @@ object SlowlyStyle : Style() {
                     assumeNonVolatile = value.get() is Number
 
                     when (value) {
-                        is BoolValue -> {
+                        is BooleanValue -> {
                             val text = value.name
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
@@ -169,8 +170,11 @@ object SlowlyStyle : Style() {
                                 yPos += 1
                             }
                         }
-                        is FloatValue -> {
-                            val text = value.name + "§f: " + round(value.get())
+                        is FloatValue, is DoubleValue -> {
+                            if (value !is NumberValue || value.maximum !is Number || value.minimum !is Number)
+                                throw AssertionError()
+
+                            val text = value.name + "§f: " + round(value.get() as Number)
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
@@ -179,15 +183,15 @@ object SlowlyStyle : Style() {
                             val width = moduleElement.settingsWidth - 12
                             val color = Color(7, 152, 252)
 
-                            val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = (x + width * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
+                            val displayValue = (value.get() as Number).toDouble().coerceIn(value.range as ClosedRange<Double>)
+                            val sliderValue = (x + width * (displayValue - value.minimum.toDouble()) / (value.maximum.toDouble() - value.minimum.toDouble())).roundToInt()
 
                             if ((mouseButton == 0 || sliderValueHeld == value)
                                 && mouseX in x..x + width
                                 && mouseY in y - 2..y + 5
                             ) {
                                 val percentage = (mouseX - x) / width.toFloat()
-                                value.set(round(value.minimum + (value.maximum - value.minimum) * percentage).coerceIn(value.range))
+                                value.set(round(value.minimum.toDouble() + (value.maximum.toDouble() - value.minimum.toDouble()) * percentage).coerceIn(value.range as ClosedFloatingPointRange<Double>))
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -196,15 +200,18 @@ object SlowlyStyle : Style() {
                                 if (mouseButton == 0) return true
                             }
 
-                            drawRectNewInt(x, y, x + width, y + 2, Int.MAX_VALUE)
-                            drawRectNewInt(x, y, sliderValue, y + 2, color.rgb)
+                            drawRectNewInt (x, y, x + width, y + 2, Int.MAX_VALUE)
+                            drawRectNewInt (x, y, sliderValue, y + 2, color.rgb)
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
                             font35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)
 
                             yPos += 19
                         }
-                        is IntegerValue -> {
+                        is IntValue, is ShortValue, is ByteValue, is LongValue -> {
+                            if (value !is NumberValue || value.maximum !is Number || value.minimum !is Number)
+                                throw AssertionError()
+
                             val text = value.name + "§f: " + if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get()
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
@@ -214,15 +221,16 @@ object SlowlyStyle : Style() {
                             val width = moduleElement.settingsWidth - 12
                             val color = Color(7, 152, 252)
 
-                            val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = x + width * (displayValue - value.minimum) / (value.maximum - value.minimum)
+
+                            val displayValue = (value.get() as Number).toLong().coerceIn(value.range as ClosedRange<Long>)
+                            val sliderValue = (x + width * (displayValue - value.minimum.toLong()) / (value.maximum.toLong() - value.minimum.toLong())).toInt()
 
                             if ((mouseButton == 0 || sliderValueHeld == value)
                                 && mouseX in x..x + width
                                 && mouseY in y - 2..y + 5
                             ) {
                                 val percentage = (mouseX - x) / width.toFloat()
-                                value.set((value.minimum + (value.maximum - value.minimum) * percentage).roundToInt().coerceIn(value.range))
+                                value.set((value.minimum.toLong() + (value.maximum.toLong() - value.minimum.toLong()) * percentage).roundToLong().coerceIn(value.range).toInt())
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -231,8 +239,8 @@ object SlowlyStyle : Style() {
                                 if (mouseButton == 0) return true
                             }
 
-                            drawRectNewInt(x, y, x + width, y + 2, Int.MAX_VALUE)
-                            drawRectNewInt(x, y, sliderValue, y + 2, color.rgb)
+                            drawRectNewInt (x, y, x + width, y + 2, Int.MAX_VALUE)
+                            drawRectNewInt (x, y, sliderValue, y + 2, color.rgb)
                             drawFilledCircle(sliderValue, y + 1, 3f, color)
 
                             font35.drawString(text, minX + 2, yPos + 3, Color.WHITE.rgb)

@@ -1,19 +1,18 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.StrafeEvent
+import net.ccbluex.liquidbounce.event.events.StrafeEvent
 import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedAngleDelta
 import net.ccbluex.liquidbounce.utils.RotationUtils.getFixedSensitivityAngle
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
-import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.ccbluex.liquidbounce.utils.extensions.toRadians
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.MathHelper
-import net.minecraft.util.Vec3
+import net.minecraft.util.MathHelper.cos
+import net.minecraft.util.MathHelper.sin
 import kotlin.math.*
 
 /**
@@ -75,8 +74,8 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
             val modifiedStrafe = ceil(abs(strafe)) * strafe.sign
 
             // Remake the rotation-based input using the modified inputs
-            calcForward = round(modifiedForward * MathHelper.cos(diff) + modifiedStrafe * MathHelper.sin(diff))
-            calcStrafe = round(modifiedStrafe * MathHelper.cos(diff) - modifiedForward * MathHelper.sin(diff))
+            calcForward = round(modifiedForward * cos(diff) + modifiedStrafe * sin(diff))
+            calcStrafe = round(modifiedStrafe * cos(diff) - modifiedForward * sin(diff))
 
             // Was the user sneaking? Blocking? Both? Neither?
             val f = if (event.forward != 0f) event.forward else event.strafe
@@ -98,21 +97,11 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
             calcForward *= d
 
             val yawRad = yaw.toRadians()
-            val yawSin = MathHelper.sin(yawRad)
-            val yawCos = MathHelper.cos(yawRad)
+            val yawSin = sin(yawRad)
+            val yawCos = cos(yawRad)
 
             player.motionX += calcStrafe * yawCos - calcForward * yawSin
             player.motionZ += calcForward * yawCos + calcStrafe * yawSin
         }
     }
 }
-
-/**
- * Rotation with vector
- */
-data class VecRotation(val vec: Vec3, val rotation: Rotation)
-
-/**
- * Rotation with place info
- */
-data class PlaceRotation(val placeInfo: PlaceInfo, val rotation: Rotation)

@@ -1,21 +1,17 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
-import net.ccbluex.liquidbounce.api.ClientApi
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.file.FileManager
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
 import net.ccbluex.liquidbounce.value.*
 import org.lwjgl.input.Keyboard
-import kotlin.reflect.KMutableProperty0
 
 /**
  * Utility class for handling settings and scripts in LiquidBounce.
@@ -35,110 +31,39 @@ object SettingsUtils {
             val args = s.split(" ").toTypedArray()
 
             if (args.size <= 1) {
-                displayChatMessage("§7[§3§lAutoSettings§7] §cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
+                displayClientMessage("§cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
                 return@forEachIndexed
             }
 
-            when (args[0]) {
-                "chat" -> displayChatMessage(
-                    "§e${
-                        translateAlternateColorCodes(
-                            StringUtils.toCompleteString(
-                                args,
-                                1
-                            )
-                        )
-                    }"
-                )
+            if (args.size < 3) {
+                displayClientMessage("§cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
+                return@forEachIndexed
+            }
 
-                "unchat" -> displayChatMessage(
-                    translateAlternateColorCodes(
-                        StringUtils.toCompleteString(
-                            args,
-                            1
-                        )
-                    )
-                )
+            val moduleName = args[0]
+            val valueName = args[1]
+            val value = args[2]
+            val module = moduleManager[moduleName]
 
-                "load" -> {
-                    val url = StringUtils.toCompleteString(args, 1)
-                    runCatching {
-                        val settings = if (url.startsWith("http")) {
-                            val (text, code) = HttpUtils.get(url)
+            if (module == null) {
+                displayClientMessage("§cModule §a$moduleName§c does not exist!")
+                return@forEachIndexed
+            }
 
-                            if (code != 200) {
-                                error(text)
-                            }
-
-                            text
-                        } else {
-                            ClientApi.requestSettingsScript(url)
-                        }
-
-                        applyScript(settings)
-                    }.onSuccess {
-                        displayChatMessage("§7[§3§lAutoSettings§7] §7Loaded settings §a§l$url§7.")
-                    }.onFailure {
-                        displayChatMessage("§7[§3§lAutoSettings§7] §7Failed to load settings §a§l$url§7.")
-                    }
-                }
-
-                "targetPlayer", "targetPlayers" -> setTargetSetting(EntityUtils::targetPlayer, args)
-                "targetMobs" -> setTargetSetting(EntityUtils::targetMobs, args)
-                "targetAnimals" -> setTargetSetting(EntityUtils::targetAnimals, args)
-                "targetInvisible" -> setTargetSetting(EntityUtils::targetInvisible, args)
-                "targetDead" -> setTargetSetting(EntityUtils::targetDead, args)
-
-                else -> {
-                    if (args.size < 3) {
-                        displayChatMessage("§7[§3§lAutoSettings§7] §cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
-                        return@forEachIndexed
-                    }
-
-                    val moduleName = args[0]
-                    val valueName = args[1]
-                    val value = args[2]
-                    val module = moduleManager[moduleName]
-
-                    if (module == null) {
-                        displayChatMessage("§7[§3§lAutoSettings§7] §cModule §a§l$moduleName§c does not exist!")
-                        return@forEachIndexed
-                    }
-
-                    when (valueName) {
-                        "toggle" -> setToggle(module, value)
-                        "bind" -> setBind(module, value)
-                        else -> setValue(module, valueName, value, args)
-                    }
-                }
+            when (valueName) {
+                "toggle" -> setToggle(module, value)
+                "bind" -> setBind(module, value)
+                else -> setValue(module, valueName, value, args)
             }
         }
 
         FileManager.saveConfig(FileManager.valuesConfig)
     }
-
-    // Utility functions for setting target settings
-    private fun setTargetSetting(setting: KMutableProperty0<Boolean>, args: Array<String>) {
-        setting.set(args[1].equals("true", ignoreCase = true))
-        displayChatMessage("§7[§3§lAutoSettings§7] §a§l${args[0]}§7 set to §c§l${args[1]}§7.")
-    }
-
-    // Utility functions for setting toggles
     private fun setToggle(module: Module, value: String) {
         module.state = value.equals("true", ignoreCase = true)
-        displayChatMessage("§7[§3§lAutoSettings§7] §a§l${module.getName()} §7was toggled §c§l${if (module.state) "on" else "off"}§7.")
     }
-
-    // Utility functions for setting binds
     private fun setBind(module: Module, value: String) {
         module.keyBind = Keyboard.getKeyIndex(value)
-        displayChatMessage(
-            "§7[§3§lAutoSettings§7] §a§l${module.getName()} §7was bound to §c§l${
-                Keyboard.getKeyName(
-                    module.keyBind
-                )
-            }§7."
-        )
     }
 
     // Utility functions for setting values
@@ -146,56 +71,40 @@ object SettingsUtils {
         val moduleValue = module[valueName]
 
         if (moduleValue == null) {
-            displayChatMessage("§7[§3§lAutoSettings§7] §cValue §a§l$valueName§c wasn't found in module §a§l${module.getName()}§c.")
+            displayClientMessage("§cValue §a§l$valueName§c wasn't found in module §a§l${module.getName()}§c.")
             return
         }
 
         try {
             when (moduleValue) {
-                is BoolValue -> moduleValue.changeValue(value.toBoolean())
+                is BooleanValue -> moduleValue.changeValue(value.toBoolean())
                 is FloatValue -> moduleValue.changeValue(value.toFloat())
-                is IntegerValue -> moduleValue.changeValue(value.toInt())
+                is IntValue -> moduleValue.changeValue(value.toInt())
                 is TextValue -> moduleValue.changeValue(StringUtils.toCompleteString(args, 2))
                 is ListValue -> moduleValue.changeValue(value)
             }
-
-            displayChatMessage("§7[§3§lAutoSettings§7] §a§l${module.getName()}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")
         } catch (e: Exception) {
-            displayChatMessage("§7[§3§lAutoSettings§7] §a§l${e.javaClass.name}§7(${e.message}) §cAn Exception occurred while setting §a§l$value§c to §a§l${moduleValue.name}§c in §a§l${module.getName()}§c.")
+            displayClientMessage("§a§l${e.javaClass.name}§7(${e.message}) §cAn Exception occurred while setting §a§l$value§c to §a§l${moduleValue.name}§c in §a§l${module.getName()}§c.")
         }
     }
 
     /**
      * Generate settings script.
-     * @param values Include values in the script.
-     * @param binds Include key binds in the script.
-     * @param states Include module states in the script.
      * @return The generated script.
      */
-    fun generateScript(values: Boolean, binds: Boolean, states: Boolean): String {
-        val all = values && binds && states
-
+    fun generateScript(): String {
         return moduleManager.modules
-            .filter { module -> all || !module.subjective }
+            .filter { !it.subjective }
             .joinToString("\n") { module ->
                 buildString {
-                    if (values) {
-                        val filteredValues = module.values.filter { all || (!it.subjective && it.isSupported()) }
-                        if (filteredValues.isNotEmpty()) {
-                            filteredValues.joinTo(this, separator = "\n") { "${module.name} ${it.name} ${it.get()}" }
-                            appendLine()
-                        }
+                    val vals = module.values.filter { !it.subjective }
+                    if (vals.isNotEmpty()) {
+                        vals.joinTo(this, separator = "\n") { "${module.name} ${it.name} ${it.get()}" }
+                        appendLine()
                     }
-
-                    if (states) {
-                        appendLine("${module.name} toggle ${module.state}")
-                    }
-
-                    if (binds) {
-                        appendLine("${module.name} bind ${Keyboard.getKeyName(module.keyBind)}")
-                    }
+                    appendLine("${module.name} toggle ${module.state}")
+                    appendLine("${module.name} bind ${Keyboard.getKeyName(module.keyBind)}")
                 }
             }.lines().filter { it.isNotBlank() }.joinToString("\n")
     }
-
 }

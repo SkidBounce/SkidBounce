@@ -1,18 +1,27 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.value.FloatValue
 
-object KeepSprint : Module("KeepSprint", ModuleCategory.COMBAT, hideModule = false) {
-    val motionAfterAttackOnGround by FloatValue("MotionAfterAttackOnGround", 0.6f, 0.0f..1f)
-    val motionAfterAttackInAir by FloatValue("MotionAfterAttackInAir", 0.6f, 0.0f..1f)
+object KeepSprint : Module("KeepSprint", COMBAT) {
+    private val motionAfterAttackOnGround by FloatValue("MotionAfterAttackOnGround", 0.6f, 0.0f..1f)
+    private val motionAfterAttackInAir by FloatValue("MotionAfterAttackInAir", 0.6f, 0.0f..1f)
 
     val motionAfterAttack
         get() = if (mc.thePlayer.onGround) motionAfterAttackOnGround else motionAfterAttackInAir
+
+    var sprinting = mc.thePlayer?.isSprinting ?: false
+
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+        sprinting = mc.thePlayer.isSprinting
+    }
 }

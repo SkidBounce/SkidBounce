@@ -1,95 +1,81 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
+import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.features.module.ModuleManager
-import net.ccbluex.liquidbounce.features.module.modules.misc.AutoDisable
 
-object AutoDisableCommand : Command("autodisable") {
-
+/**
+ * @see net.ccbluex.liquidbounce.features.module.AutoDisable
+ * @see net.ccbluex.liquidbounce.features.module.modules.client.AutoDisable
+ * @see net.ccbluex.liquidbounce.file.configs.ModulesConfig
+ */
+object AutoDisableCommand : Command("autodisable", "ad") {
     /**
      * Execute commands with provided [args]
      */
     override fun execute(args: Array<String>) {
-        if (args.size < 2) {
-            chatSyntax("autodisable <add/remove/list>")
-            return
-        }
+        if (args.size > 2) {
+            val module = moduleManager[args[1]] ?: run {
+                chat("Module §a§l" + args[1] + "§3 not found.")
+                return
+            }
 
-        when (args[1].lowercase()) {
-            "add" -> {
-                if (args.size < 3) {
-                    chatSyntax("autodisable add <module>")
+            if (args[2].lowercase() in listOf("world", "death", "flag", "none")) {
+                if (args[2].lowercase() == "none") {
+                    module.AutoDisable.disable()
+                    chat("Disabled AutoDisable for §a§l${module.getName()}§3.")
                     return
                 }
 
-                val moduleName = args[2]
-                val module = ModuleManager.getModule(moduleName)
+                var enabled = false
 
-                if (module != null) {
-                    if (AutoDisable.getModules().contains(module)) {
-                        chat("§cModule §b$moduleName §cis already in the auto-disable list.")
-                    } else {
-                        AutoDisable.addModule(module)
-                        chat("§b$moduleName §ahas been added to the auto-disable list.")
+                if (args.size > 3) {
+                    enabled = args[3].toBoolean()
+                    when (args[2].lowercase()) {
+                        "flag" -> module.AutoDisable.flag = enabled
+                        "death" -> module.AutoDisable.death = enabled
+                        "world" -> module.AutoDisable.world = enabled
                     }
                 } else {
-                    chat("§cModule §b$moduleName §cnot found.")
-                }
-            }
-            "remove" -> {
-                if (args.size < 3) {
-                    chatSyntax("autodisable remove <module>")
-                    return
-                }
-
-                val moduleName = args[2]
-                val module = ModuleManager.getModule(moduleName)
-
-                if (module != null) {
-                    if (AutoDisable.getModules().contains(module)) {
-                        AutoDisable.removeModule(module)
-                        chat("§b$moduleName §6has been removed from the auto-disable list.")
-                    } else {
-                        chat("§cModule §b$moduleName §cis not in the auto-disable list.")
+                    when (args[2].lowercase()) {
+                        "flag" -> {
+                            module.AutoDisable.flag = !module.AutoDisable.flag
+                            enabled = module.AutoDisable.flag
+                        }
+                        "death" -> {
+                            module.AutoDisable.death = !module.AutoDisable.death
+                            enabled = module.AutoDisable.death
+                        }
+                        "world" -> {
+                            module.AutoDisable.world = !module.AutoDisable.world
+                            enabled = module.AutoDisable.world
+                        }
                     }
-                } else {
-                    chat("§cModule §b$moduleName §cnot found.")
                 }
+
+                chat("${if (enabled) "Enabled" else "Disabled"} AutoDisable §a§l${args[2].uppercase()} §3for §a§l${module.getName()}§3.")
+                playEdit()
+                return
             }
-            "list" -> {
-                val modules = AutoDisable.getModules()
-                chat("Modules in the auto-disable list:")
-                modules.forEach { chat(it.name) }
-            }
-            else -> chatSyntax("autodisable <add/remove/list>")
         }
+
+        chatSyntax(arrayOf("<module> <world|death|flag> <enabled>", "<module> none"))
     }
 
     override fun tabComplete(args: Array<String>): List<String> {
-        if (args.isEmpty()) {
-            return emptyList()
-        }
+        if (args.isEmpty()) return emptyList()
 
         return when (args.size) {
-            1 -> listOf("add", "remove", "list").filter { it.startsWith(args[0], true) }
-            2 -> {
-                when (args[0].lowercase()) {
-                    "add" -> {
-                        val input = args[1].lowercase()
-                        ModuleManager.modules.filter { it.name.lowercase().startsWith(input) }.map { it.name }
-                    }
-                    "remove" -> {
-                        val input = args[1].lowercase()
-                        AutoDisable.getModules().filter { it.name.lowercase().startsWith(input) }.map { it.name }
-                    }
-                    else -> emptyList()
-                }
-            }
+            1 -> moduleManager.modules
+                    .map { it.name }
+                    .filter { it.startsWith(args[0], true) }
+                    .toList()
+            2 -> listOf("world", "death", "flag", "none").filter { it.startsWith(args[1], true) }.toList()
+            3 -> if (args[2] != "none") listOf("true", "false") else emptyList()
             else -> emptyList()
         }
     }

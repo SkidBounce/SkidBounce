@@ -1,20 +1,26 @@
+/*
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
+ */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.script.api.global.Chat
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
+import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -22,19 +28,19 @@ import net.minecraft.init.Items
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.*
 
-object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetecting = false, hideModule = false) {
+object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetecting = false) {
 
     // TODO: Add more Staff Mode
     private val staffmode by ListValue("StaffMode", arrayOf("BlocksMC"), "BlocksMC")
-    private val tab by BoolValue("TAB", true) { staffmode == "BlocksMC" }
-    private val packet by BoolValue("Packet", true) { staffmode == "BlocksMC" }
+    private val tab by BooleanValue("TAB", true) { staffmode == "BlocksMC" }
+    private val packet by BooleanValue("Packet", true) { staffmode == "BlocksMC" }
 
     private val autoLeave by ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off") { tab || packet }
 
-    private val spectator by BoolValue("StaffSpectator", false) { staffmode == "BlocksMC" && (tab || packet) }
-    private val otherSpectator by BoolValue("OtherSpectator", false) { staffmode == "BlocksMC" && (tab || packet) }
+    private val spectator by BooleanValue("StaffSpectator", false) { staffmode == "BlocksMC" && (tab || packet) }
+    private val otherSpectator by BooleanValue("OtherSpectator", false) { staffmode == "BlocksMC" && (tab || packet) }
 
-    private val inGame by BoolValue("InGame", true) { autoLeave != "Off" && staffmode == "BlocksMC" }
+    private val inGame by BooleanValue("InGame", true) { autoLeave != "Off" && staffmode == "BlocksMC" }
     private val warn by ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private val checkedStaff = mutableSetOf<String?>()
@@ -119,11 +125,11 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
                         val isStaff = player in blocksMCStaff
 
                         if (isStaff && spectator) {
-                            Chat.print("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
+                            displayClientMessage("§d$player §3is using the spectator menu §e(compass/left)")
                         }
 
                         if (!isStaff && otherSpectator) {
-                            Chat.print("§d${player} §3is using the spectator menu §e(compass/left)")
+                            displayClientMessage("§d$player §3is using the spectator menu §e(compass/left)")
                         }
                         checkedSpectator.remove(player)
                     }
@@ -148,17 +154,17 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
 
         if (isStaff && spectator) {
             if (warn == "Chat") {
-                Chat.print("§c[STAFF] §d${player} §3is a spectators")
+                displayClientMessage("§d$player §3is a spectators")
             } else {
-                hud.addNotification(Notification("§c[STAFF] §d${player} §3is a spectators", 3000F))
+                hud.addNotification(Notification("§d$player §3is a spectators", 3000F))
             }
         }
 
         if (!isStaff && otherSpectator) {
             if (warn == "Chat") {
-                Chat.print("§d${player} §3is a spectators")
+                displayClientMessage("§d$player §3is a spectators")
             } else {
-                hud.addNotification(Notification("§d${player} §3is a spectators", 3000F))
+                hud.addNotification(Notification("§d$player §3is a spectators", 3000F))
             }
         }
 
@@ -194,11 +200,11 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
                 else -> "§c(Ping error)"
             }
 
-            val warnings = "§c[STAFF] §d${player} §3is a staff §b(TAB) $condition"
+            val warnings = "§d$player §3is a staff §b(TAB) $condition"
 
             if (isStaff && player !in checkedStaff) {
                 if (warn == "Chat") {
-                    Chat.print(warnings)
+                    displayClientMessage(warnings)
                 } else {
                     hud.addNotification(Notification(warnings, 3000F))
                 }
@@ -250,7 +256,7 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
 
         if (isStaff && playerName !in checkedStaff) {
             if (warn == "Chat") {
-                Chat.print(warnings)
+                displayClientMessage(warnings)
             } else {
                 hud.addNotification(Notification(warnings, 3000F))
             }
@@ -261,7 +267,6 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
             autoLeave()
         }
     }
-
 
     private fun autoLeave() {
         val firstSlotItemStack = mc.thePlayer.inventory.mainInventory[0] ?: return
@@ -286,30 +291,25 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
             return
         }
 
-        fun handlePlayer(player: Entity?) {
-            player ?: return
-            handleStaff(player)
-        }
-
         when (packet) {
-            is S01PacketJoinGame -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S0CPacketSpawnPlayer -> handlePlayer(mc.theWorld.getEntityByID(packet.entityID))
-            is S18PacketEntityTeleport -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S1CPacketEntityMetadata -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S1DPacketEntityEffect -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S1EPacketRemoveEntityEffect -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S19PacketEntityStatus -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S19PacketEntityHeadLook -> handlePlayer(packet.getEntity(mc.theWorld))
-            is S49PacketUpdateEntityNBT -> handlePlayer(packet.getEntity(mc.theWorld))
-            is S1BPacketEntityAttach -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
-            is S04PacketEntityEquipment -> handlePlayer(mc.theWorld.getEntityByID(packet.entityID))
+            is S01PacketJoinGame -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S0CPacketSpawnPlayer -> handleStaff(mc.theWorld.getEntityByID(packet.entityID))
+            is S18PacketEntityTeleport -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S1CPacketEntityMetadata -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S1DPacketEntityEffect -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S1EPacketRemoveEntityEffect -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S19PacketEntityStatus -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S19PacketEntityHeadLook -> handleStaff(packet.getEntity(mc.theWorld))
+            is S49PacketUpdateEntityNBT -> handleStaff(packet.getEntity(mc.theWorld))
+            is S1BPacketEntityAttach -> handleStaff(mc.theWorld.getEntityByID(packet.entityId))
+            is S04PacketEntityEquipment -> handleStaff(mc.theWorld.getEntityByID(packet.entityID))
         }
     }
 
-    private fun handleStaff(staff: Entity) {
-        if (mc.thePlayer == null || mc.theWorld == null) {
-            return
-        }
+    private fun handleStaff(staff: Entity?) {
+        mc.thePlayer ?: return
+        mc.theWorld ?: return
+        staff ?: return
 
         checkedStaffRemoved()
 
@@ -320,23 +320,22 @@ object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetectin
     private suspend fun loadStaffList(url: String): Map<String, Set<String>> {
         try {
             val (response, code) = fetchDataAsync(url)
+
             if (code == 200) {
                 val staffList = response.split("\n").filter { it.isNotBlank() && it.isNotEmpty() }.toSet()
 
-                Chat.print("§aSuccessfully loaded §9${staffList.size} §astaff names.")
+                displayClientMessage("§aSuccessfully loaded §9${staffList.size} §astaff names.")
                 return mapOf(url to staffList)
-            } else {
-                Chat.print("§cFailed to load staff list. §9(ERROR CODE: $code)")
-            }
+            } else displayClientMessage("§cFailed to load staff list. §9(ERROR CODE: $code)")
         } catch (e: Exception) {
-            Chat.print("§cFailed to load staff list. §9(${e.message})")
+            LOGGER.error("§cFailed to load staff list. §9(${e.message})")
             e.printStackTrace()
         }
         return emptyMap()
     }
 
     private suspend fun fetchDataAsync(url: String): Pair<String, Int> = coroutineScope {
-        async(Dispatchers.IO) {
+        async(IO) {
             val (response, code) = HttpUtils.request(url, "GET")
             Pair(response, code)
         }.await()

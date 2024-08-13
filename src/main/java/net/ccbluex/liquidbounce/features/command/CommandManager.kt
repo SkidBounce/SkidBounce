@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.command
 
@@ -9,9 +9,13 @@ import net.ccbluex.liquidbounce.features.command.commands.*
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.features.command.shortcuts.ShortcutParser
 import net.ccbluex.liquidbounce.features.command.special.*
+import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.shortcutsConfig
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
+import net.ccbluex.liquidbounce.utils.ClassUtils.getAllClassesIn
+import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
+import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 
 object CommandManager {
     val commands = mutableListOf<Command>()
@@ -24,41 +28,8 @@ object CommandManager {
      */
     fun registerCommands() {
         commands.clear()
-
-        registerCommand(AutoDisableCommand)
-        registerCommand(BindCommand)
-        registerCommand(VClipCommand)
-        registerCommand(HClipCommand)
-        registerCommand(HelpCommand)
-        registerCommand(SayCommand)
-        registerCommand(FriendCommand)
-        registerCommand(AutoSettingsCommand)
-        registerCommand(LocalAutoSettingsCommand)
-        registerCommand(ServerInfoCommand)
-        registerCommand(ToggleCommand)
-        registerCommand(HurtCommand)
-        registerCommand(GiveCommand)
-        registerCommand(UsernameCommand)
-        registerCommand(TargetCommand)
-        registerCommand(TacoCommand)
-        registerCommand(BindsCommand)
-        registerCommand(HoloStandCommand)
-        registerCommand(PanicCommand)
-        registerCommand(PingCommand)
-        registerCommand(RenameCommand)
-        registerCommand(EnchantCommand)
-        registerCommand(ReloadCommand)
-        registerCommand(ScriptManagerCommand)
-        registerCommand(RemoteViewCommand)
-        registerCommand(PrefixCommand)
-        registerCommand(ShortcutCommand)
-        registerCommand(HideCommand)
-        registerCommand(XrayCommand)
-        registerCommand(LiquidChatCommand)
-        registerCommand(PrivateChatCommand)
-        registerCommand(ChatTokenCommand)
-        registerCommand(ChatAdminCommand)
-        registerCommand(TeleportCommand)
+        commands.addAll(javaClass.`package`.getAllObjects<Command>())
+        LOGGER.info("Loaded ${commands.size} commands")
     }
 
     /**
@@ -82,7 +53,7 @@ object CommandManager {
             }
         }
 
-        displayChatMessage("§cCommand not found. Type ${prefix}help to view all commands.")
+        displayClientMessage("§cCommand not found. Type ${prefix}help to view all commands.")
     }
 
     /**

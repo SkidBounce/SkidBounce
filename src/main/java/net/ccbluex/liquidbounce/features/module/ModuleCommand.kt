@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module
 
@@ -42,7 +42,7 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
         when (val value = module[args[1]]) {
             null -> chatSyntax("$moduleName <$valueNames>")
 
-            is BoolValue -> {
+            is BooleanValue -> {
                 if (args.size != 2) {
                     chatSyntax("$moduleName ${args[1].lowercase()}")
                     return
@@ -61,11 +61,16 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                     else args.size != 3
                 ) {
                     when (value) {
-                        is IntegerValue, is FloatValue, is TextValue ->
+                        is NumberValue, is TextValue ->
                             chatSyntax("$moduleName ${args[1].lowercase()} <value>")
 
                         is ListValue ->
-                            chatSyntax("$moduleName ${args[1].lowercase()} <${value.values.joinToString(separator = "/").lowercase()}>")
+                            chatSyntax(
+                                "$moduleName ${args[1].lowercase()} <${
+                                    value.values.joinToString(separator = "/")
+                                        .lowercase()
+                                }>"
+                            )
                     }
 
                     return
@@ -97,16 +102,28 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
 
                             return
                         }
-                        is IntegerValue -> value.set(args[2].toInt()) to args[2]
+
+                        is ByteValue -> value.set(args[2].toByte()) to args[2]
+                        is ShortValue -> value.set(args[2].toShort()) to args[2]
+                        is IntValue -> value.set(args[2].toInt()) to args[2]
+                        is LongValue -> value.set(args[2].toLong()) to args[2]
                         is FloatValue -> value.set(args[2].toFloat()) to args[2]
+                        is DoubleValue -> value.set(args[2].toDouble()) to args[2]
+
                         is ListValue -> {
                             if (args[2] !in value) {
-                                chatSyntax("$moduleName ${args[1].lowercase()} <${value.values.joinToString(separator = "/").lowercase()}>")
+                                chatSyntax(
+                                    "$moduleName ${args[1].lowercase()} <${
+                                        value.values.joinToString(separator = "/")
+                                            .lowercase()
+                                    }>"
+                                )
                                 return
                             }
 
                             value.set(args[2]) to args[2]
                         }
+
                         is TextValue -> {
                             val string = StringUtils.toCompleteString(args, 2)
                             value.set(string) to string
@@ -137,13 +154,15 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
             1 -> values
                 .filter { it !is FontValue && it.isSupported() && it.name.startsWith(args[0], true) }
                 .map { it.name.lowercase() }
+
             2 -> {
                 when (module[args[0]]) {
                     is BlockValue -> {
                         return Item.itemRegistry.keys
-                                .map { it.resourcePath.lowercase() }
-                                .filter { it.startsWith(args[1], true) }
+                            .map { it.resourcePath.lowercase() }
+                            .filter { it.startsWith(args[1], true) }
                     }
+
                     is ListValue -> {
                         values.forEach { value ->
                             if (!value.name.equals(args[0], true))
@@ -152,18 +171,19 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                                 return value.values.filter { it.startsWith(args[1], true) }
                         }
                         return emptyList()
-                    }                    
+                    }
+
                     else -> emptyList()
                 }
             }
+
             else -> emptyList()
         }
     }
 
     private fun chatInvalid(arg: String, value: Value<*>, reason: String? = null) {
-        val finalReason = reason ?:
-            if (value.get().toString().equals(arg, true)) "is already the value of"
-            else "isn't a valid value for"
+        val finalReason = reason ?: if (value.get().toString().equals(arg, true)) "is already the value of"
+        else "isn't a valid value for"
 
         chat("§8$arg§7 $finalReason §8${value.name}§7!")
     }

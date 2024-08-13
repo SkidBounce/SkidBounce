@@ -1,48 +1,51 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.ClickWindowEvent
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.JumpEvent
-import net.ccbluex.liquidbounce.event.StrafeEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.MOVEMENT
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
+import net.ccbluex.liquidbounce.utils.extensions.updateKeys
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiIngameMenu
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.client.gui.inventory.GuiInventory
-import net.minecraft.client.settings.GameSettings
+import net.minecraft.network.play.client.C0DPacketCloseWindow
+import net.minecraft.network.play.client.C0EPacketClickWindow
+import net.minecraft.network.play.client.C16PacketClientStatus
+import net.minecraft.network.play.client.C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT
 
-object InventoryMove : Module("InventoryMove", ModuleCategory.MOVEMENT, gameDetecting = false, hideModule = false) {
+object InventoryMove : Module("InventoryMove", MOVEMENT, gameDetecting = false) {
 
-    private val notInChests by BoolValue("NotInChests", false)
-    val aacAdditionPro by BoolValue("AACAdditionPro", false)
-    private val intave by BoolValue("Intave", false)
+    private val notInChests by BooleanValue("NotInChests", false)
+    private val mode by ListValue("Mode", arrayOf("Normal", "Silent", "Packet"), "Normal")
+    private val intave by BooleanValue("Intave", false)
 
     private val isIntave = (mc.currentScreen is GuiInventory || mc.currentScreen is GuiChest) && intave
 
     private val noMove by InventoryManager.noMoveValue
     private val noMoveAir by InventoryManager.noMoveAirValue
     private val noMoveGround by InventoryManager.noMoveGroundValue
-    private val undetectable by InventoryManager.undetectableValue
+    private val undetectable by BooleanValue("Undetectable", false)
 
-        // If player violates nomove check and inventory is open, close inventory and reopen it when still
-        private val silentlyCloseAndReopen by BoolValue("SilentlyCloseAndReopen", false)
-            { noMove && (noMoveAir || noMoveGround) }
-            // Reopen closed inventory just before a click (could flag for clicking too fast after opening inventory)
-            private val reopenOnClick by BoolValue("ReopenOnClick", false)
-                { silentlyCloseAndReopen && noMove && (noMoveAir || noMoveGround) }
+    // If player violates nomove check and inventory is open, close inventory and reopen it when still
+    private val silentlyCloseAndReopen by BooleanValue("SilentlyCloseAndReopen", false) { noMove && (noMoveAir || noMoveGround) && mode == "Normal" }
+
+    // Reopen closed inventory just before a click (could flag for clicking too fast after opening inventory)
+    private val reopenOnClick by BooleanValue("ReopenOnClick", false) { silentlyCloseAndReopen && noMove && (noMoveAir || noMoveGround) && mode == "Normal" }
 
     private val affectedBindings = arrayOf(
         mc.gameSettings.keyBindForward,
@@ -53,7 +56,9 @@ object InventoryMove : Module("InventoryMove", ModuleCategory.MOVEMENT, gameDete
         mc.gameSettings.keyBindSprint
     )
 
-    @EventTarget
+    private var clicking = false
+
+    @EventTarget(priority = 999)
     fun onUpdate(event: UpdateEvent) {
         val screen = mc.currentScreen
 
@@ -67,14 +72,12 @@ object InventoryMove : Module("InventoryMove", ModuleCategory.MOVEMENT, gameDete
         if (notInChests && screen is GuiChest)
             return
 
-        if (silentlyCloseAndReopen && screen is GuiInventory) {
+        if (silentlyCloseAndReopen && screen is GuiInventory && noMove && (noMoveAir || noMoveGround) && mode == "Normal") {
             if (canClickInventory(closeWhenViolating = true) && !reopenOnClick)
                 serverOpenInventory = true
         }
 
-        for (affectedBinding in affectedBindings)
-            affectedBinding.pressed = GameSettings.isKeyDown(affectedBinding)
-                || (affectedBinding == mc.gameSettings.keyBindSprint && Sprint.handleEvents() && Sprint.mode == "Legit" && (!Sprint.onlyOnSprintPress || mc.thePlayer.isSprinting))
+        mc.gameSettings.updateKeys(*affectedBindings)
     }
 
     @EventTarget
@@ -86,20 +89,48 @@ object InventoryMove : Module("InventoryMove", ModuleCategory.MOVEMENT, gameDete
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (isIntave) event.cancelEvent()
+        if (isIntave) {
+            event.cancelEvent()
+        }
     }
-    
+
     @EventTarget
     fun onClick(event: ClickWindowEvent) {
         if (!canClickInventory()) event.cancelEvent()
-        else if (reopenOnClick) serverOpenInventory = true
+        else if (reopenOnClick && silentlyCloseAndReopen && noMove && (noMoveAir || noMoveGround) && mode == "Normal") serverOpenInventory = true
+    }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        if (mode == "Packet") {
+            if (event.packet is C0EPacketClickWindow && event.packet.windowId == 0 && !clicking) {
+                clicking = true
+                event.cancelEvent()
+
+                sendPackets(
+                    C16PacketClientStatus(OPEN_INVENTORY_ACHIEVEMENT),
+                    event.packet,
+                    C0DPacketCloseWindow(0)
+                )
+
+                clicking = false
+            }
+        }
+
+        if (mode == "Silent" || mode == "Packet") {
+            if (event.packet is C0DPacketCloseWindow && event.packet.windowId == 0
+                || event.packet is C16PacketClientStatus && event.packet.status == OPEN_INVENTORY_ACHIEVEMENT) {
+                if (mode != "Packet" || !clicking) {
+                    event.cancelEvent()
+                }
+            }
+        }
     }
 
     override fun onDisable() {
-        for (affectedBinding in affectedBindings)
-            affectedBinding.pressed = GameSettings.isKeyDown(affectedBinding)
+        mc.gameSettings.updateKeys(*affectedBindings)
     }
 
     override val tag
-        get() = if (aacAdditionPro) "AACAdditionPro" else null
+        get() = mode
 }

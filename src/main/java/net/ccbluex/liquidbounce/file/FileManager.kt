@@ -1,18 +1,17 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.file
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.LiquidBounce.MINECRAFT_VERSION
 import net.ccbluex.liquidbounce.LiquidBounce.background
 import net.ccbluex.liquidbounce.LiquidBounce.isStarting
 import net.ccbluex.liquidbounce.file.configs.*
-import net.ccbluex.liquidbounce.utils.Background.Companion.createBackground
+import net.ccbluex.liquidbounce.utils.background.Background.Companion.createBackground
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraftforge.fml.relauncher.Side
@@ -22,9 +21,9 @@ import java.io.File
 @SideOnly(Side.CLIENT)
 object FileManager : MinecraftInstance() {
 
-    val dir = File(mc.mcDataDir, "$CLIENT_NAME-$MINECRAFT_VERSION")
+    val dir = File(mc.mcDataDir, CLIENT_NAME)
     val fontsDir = File(dir, "fonts")
-    val settingsDir = File(dir, "settings")
+    val settingsDir = File(dir, "configs")
     val modulesConfig = ModulesConfig(File(dir, "modules.json"))
     val valuesConfig = ValuesConfig(File(dir, "values.json"))
     val clickGuiConfig = ClickGuiConfig(File(dir, "clickgui.json"))

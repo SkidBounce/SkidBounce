@@ -1,21 +1,25 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.cape
 
 import com.google.gson.JsonParser
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.SessionEvent
+import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.login.UserUtils
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils.get
 import org.apache.http.HttpHeaders
-import org.apache.http.HttpStatus
+import org.apache.http.HttpStatus.SC_NO_CONTENT
+import org.apache.http.HttpStatus.SC_OK
 import org.apache.http.client.methods.HttpDelete
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPatch
@@ -26,7 +30,7 @@ import org.apache.http.message.BasicHeader
 import org.apache.http.util.EntityUtils
 import org.json.JSONObject
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.*
 
 /**
  * A more reliable and stress reduced cape service
@@ -82,7 +86,7 @@ object CapeService : Listenable, MinecraftInstance() {
     fun refreshCapeCarriers(force: Boolean = false, done: () -> Unit) {
         if (System.currentTimeMillis() - lastUpdate.get() > REFRESH_DELAY || force) {
             if (refreshJob?.isActive != true) {
-                refreshJob = GlobalScope.launch(Dispatchers.IO) {
+                refreshJob = GlobalScope.launch(IO) {
                     runCatching {
                         // Capture data from API and parse JSON
                         val (json, code) = get(CAPE_CARRIERS_URL)
@@ -105,6 +109,7 @@ object CapeService : Listenable, MinecraftInstance() {
                         }
 
                         capeCarriers = jsonCapeCarriers
+
                         lastUpdate.set(System.currentTimeMillis())
                         done()
                     }.onFailure {
@@ -143,7 +148,7 @@ object CapeService : Listenable, MinecraftInstance() {
             BasicHeader(HttpHeaders.AUTHORIZATION, token)
         )
 
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(IO) {
             runCatching {
                 val request = HttpGet(SELF_CAPE_URL)
                 request.setHeaders(headers)
@@ -151,13 +156,14 @@ object CapeService : Listenable, MinecraftInstance() {
                 val response = httpClient.execute(request)
                 val statusCode = response.statusLine.statusCode
 
-                if (statusCode == HttpStatus.SC_OK) {
+                if (statusCode == SC_OK) {
                     val json = JSONObject(EntityUtils.toString(response.entity))
                     val capeName = json.getString("cape")
                     val enabled = json.getBoolean("enabled")
                     val uuid = json.getString("uuid")
 
                     clientCapeUser = CapeSelfUser(token, enabled, uuid, capeName)
+
                     LOGGER.info("Logged in successfully. Cape: $capeName")
                 } else {
                     throw RuntimeException("Failed to get self cape. Status code: $statusCode")
@@ -180,20 +186,18 @@ object CapeService : Listenable, MinecraftInstance() {
     fun toggleCapeState(done: (Boolean, Boolean, Int) -> Unit) {
         val capeUser = clientCapeUser ?: return
 
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(IO) {
             runCatching {
                 val httpClient = HttpClients.createDefault()
+
                 val headers = arrayOf(
                     BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json"),
                     BasicHeader(HttpHeaders.AUTHORIZATION, capeUser.token)
                 )
 
-                val request = if (!capeUser.enabled) {
-                    HttpPut(SELF_CAPE_URL)
-                } else {
-                    HttpDelete(SELF_CAPE_URL)
-                }
+                val request = if (!capeUser.enabled) HttpPut(SELF_CAPE_URL) else HttpDelete(SELF_CAPE_URL)
                 request.setHeaders(headers)
+
                 val response = httpClient.execute(request)
                 val statusCode = response.statusLine.statusCode
 
@@ -203,7 +207,7 @@ object CapeService : Listenable, MinecraftInstance() {
                 }
 
                 capeUser.enabled = !capeUser.enabled
-                done(capeUser.enabled, statusCode == HttpStatus.SC_NO_CONTENT, statusCode)
+                done(capeUser.enabled, statusCode == SC_NO_CONTENT, statusCode)
             }.onFailure {
                 LOGGER.error("Failed to toggle cape state due to error.", it)
             }
@@ -221,7 +225,7 @@ object CapeService : Listenable, MinecraftInstance() {
         if (!UserUtils.isValidTokenOffline(mc.session.token))
             return
 
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(IO) {
             runCatching {
                 // Apply cape to new account
                 val uuid = mc.session.playerID
@@ -242,7 +246,7 @@ object CapeService : Listenable, MinecraftInstance() {
                 val response = httpClient.execute(request)
                 val statusCode = response.statusLine.statusCode
 
-                if (statusCode == HttpStatus.SC_NO_CONTENT) {
+                if (statusCode == SC_NO_CONTENT) {
                     capeUser.uuid = uuid
                     LOGGER.info("[Donator Cape] Successfully transferred cape to $uuid ($username)")
                 } else {
@@ -260,9 +264,4 @@ object CapeService : Listenable, MinecraftInstance() {
     }
 
     override fun handleEvents() = true
-
 }
-
-data class CapeSelfUser(val token: String, var enabled: Boolean, var uuid: String, val capeName: String)
-
-data class CapeCarrier(val uuid: UUID, val capeName: String)

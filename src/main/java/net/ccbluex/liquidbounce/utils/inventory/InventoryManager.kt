@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils.inventory
 
@@ -9,34 +9,29 @@ import kotlinx.coroutines.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestStealer
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.serverOnGround
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.client.gui.inventory.GuiInventory
 
 object InventoryManager: MinecraftInstance() {
 
 	// Shared no move click values
-	val noMoveValue = BoolValue("NoMoveClicks", false)
-		val noMoveAirValue = BoolValue("NoClicksInAir", false) { noMoveValue.get() }
-		val noMoveGroundValue = BoolValue("NoClicksOnGround", true) { noMoveValue.get() }
+	val noMoveValue = BooleanValue("NoMoveClicks", false)
+	val noMoveAirValue = BooleanValue("NoClicksInAir", false) { noMoveValue.get() }
+	val noMoveGroundValue = BooleanValue("NoClicksOnGround", true) { noMoveValue.get() }
 
 	// Shared values between AutoArmor and InventoryCleaner
-	val invOpenValue = BoolValue("InvOpen", false)
-		val simulateInventoryValue = BoolValue("SimulateInventory", true) { !invOpenValue.get() }
-		val autoCloseValue = BoolValue("AutoClose", false) { invOpenValue.get() }
+	val invOpenValue = BooleanValue("InvOpen", false)
+	val simulateInventoryValue = BooleanValue("SimulateInventory", true) { !invOpenValue.get() }
+	val autoCloseValue = BooleanValue("AutoClose", false) { invOpenValue.get() }
 
-		val startDelayValue = IntegerValue("StartDelay", 0, 0..500)
-			{ invOpenValue.get() || simulateInventoryValue.get() }
-		val closeDelayValue = IntegerValue("CloseDelay", 0, 0..500)
-			{ if (invOpenValue.get()) autoCloseValue.get() else simulateInventoryValue.get() }
-
-	// Undetectable
-	val undetectableValue = BoolValue("Undetectable", false)
+	val startDelayValue = IntValue("StartDelay", 0, 0..500) { invOpenValue.get() || simulateInventoryValue.get() }
+	val closeDelayValue = IntValue("CloseDelay", 0, 0..500) { if (invOpenValue.get()) autoCloseValue.get() else simulateInventoryValue.get() }
 
 	private lateinit var inventoryWorker: Job
 
@@ -145,7 +140,7 @@ object InventoryManager: MinecraftInstance() {
 					manageInventory()
 				}.onFailure {
 					// TODO: Remove when stable, probably in b86
-					displayChatMessage("§cReworked coroutine inventory management had ran into an issue! Please report this: ${it.message ?: it.cause}")
+					displayClientMessage("§cReworked coroutine inventory management had ran into an issue! Please report this: ${it.message ?: it.cause}")
 
 					it.printStackTrace()
 				}

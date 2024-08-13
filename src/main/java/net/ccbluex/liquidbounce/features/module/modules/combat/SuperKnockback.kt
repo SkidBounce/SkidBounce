@@ -1,13 +1,14 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
@@ -15,8 +16,8 @@ import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomDelay
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -24,50 +25,51 @@ import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
 import kotlin.math.abs
 
-object SuperKnockback : Module("SuperKnockback", ModuleCategory.COMBAT, hideModule = false) {
+object SuperKnockback : Module("SuperKnockback", COMBAT) {
 
-    private val delay by IntegerValue("Delay", 0, 0..500)
-    private val hurtTime by IntegerValue("HurtTime", 10, 0..10)
+    private val delay by IntValue("Delay", 0, 0..500)
+    private val hurtTime by IntValue("HurtTime", 10, 0..10)
 
-    private val mode by ListValue("Mode", arrayOf("SprintTap", "SprintTap2", "WTap", "Old", "Silent", "Packet", "SneakPacket"), "Old")
-    private val maxTicksUntilBlock: IntegerValue = object : IntegerValue("MaxTicksUntilBlock", 2, 0..5) {
+    private val mode by ListValue("Mode", arrayOf("SprintTap", "SprintTap2", "WTap", "Old", "Silent", "Packet", "SneakPacket").sortedArray(), "Old")
+    private val grim by BooleanValue("Grim", true) { mode in arrayOf("Old", "Packet", "SneakPacket") }
+    private val maxTicksUntilBlock: IntValue = object : IntValue("MaxTicksUntilBlock", 2, 0..5) {
         override fun isSupported() = mode == "WTap"
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minTicksUntilBlock.get())
     }
-    private val minTicksUntilBlock: IntegerValue = object : IntegerValue("MinTicksUntilBlock", 0, 0..5) {
+    private val minTicksUntilBlock: IntValue = object : IntValue("MinTicksUntilBlock", 0, 0..5) {
         override fun isSupported() = mode == "WTap"
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(maxTicksUntilBlock.get())
     }
 
-    private val reSprintMaxTicks: IntegerValue = object : IntegerValue("ReSprintMaxTicks", 2, 1..5) {
+    private val reSprintMaxTicks: IntValue = object : IntValue("ReSprintMaxTicks", 2, 1..5) {
         override fun isSupported() = mode == "WTap"
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(reSprintMinTicks.get())
     }
-    private val reSprintMinTicks: IntegerValue = object : IntegerValue("ReSprintMinTicks", 1, 1..5) {
+    private val reSprintMinTicks: IntValue = object : IntValue("ReSprintMinTicks", 1, 1..5) {
         override fun isSupported() = mode == "WTap"
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(reSprintMaxTicks.get())
     }
 
-    private val targetDistance by IntegerValue("TargetDistance", 3, 1..5) { mode == "WTap" }
+    private val targetDistance by IntValue("TargetDistance", 3, 1..5) { mode == "WTap" }
 
-    private val stopTicks: IntegerValue = object : IntegerValue("PressBackTicks", 1, 1..5) {
+    private val stopTicks: IntValue = object : IntValue("PressBackTicks", 1, 1..5) {
         override fun isSupported() = mode == "SprintTap2"
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtMost(unSprintTicks.get())
     }
-    private val unSprintTicks: IntegerValue = object : IntegerValue("ReleaseBackTicks", 2, 1..5) {
+    private val unSprintTicks: IntValue = object : IntValue("ReleaseBackTicks", 2, 1..5) {
         override fun isSupported() = mode == "SprintTap2"
 
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(stopTicks.get())
     }
 
-    private val onlyGround by BoolValue("OnlyGround", false)
-    val onlyMove by BoolValue("OnlyMove", true)
-    val onlyMoveForward by BoolValue("OnlyMoveForward", true) { onlyMove }
+    private val onlyGround by BooleanValue("OnlyGround", false)
+    @JvmStatic val onlyMove by BooleanValue("OnlyMove", true)
+    @JvmStatic val onlyMoveForward by BooleanValue("OnlyMoveForward", true) { onlyMove }
 
     private var ticks = 0
     private var forceSprintState = 0
@@ -96,6 +98,7 @@ object SuperKnockback : Module("SuperKnockback", ModuleCategory.COMBAT, hideModu
     @EventTarget
     fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return
+
         val target = event.targetEntity as? EntityLivingBase ?: return
         val distance = player.getDistanceToEntityBox(target)
 
@@ -107,14 +110,14 @@ object SuperKnockback : Module("SuperKnockback", ModuleCategory.COMBAT, hideModu
             "Old" -> {
                 // Users reported that this mode is better than the other ones
 
-                if (player.isSprinting) {
-                    sendPacket(C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                if (player.isSprinting && !grim || grim && player.serverSprintState) {
+                    sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
                 }
 
                 sendPackets(
-                    C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SPRINTING),
-                    C0BPacketEntityAction(player, C0BPacketEntityAction.Action.STOP_SPRINTING),
-                    C0BPacketEntityAction(player, C0BPacketEntityAction.Action.START_SPRINTING)
+                    C0BPacketEntityAction(player, START_SPRINTING),
+                    C0BPacketEntityAction(player, STOP_SPRINTING),
+                    C0BPacketEntityAction(player, START_SPRINTING)
                 )
                 player.isSprinting = true
                 player.serverSprintState = true
@@ -123,19 +126,33 @@ object SuperKnockback : Module("SuperKnockback", ModuleCategory.COMBAT, hideModu
             "SprintTap", "Silent" -> if (player.isSprinting && player.serverSprintState) ticks = 2
 
             "Packet" -> {
-                sendPackets(
-                    C0BPacketEntityAction(player, STOP_SPRINTING),
-                    C0BPacketEntityAction(player, START_SPRINTING)
-                )
+                if (grim && player.serverSprintState || !grim) {
+                    sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
+                }
+
+                sendPacket(C0BPacketEntityAction(player, START_SPRINTING))
+
+                if (grim) {
+                    player.isSprinting = true
+                    player.serverSprintState = true
+                }
             }
 
             "SneakPacket" -> {
+                if (grim && player.serverSprintState || !grim) {
+                    sendPacket(C0BPacketEntityAction(player, STOP_SPRINTING))
+                }
+
                 sendPackets(
-                    C0BPacketEntityAction(player, STOP_SPRINTING),
                     C0BPacketEntityAction(player, START_SNEAKING),
                     C0BPacketEntityAction(player, START_SPRINTING),
                     C0BPacketEntityAction(player, STOP_SNEAKING)
                 )
+
+                if (grim) {
+                    player.isSprinting = true
+                    player.serverSprintState = true
+                }
             }
 
             "WTap" -> {
@@ -158,20 +175,20 @@ object SuperKnockback : Module("SuperKnockback", ModuleCategory.COMBAT, hideModu
             "SprintTap2" -> {
                 if (++sprintTicks == stopTicks.get()) {
 
-                    if (player.isSprinting && player.serverSprintState) {
-                        player.isSprinting = false
-                        player.serverSprintState = false
+                    if (mc.thePlayer.isSprinting && mc.thePlayer.serverSprintState) {
+                        mc.thePlayer.isSprinting = false
+                        mc.thePlayer.serverSprintState = false
                     } else {
-                        player.isSprinting = true
-                        player.serverSprintState = true
+                        mc.thePlayer.isSprinting = true
+                        mc.thePlayer.serverSprintState = true
                     }
 
                     mc.thePlayer.stopXZ()
 
                 } else if (sprintTicks >= unSprintTicks.get()) {
 
-                    player.isSprinting = false
-                    player.serverSprintState = false
+                    mc.thePlayer.isSprinting = false
+                    mc.thePlayer.serverSprintState = false
 
                     sprintTicks = 0
                 }
@@ -243,6 +260,7 @@ object SuperKnockback : Module("SuperKnockback", ModuleCategory.COMBAT, hideModu
         }
     }
 
+    @JvmStatic
     fun shouldBlockInput() = handleEvents() && mode == "WTap" && blockInput
 
     override val tag

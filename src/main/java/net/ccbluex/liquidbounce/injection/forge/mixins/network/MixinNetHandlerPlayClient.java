@@ -1,23 +1,22 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
 import io.netty.buffer.Unpooled;
-import net.ccbluex.liquidbounce.event.EntityMovementEvent;
+import net.ccbluex.liquidbounce.event.events.EntityMovementEvent;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiExploit;
-import net.ccbluex.liquidbounce.features.module.modules.misc.NoRotateSet;
+import net.ccbluex.liquidbounce.features.module.modules.misc.NoRotate;
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink;
 import net.ccbluex.liquidbounce.features.special.ClientFixes;
-import net.ccbluex.liquidbounce.script.api.global.Chat;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.PacketUtils;
 import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
-import net.ccbluex.liquidbounce.utils.extensions.PlayerExtensionKt;
+import net.ccbluex.liquidbounce.utils.extensions.ExtensionsKt;
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
@@ -31,8 +30,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
-import net.minecraft.network.play.client.C17PacketCustomPayload;
-import net.minecraft.network.play.client.C19PacketResourcePackStatus;
+import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.WorldSettings;
@@ -48,6 +46,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage;
 import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 import static net.minecraft.network.play.client.C19PacketResourcePackStatus.Action.ACCEPTED;
 import static net.minecraft.network.play.client.C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD;
@@ -65,17 +64,13 @@ public abstract class MixinNetHandlerPlayClient {
     @Shadow
     private WorldClient clientWorldController;
 
-    @Shadow
-    private boolean doneLoadingTerrain;
-
     @Redirect(method = "handleExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S27PacketExplosion;getStrength()F"))
     private float onExplosionVelocity(S27PacketExplosion packetExplosion) {
-        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitExplosionStrength()) {
-            float strength = packetExplosion.getStrength();
-            float fixedStrength = MathHelper.clamp_float(strength, -1000.0f, 1000.0f);
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.getLimitExplosionStrength()) {
+            float fixedStrength = MathHelper.clamp_float(packetExplosion.getStrength(), -1000f, 1000f);
 
-            if (fixedStrength != strength) {
-                Chat.print("Limited too strong explosion");
+            if (fixedStrength != packetExplosion.getStrength()) {
+                displayClientMessage("Limited too strong explosion");
                 return fixedStrength;
             }
         }
@@ -84,12 +79,10 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Redirect(method = "handleExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S27PacketExplosion;func_149149_c()F"))
     private float onExplosionWorld(S27PacketExplosion packetExplosion) {
-        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitExplosionRange()) {
-            float originalRadius = packetExplosion.func_149149_c();
-            float radius = MathHelper.clamp_float(originalRadius, -1000.0f, 1000.0f);
-
-            if (radius != originalRadius) {
-                Chat.print("Limited too big TNT explosion radius");
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.getLimitExplosionRange()) {
+            float radius = MathHelper.clamp_float(packetExplosion.func_149149_c(), -1000f, 1000f);
+            if (radius != packetExplosion.func_149149_c()) {
+                displayClientMessage("Limited too big TNT explosion radius");
                 return radius;
             }
         }
@@ -98,8 +91,8 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2APacketParticles;getParticleCount()I", ordinal = 1))
     private int onParticleAmount(S2APacketParticles packetParticles) {
-        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitParticlesAmount() && packetParticles.getParticleCount() >= 500) {
-            Chat.print("Limited too many particles");
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.getLimitParticlesAmount() && packetParticles.getParticleCount() >= 500) {
+            displayClientMessage("Limited too many particles");
             return 100;
         }
         return packetParticles.getParticleCount();
@@ -107,8 +100,8 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Redirect(method = "handleParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2APacketParticles;getParticleSpeed()F"))
     private float onParticleSpeed(S2APacketParticles packetParticles) {
-        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitParticlesSpeed() && packetParticles.getParticleSpeed() >= 10f) {
-            Chat.print("Limited too fast particles speed");
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.getLimitParticlesSpeed() && packetParticles.getParticleSpeed() >= 10f) {
+            displayClientMessage("Limited too fast particles speed");
             return 5f;
         }
         return packetParticles.getParticleSpeed();
@@ -116,10 +109,10 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Redirect(method = "handleSpawnObject", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S0EPacketSpawnObject;getType()I"))
     private int onSpawnObjectType(S0EPacketSpawnObject packet) {
-        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getLimitedArrowsSpawned() && packet.getType() == 60) {
-            int arrows = AntiExploit.INSTANCE.getArrowMax();
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.getLimitedArrowsSpawned() && packet.getType() == 60) {
+            int arrows = AntiExploit.getArrowMax();
 
-            if (++arrows >= AntiExploit.INSTANCE.getMaxArrowsSpawned()) {
+            if (++arrows >= AntiExploit.getMaxArrowsSpawned()) {
                 return -1; // Cancel arrows spawn
             }
         }
@@ -128,7 +121,7 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Redirect(method = "handleChangeGameState", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S2BPacketChangeGameState;getGameState()I"))
     private int onChangeGameState(S2BPacketChangeGameState packet) {
-        if (AntiExploit.INSTANCE.getState() && AntiExploit.INSTANCE.getCancelDemo() && mc.isDemo()) {
+        if (AntiExploit.INSTANCE.handleEvents() && AntiExploit.getCancelDemo() && mc.isDemo()) {
             return -1; // Cancel demo
         }
 
@@ -194,10 +187,10 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))
     private void injectNoRotateSetPositionOnly(S08PacketPlayerPosLook p_handlePlayerPosLook_1_, CallbackInfo ci) {
-        NoRotateSet module = NoRotateSet.INSTANCE;
+        NoRotate module = NoRotate.INSTANCE;
 
         // Save the server's requested rotation before it resets the rotations
-        module.setSavedRotation(PlayerExtensionKt.getRotation(Minecraft.getMinecraft().thePlayer));
+        module.setSavedRotation(ExtensionsKt.getRotation(Minecraft.getMinecraft().thePlayer));
     }
 
     @Redirect(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkManager;sendPacket(Lnet/minecraft/network/Packet;)V"))
@@ -207,7 +200,7 @@ public abstract class MixinNetHandlerPlayClient {
         PacketUtils.sendPacket(p_sendPacket_1_, shouldTrigger);
 
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-        NoRotateSet module = NoRotateSet.INSTANCE;
+        NoRotate module = NoRotate.INSTANCE;
 
         if (player == null || !module.shouldModify(player)) {
             return;
@@ -220,12 +213,12 @@ public abstract class MixinNetHandlerPlayClient {
         Rotation currentRotation = RotationUtils.INSTANCE.getCurrentRotation();
 
         if (currentRotation != null && module.getAffectServerRotation()) {
-            RotationUtils.INSTANCE.setSetbackRotation(new MutableTriple<>(PlayerExtensionKt.getRotation(player), true, currentRotation));
+            RotationUtils.INSTANCE.setSetbackRotation(new MutableTriple<>(ExtensionsKt.getRotation(player), true, currentRotation));
         }
 
         // Slightly modify the client-side rotations, so they pass the rotation difference check in onUpdateWalkingPlayer, EntityPlayerSP.
-        player.rotationYaw = (rotation.getYaw() + 0.000001f * sign) % 360.0F;
-        player.rotationPitch = (rotation.getPitch() + 0.000001f * sign) % 360.0F;
+        player.rotationYaw = (rotation.getYaw() + 0.000001f * sign) % 360f;
+        player.rotationPitch = (rotation.getPitch() + 0.000001f * sign) % 360f;
         RotationUtils.INSTANCE.syncRotations();
     }
 }

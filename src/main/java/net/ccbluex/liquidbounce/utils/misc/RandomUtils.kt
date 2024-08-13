@@ -1,13 +1,13 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils.misc
 
 import me.liuli.elixir.account.CrackedAccount
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
-import net.ccbluex.liquidbounce.event.SessionEvent
+import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.minecraft.util.Session
@@ -3050,4 +3050,15 @@ object RandomUtils {
         "t" to "7",
         "z" to "2"
     )
+
+    fun chanceOf(chance: Double, block: () -> Unit = {}): Boolean {
+        if (Random.nextDouble() > chance) {
+            return false
+        } else {
+            block()
+            return true
+        }
+    }
+
+    fun chanceOf(chance: Float, block: () -> Unit = {}) = chanceOf(chance.toDouble(), block)
 }

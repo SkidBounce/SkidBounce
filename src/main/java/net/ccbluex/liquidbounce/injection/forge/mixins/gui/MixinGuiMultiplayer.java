@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
@@ -30,21 +30,25 @@ public abstract class MixinGuiMultiplayer extends MixinGuiScreen {
         GuiButton button = buttonList.stream().filter(b -> b.displayString.equals("ViaForge")).findFirst().orElse(null);
 
         int increase = 0;
-        int yPosition = 8;
 
         if (button != null) {
-            increase += 105;
-            yPosition = Math.min(button.yPosition, 10);
+            // Set it next to the BungeeCord Spoof button
+            button.xPosition = 158;
+            button.yPosition = 8;
+//            increase += 105;
         }
 
-        buttonList.add(new GuiButton(997, 5 + increase, yPosition, 45, 20, "Fixes"));
-        buttonList.add(bungeeCordSpoofButton = new GuiButton(998, 55 + increase, yPosition, 98, 20, "BungeeCord Spoof: " + (BungeeCordSpoof.INSTANCE.getEnabled() ? "On" : "Off")));
-        buttonList.add(new GuiButton(999, width - 104, yPosition, 98, 20, "Tools"));
+        buttonList.add(new GuiButton(997, 5 + increase, 8, 45, 20, "Fixes"));
+        buttonList.add(bungeeCordSpoofButton = new GuiButton(998, 55 + increase, 8, 98, 20, "BungeeCord Spoof: " + (BungeeCordSpoof.INSTANCE.getEnabled() ? "On" : "Off")));
+        buttonList.add(new GuiButton(999, width - 104, 8, 98, 20, "Tools"));
     }
 
     @Inject(method = "actionPerformed", at = @At("HEAD"))
     private void actionPerformed(GuiButton button, CallbackInfo callbackInfo) throws IOException {
         switch (button.id) {
+//            case 996:
+//                mc.displayGuiScreen(new GuiProtocolSelector((GuiScreen) (Object) this));
+//                break;
             case 997:
                 mc.displayGuiScreen(new GuiClientFixes((GuiScreen) (Object) this));
                 break;

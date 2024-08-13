@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.chat
 
@@ -58,7 +58,7 @@ class ClientHandler(val client: Client, private val handshaker: WebSocketClientH
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         LOGGER.error("LiquidChat error", cause)
         client.onError(cause)
-        if(!handshakeFuture.isDone) handshakeFuture.setFailure(cause)
+        if (!handshakeFuture.isDone) handshakeFuture.setFailure(cause)
         ctx.close()
     }
 
@@ -76,7 +76,7 @@ class ClientHandler(val client: Client, private val handshaker: WebSocketClientH
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Any) {
         val channel = ctx.channel()
 
-        if(!handshaker.isHandshakeComplete) {
+        if (!handshaker.isHandshakeComplete) {
             try{
                 handshaker.finishHandshake(channel, msg as FullHttpResponse)
                 handshakeFuture.setSuccess()

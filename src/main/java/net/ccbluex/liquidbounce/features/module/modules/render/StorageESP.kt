@@ -1,16 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import co.uk.hexeption.utils.OutlineUtils
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render2DEvent
-import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.Render2DEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestAura.clickedTileEntities
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.disableFastRender
@@ -19,9 +19,9 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
 import net.minecraft.entity.item.EntityMinecartChest
@@ -30,21 +30,33 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object StorageESP : Module("StorageESP", ModuleCategory.RENDER) {
+object StorageESP : Module("StorageESP", RENDER) {
     private val mode by
-        ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
+    ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
 
-        private val glowRenderScale by FloatValue("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
-        private val glowRadius by IntegerValue("Glow-Radius", 4, 1..5) { mode == "Glow" }
-        private val glowFade by IntegerValue("Glow-Fade", 10, 0..30) { mode == "Glow" }
-        private val glowTargetAlpha by FloatValue("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
+    private val glowRenderScale by FloatValue("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }
+    private val glowRadius by IntValue(
+        "Glow-Radius",
+        4,
+        1..5
+    ) { mode == "Glow" }
+    private val glowFade by IntValue(
+        "Glow-Fade",
+        10,
+        0..30
+    ) { mode == "Glow" }
+    private val glowTargetAlpha by FloatValue("Glow-Target-Alpha", 0f, 0f..1f) { mode == "Glow" }
 
-    private val customColor by BoolValue("CustomColor", false)
-        private val colorRed by IntegerValue("R", 255, 0..255) { customColor }
-        private val colorGreen by IntegerValue("G", 179, 0..255) { customColor }
-        private val colorBlue by IntegerValue("B", 72, 0..255) { customColor }
+    private val customColor by BooleanValue("CustomColor", false)
+    private val colorRed by IntValue("R", 255, 0..255) { customColor }
+    private val colorGreen by IntValue("G", 179, 0..255) { customColor }
+    private val colorBlue by IntValue("B", 72, 0..255) { customColor }
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..500) {
+    private val maxRenderDistance by object : IntValue(
+        "MaxRenderDistance",
+        100,
+        1..500
+    ) {
         override fun onUpdate(value: Int) {
             maxRenderDistanceSq = value.toDouble().pow(2.0)
         }
@@ -52,14 +64,14 @@ object StorageESP : Module("StorageESP", ModuleCategory.RENDER) {
 
     private var maxRenderDistanceSq = 0.0
 
-    private val chest by BoolValue("Chest", true)
-    private val enderChest by BoolValue("EnderChest", true)
-    private val furnace by BoolValue("Furnace", true)
-    private val dispenser by BoolValue("Dispenser", true)
-    private val hopper by BoolValue("Hopper", true)
-    private val enchantmentTable by BoolValue("EnchantmentTable", false)
-    private val brewingStand by BoolValue("BrewingStand", false)
-    private val sign by BoolValue("Sign", false)
+    private val chest by BooleanValue("Chest", true)
+    private val enderChest by BooleanValue("EnderChest", true)
+    private val furnace by BooleanValue("Furnace", true)
+    private val dispenser by BooleanValue("Dispenser", true)
+    private val hopper by BooleanValue("Hopper", true)
+    private val enchantmentTable by BooleanValue("EnchantmentTable", false)
+    private val brewingStand by BooleanValue("BrewingStand", false)
+    private val sign by BooleanValue("Sign", false)
 
     private fun getColor(tileEntity: TileEntity): Color? {
         return if (customColor) {
@@ -231,7 +243,7 @@ object StorageESP : Module("StorageESP", ModuleCategory.RENDER) {
 
             glColor(Color(255, 255, 255, 255))
             mc.gameSettings.gammaSetting = gamma
-            } catch (ignored: Exception) {
+        } catch (ignored: Exception) {
         }
     }
 
@@ -276,6 +288,6 @@ object StorageESP : Module("StorageESP", ModuleCategory.RENDER) {
             LOGGER.error("An error occurred while rendering all storages for shader esp", ex)
         }
 
-       GlowShader.stopDraw(Color(0, 66, 255), glowRadius, glowFade, glowTargetAlpha)
+        GlowShader.stopDraw(Color(0, 66, 255), glowRadius, glowFade, glowTargetAlpha)
     }
 }

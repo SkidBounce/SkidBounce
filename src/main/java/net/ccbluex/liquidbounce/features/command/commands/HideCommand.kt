@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
@@ -51,11 +51,7 @@ object HideCommand : Command("hide") {
                     }
 
                     // Find key by name and change
-                    if (!module.hideModuleValue.get()) {
-                        module.hideModuleValue.set(true)
-                    } else {
-                        module.hideModuleValue.set(false)
-                    }
+                    module.inArray = !module.inArray
 
                     // Response to user
                     chat("Module §a§l${module.getName()}§3 is now §a§l${if (module.inArray) "visible" else "invisible"}§3 on the array list.")

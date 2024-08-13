@@ -1,9 +1,8 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
-
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
@@ -14,8 +13,8 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.getHealth
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRectNew
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRectNew
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawScaledCustomSizeModalRect
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
 import net.ccbluex.liquidbounce.value.*
@@ -41,32 +40,32 @@ class Target : Element() {
     private val borderStrength by FloatValue("Border-Strength", 3F, 1F..5F)
 
     private val backgroundMode by ListValue("Background-Color", arrayOf("Custom", "Rainbow"), "Custom")
-    private val backgroundRed by IntegerValue("Background-R", 0, 0..255) { backgroundMode == "Custom" }
-    private val backgroundGreen by IntegerValue("Background-G", 0, 0..255) { backgroundMode == "Custom" }
-    private val backgroundBlue by IntegerValue("Background-B", 0, 0..255) { backgroundMode == "Custom" }
-    private val backgroundAlpha by IntegerValue("Background-Alpha", 255, 0..255) { backgroundMode == "Custom" }
+    private val backgroundRed by IntValue("Background-R", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundGreen by IntValue("Background-G", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundBlue by IntValue("Background-B", 0, 0..255) { backgroundMode == "Custom" }
+    private val backgroundAlpha by IntValue("Background-Alpha", 255, 0..255) { backgroundMode == "Custom" }
 
     private val borderMode by ListValue("Border-Color", arrayOf("Custom", "Rainbow"), "Custom")
-    private val borderRed by IntegerValue("Border-R", 0, 0..255) { borderMode == "Custom" }
-    private val borderGreen by IntegerValue("Border-G", 0, 0..255) { borderMode == "Custom" }
-    private val borderBlue by IntegerValue("Border-B", 0, 0..255) { borderMode == "Custom" }
-    private val borderAlpha by IntegerValue("Border-Alpha", 255, 0..255) { borderMode == "Custom" }
+    private val borderRed by IntValue("Border-R", 0, 0..255) { borderMode == "Custom" }
+    private val borderGreen by IntValue("Border-G", 0, 0..255) { borderMode == "Custom" }
+    private val borderBlue by IntValue("Border-B", 0, 0..255) { borderMode == "Custom" }
+    private val borderAlpha by IntValue("Border-Alpha", 255, 0..255) { borderMode == "Custom" }
 
-    private val textRed by IntegerValue("Text-R", 255, 0..255)
-    private val textGreen by IntegerValue("Text-G", 255, 0..255)
-    private val textBlue by IntegerValue("Text-B", 255, 0..255)
-    private val textAlpha by IntegerValue("Text-Alpha", 255, 0..255)
+    private val textRed by IntValue("Text-R", 255, 0..255)
+    private val textGreen by IntValue("Text-G", 255, 0..255)
+    private val textBlue by IntValue("Text-B", 255, 0..255)
+    private val textAlpha by IntValue("Text-Alpha", 255, 0..255)
 
     private val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
     private val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F) { backgroundMode == "Rainbow" }
 
     private val titleFont by FontValue("TitleFont", Fonts.font40)
     private val bodyFont by FontValue("BodyFont", Fonts.font35)
-    private val textShadow by BoolValue("TextShadow", false)
+    private val textShadow by BooleanValue("TextShadow", false)
 
     private val fadeSpeed by FloatValue("FadeSpeed", 2F, 1F..9F)
-    private val absorption by BoolValue("Absorption", true)
-    private val healthFromScoreboard by BoolValue("HealthFromScoreboard", true)
+    private val absorption by BooleanValue("Absorption", true)
+    private val healthFromScoreboard by BooleanValue("HealthFromScoreboard", true)
 
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private var easingHealth = 0F
@@ -118,20 +117,28 @@ class Target : Element() {
                 )
             }
 
-            // Damage animation
-            if (easingHealth > targetHealth.coerceAtMost(target.maxHealth))
-                drawRectNew(0F, 34F, (easingHealth / target.maxHealth).coerceAtMost(1f) * width, 36F, Color(252, 185, 65).rgb)
-
             // Health bar
-            drawRectNew(3F, 34F, (targetHealth / target.maxHealth).coerceAtMost(1f) * width - 4f, 36F, healthColor.rgb)
+            val healthBarWidth = (targetHealth / target.maxHealth) * (width - 6f)
+            drawRectNew(3F, 34F, 3f + healthBarWidth, 36F, healthColor.rgb)
 
             // Heal animation
             if (easingHealth < targetHealth)
                 drawRectNew((easingHealth / target.maxHealth).coerceAtMost(1f) * width, 34F,
                         (targetHealth / target.maxHealth).coerceAtMost(1f) * width, 36F, Color(44, 201, 144).rgb)
 
+            // Easing health update
             easingHealth += ((targetHealth - easingHealth) / 2f.pow(10f - fadeSpeed)) * deltaTime
+            val easingHealthWidth = (easingHealth / target.maxHealth) * (width - 6f)
 
+            // Heal animation, only animate from the right side
+            if (easingHealth < targetHealth) {
+                drawRectNew(3f + easingHealthWidth, 34F, 3f + healthBarWidth, 36F, Color(44, 201, 144).rgb)
+            }
+
+            // Damage animation, only animate from the right side
+            if (easingHealth > targetHealth) {
+                drawRectNew(3f + healthBarWidth, 34F, 3f + easingHealthWidth, 36F, Color(252, 185, 65).rgb)
+            }
 
             target.name?.let {
                 titleFont.drawString(
@@ -167,7 +174,7 @@ class Target : Element() {
         }
 
         lastTarget = target
-        return Border(0F, 0F, 120F, 36F)
+        return Border(0F, 0F, 116F, 40F)
     }
 
     private fun drawHead(skin: ResourceLocation, width: Int, height: Int) {
@@ -175,5 +182,4 @@ class Target : Element() {
         mc.textureManager.bindTexture(skin)
         drawScaledCustomSizeModalRect(4, 4, 8F, 8F, 8, 8, width - 2, height - 2, 64F, 64F)
     }
-
 }

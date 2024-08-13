@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
@@ -94,7 +94,7 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
         float scaleY = ibakedmodel.getItemCameraTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y;
 
         if (isPhysicsState) {
-            translate((float)x, (float)y, (float)z);
+            translate((float) x, (float) y, (float) z);
         } else {
             translate((float) x, (float) y + sinValue + yOffset * scaleY, (float) z);
         }
@@ -108,7 +108,7 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
         if (isGui3d || this.renderManager.options != null) {
             float rotationYaw = (age / 20.0F + hoverStart) * (180F / (float) Math.PI);
 
-            rotationYaw *= itemPhysics.getRotationSpeed() * (1.0F + Math.min(age / 360.0F, 1.0F));
+            rotationYaw *= (isPhysicsState ? itemPhysics.getRotationSpeed() : 1f) * (1.0F + Math.min(age / 360.0F, 1.0F));
 
             if (isPhysicsState) {
                 if (itemIn.onGround) {

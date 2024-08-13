@@ -1,90 +1,89 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac.AAC
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac.AAC3311
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac.AAC3315
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac.LAAC
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other.*
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other.Blink
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.PLAYER
+import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
+import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
+import net.ccbluex.liquidbounce.utils.MovementUtils.aboveVoid
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.utils.extensions.resetSpeed
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB.fromBounds
 
-object NoFall : Module("NoFall", ModuleCategory.PLAYER, hideModule = false) {
-    private val noFallModes = arrayOf(
-        SpoofGround,
-        NoGround,
-        Packet,
-        MLG,
-        AAC,
-        LAAC,
-        AAC3311,
-        AAC3315,
-        Cancel,
-        Spartan,
-        CubeCraft,
-        Hypixel,
-        Blink
-    )
+object NoFall : Module("NoFall", PLAYER) {
+    private val noFallModes = javaClass.`package`.getAllObjects<NoFallMode>().sortedBy { it.modeName }
 
-    private val modes = noFallModes.map { it.modeName }.toTypedArray()
+    val mode by ListValue("Mode", noFallModes.map { it.modeName }.toTypedArray(), "SpoofGround")
 
-    val mode by ListValue("Mode", modes, "SpoofGround")
+    private val noVoid by BooleanValue("NoVoid", false)
 
-    val minFallDistance by FloatValue("MinMLGHeight", 5f, 2f..50f, subjective = true) { mode == "MLG" }
-    val retrieveDelay by IntegerValue("RetrieveDelay", 100, 100..500, subjective = true) { mode == "MLG" }
+    val mlgMinFallDistance by FloatValue("MLG-MinHeight", 5f, 2f..50f) { mode == "MLG" }
+    val mlgRetrieveDelay by IntValue("MLG-RetrieveDelay", 100, 100..500) { mode == "MLG" }
+
+    val spoofgroundAlways by BooleanValue("SpoofGround-Always", true) { mode == "SpoofGround" }
+    val spoofgroundMinFallDistance by FloatValue("SpoofGround-MinFallDistance", 0f, 0f..3f) { mode == "SpoofGround" && !spoofgroundAlways }
+
+    val motionMotion by FloatValue("Motion-Motion", -0.01f, -5f..5f) { mode == "Motion" }
+
+    val phaseOffset by IntValue("Phase-Offset", 1, 0..5) { mode == "Phase" }
+
+    val verusMulti by FloatValue("Verus-XZMulti", 0.6f, 0f..1f) { mode == "Verus" }
+
+    val vulcan2Motion by FloatValue("Vulcan2-Motion", 0.35f, 0f..10f) { mode == "Vulcan2" }
+
+    val aac5014NightX by BooleanValue("AAC5.0.14-NightX", false) { mode == "AAC5.0.14" }
+
+    val matrix6632Safe by BooleanValue("Matrix6.6.3-2-Safe", false) { mode == "Matrix6.6.3-2" }
 
     // Using too many times of simulatePlayer could result timer flag. Hence, why this is disabled by default.
-    val checkFallDist by BoolValue("CheckFallDistance", false, subjective = true)
-
-    val minFallDist: FloatValue = object : FloatValue("MinFallDistance", 2.5f, 0f..10f, subjective = true) {
+    val checkFallDist by BooleanValue("CheckFallDistance", false) { mode == "Blink" }
+    val minFallDist: FloatValue = object : FloatValue("MinFallDistance", 2.5f, 0f..10f) {
         override fun isSupported() = mode == "Blink" && checkFallDist
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxFallDist.get())
     }
-    val maxFallDist: FloatValue = object : FloatValue("MaxFallDistance", 20f, 0f..100f, subjective = true) {
+    val maxFallDist: FloatValue = object : FloatValue("MaxFallDistance", 20f, 0f..100f) {
         override fun isSupported() = mode == "Blink" && checkFallDist
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minFallDist.get())
     }
-
-    val autoOff by BoolValue("AutoOff", true) { mode == "Blink" }
-    val simulateDebug by BoolValue("SimulationDebug", false, subjective = true) { mode == "Blink" }
-    val fakePlayer by BoolValue("FakePlayer", true, subjective = true) { mode == "Blink" }
+    val autoOff by BooleanValue("AutoOff", true) { mode == "Blink" }
+    val simulateDebug by BooleanValue("SimulationDebug", false, subjective = true) { mode == "Blink" }
 
     override fun onEnable() {
+        mc.timer.resetSpeed()
         modeModule.onEnable()
     }
 
     override fun onDisable() {
+        mc.timer.resetSpeed()
         modeModule.onDisable()
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        val thePlayer = mc.thePlayer
+        mc.thePlayer ?: return
 
-        if (FreeCam.handleEvents()) return
+        if (void || FreeCam.handleEvents()) return
 
-        if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid } || collideBlock(
+        if (collideBlock(mc.thePlayer.entityBoundingBox) { it is BlockLiquid } || collideBlock(
                 fromBounds(
-                    thePlayer.entityBoundingBox.maxX,
-                    thePlayer.entityBoundingBox.maxY,
-                    thePlayer.entityBoundingBox.maxZ,
-                    thePlayer.entityBoundingBox.minX,
-                    thePlayer.entityBoundingBox.minY - 0.01,
-                    thePlayer.entityBoundingBox.minZ
+                    mc.thePlayer.entityBoundingBox.maxX,
+                    mc.thePlayer.entityBoundingBox.maxY,
+                    mc.thePlayer.entityBoundingBox.maxZ,
+                    mc.thePlayer.entityBoundingBox.minX,
+                    mc.thePlayer.entityBoundingBox.minY - 0.01,
+                    mc.thePlayer.entityBoundingBox.minZ
                 )
             ) { it is BlockLiquid }
         ) return
@@ -93,22 +92,11 @@ object NoFall : Module("NoFall", ModuleCategory.PLAYER, hideModule = false) {
     }
 
     @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        modeModule.onRender3D(event)
-    }
-
-    @EventTarget
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
+        if (void) return
 
         modeModule.onPacket(event)
-    }
-
-    @EventTarget
-    fun onBB(event: BlockBBEvent) {
-        mc.thePlayer ?: return
-
-        modeModule.onBB(event)
     }
 
     // Ignore condition used in LAAC mode
@@ -118,28 +106,25 @@ object NoFall : Module("NoFall", ModuleCategory.PLAYER, hideModule = false) {
     }
 
     @EventTarget
-    fun onStep(event: StepEvent) {
-        modeModule.onStep(event)
-    }
-
-    @EventTarget
     fun onMotion(event: MotionEvent) {
+        if (void) return
         modeModule.onMotion(event)
     }
 
     @EventTarget
     fun onMove(event: MoveEvent) {
-        val thePlayer = mc.thePlayer
+        if (void) return
+        mc.thePlayer ?: return
 
-        if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid }
+        if (collideBlock(mc.thePlayer.entityBoundingBox) { it is BlockLiquid }
             || collideBlock(
                 fromBounds(
-                    thePlayer.entityBoundingBox.maxX,
-                    thePlayer.entityBoundingBox.maxY,
-                    thePlayer.entityBoundingBox.maxZ,
-                    thePlayer.entityBoundingBox.minX,
-                    thePlayer.entityBoundingBox.minY - 0.01,
-                    thePlayer.entityBoundingBox.minZ
+                    mc.thePlayer.entityBoundingBox.maxX,
+                    mc.thePlayer.entityBoundingBox.maxY,
+                    mc.thePlayer.entityBoundingBox.maxZ,
+                    mc.thePlayer.entityBoundingBox.minX,
+                    mc.thePlayer.entityBoundingBox.minY - 0.01,
+                    mc.thePlayer.entityBoundingBox.minZ
                 )
             ) { it is BlockLiquid }
         ) return
@@ -149,6 +134,9 @@ object NoFall : Module("NoFall", ModuleCategory.PLAYER, hideModule = false) {
 
     override val tag
         get() = mode
+
+    private val void
+        get() = noVoid && aboveVoid
 
     private val modeModule
         get() = noFallModes.find { it.modeName == mode }!!

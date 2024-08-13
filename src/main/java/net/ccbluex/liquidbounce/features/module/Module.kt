@@ -1,48 +1,51 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.LiquidBounce.isStarting
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.features.module.modules.misc.GameDetector
+import net.ccbluex.liquidbounce.features.module.modules.client.GameDetector
 import net.ccbluex.liquidbounce.file.FileManager.modulesConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
-import net.ccbluex.liquidbounce.lang.translation
+import net.ccbluex.liquidbounce.lang.LanguageManager.getTranslation
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.Value
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 
-open class Module constructor(
-
+open class Module(
     val name: String,
     val category: ModuleCategory,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
     val defaultInArray: Boolean = true, // Used in HideCommand to reset modules visibility.
     private val canBeEnabled: Boolean = true,
     private val forcedDescription: String? = null,
-
     // Adds spaces between lowercase and uppercase letters (KillAura -> Kill Aura)
     val spacedName: String = name.split("(?<=[a-z])(?=[A-Z])".toRegex()).joinToString(separator = " "),
     val subjective: Boolean = category == ModuleCategory.RENDER,
     val gameDetecting: Boolean = canBeEnabled,
-    val hideModule: Boolean = false
-
+    defaultEnabled: Boolean = false,
 ) : MinecraftInstance(), Listenable {
 
     // Value that determines whether the module should depend on GameDetector
-    private val onlyInGameValue = BoolValue("OnlyInGame", true, subjective = true) { GameDetector.state }
+    private val onlyInGameValue = BooleanValue("OnlyInGame", true, subjective = true) { GameDetector.state }
+
+    private val hideModuleValue = object : BooleanValue("Hide", !defaultInArray, subjective = true) {
+        override fun onUpdate(value: Boolean) {
+            saveConfig(modulesConfig)
+        }
+    }
 
     protected val TickScheduler = TickScheduler(this)
 
@@ -58,28 +61,14 @@ open class Module constructor(
             saveConfig(modulesConfig)
         }
 
-    val hideModuleValue: BoolValue = object : BoolValue("Hide", false, subjective = true) {
-        override fun onUpdate(value: Boolean) {
-            inArray = !value
-        }
-    }
-
-    // Use for synchronizing
-    val hideModuleValues: BoolValue = object : BoolValue("HideSync", hideModuleValue.get(), subjective = true) {
-        override fun onUpdate(value: Boolean) {
-            hideModuleValue.set(value)
-        }
-    }
-
-    var inArray = defaultInArray
+    var inArray
+        get() = !hideModuleValue.get()
         set(value) {
-            field = value
-
-            saveConfig(modulesConfig)
+            hideModuleValue.set(!value)
         }
 
     val description
-        get() = forcedDescription ?: translation("module.${name.toLowerCamelCase()}.description")
+        get() = forcedDescription ?: getTranslation("module.${name.toLowerCamelCase()}.description")
 
     var slideStep = 0F
 
@@ -97,7 +86,14 @@ open class Module constructor(
             // Play sound and add notification
             if (!isStarting) {
                 mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("random.click"), 1F))
-                addNotification(Notification(translation("notification.module" + if (value) "Enabled" else "Disabled", getName())))
+                addNotification(
+                    Notification(
+                        getTranslation(
+                            "notification.module" + if (value) "Enabled" else "Disabled",
+                            getName()
+                        )
+                    )
+                )
             }
 
             // Call on enabled or disabled
@@ -115,7 +111,6 @@ open class Module constructor(
             saveConfig(modulesConfig)
         }
 
-
     // HUD
     val hue = nextFloat()
     var slide = 0F
@@ -124,6 +119,10 @@ open class Module constructor(
     // Tag
     open val tag: String?
         get() = null
+
+    // AutoDisable
+    @Suppress("PropertyName")
+    val AutoDisable = AutoDisable()
 
     /**
      * Toggle module
@@ -170,8 +169,7 @@ open class Module constructor(
                 if (gameDetecting)
                     it.add(onlyInGameValue)
 
-                if (!hideModule)
-                    it.add(hideModuleValue)
+                it.add(hideModuleValue)
             }
             .distinctBy { it.name }
 
@@ -182,4 +180,10 @@ open class Module constructor(
      * Events should be handled when module is enabled
      */
     override fun handleEvents() = state && isActive
+
+    init {
+        if (defaultEnabled) {
+            state = true
+        }
+    }
 }

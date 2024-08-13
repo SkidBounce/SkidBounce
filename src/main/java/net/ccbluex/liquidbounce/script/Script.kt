@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.script
 
@@ -104,7 +104,7 @@ class Script(val scriptFile: File) : MinecraftInstance() {
         val categoryString = moduleObject.getMember("category") as String
         val category = ModuleCategory.values().find {
             it.displayName.equals(categoryString, true)
-        } ?: ModuleCategory.FUN
+        } ?: ModuleCategory.SCRIPT
 
 
         val module = ScriptModule(name, category, description, moduleObject)

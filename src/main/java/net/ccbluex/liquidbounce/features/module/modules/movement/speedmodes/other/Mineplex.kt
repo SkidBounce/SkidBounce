@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.other
 
@@ -12,8 +12,10 @@ import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * @author CCBlueX/LiquidBounce
+ */
 object Mineplex : SpeedMode("Mineplex") {
-
     private var speed1 = 0f
     private var speed2 = 0f
     private var wfg = false
@@ -29,7 +31,7 @@ object Mineplex : SpeedMode("Mineplex") {
             speed2 = speed1
             speed1 = 0f
         } else {
-            if(wfg) {
+            if (wfg) {
                 speed1 = (speed2 + (0.46532f * min(fallDistance, 1f)))
                 wfg = false
             } else speed1 = ((distance * 0.936f).toFloat())

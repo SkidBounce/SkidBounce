@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
@@ -27,43 +27,24 @@ import static net.minecraft.client.renderer.GlStateManager.resetColor;
 @Mixin(GuiButton.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinGuiButton extends Gui {
+   @Shadow public boolean visible;
+   @Shadow public int xPosition;
+   @Shadow public int yPosition;
+   @Shadow public int width;
+   @Shadow public int height;
+   @Shadow protected boolean hovered;
+   @Shadow public boolean enabled;
+   @Shadow protected abstract void mouseDragged(Minecraft mc, int mouseX, int mouseY);
+   @Shadow public String displayString;
+   @Shadow @Final protected static ResourceLocation buttonTextures;
 
-   @Shadow
-   public boolean visible;
-
-   @Shadow
-   public int xPosition;
-
-   @Shadow
-   public int yPosition;
-
-   @Shadow
-   public int width;
-
-   @Shadow
-   public int height;
-
-   @Shadow
-   protected boolean hovered;
-
-   @Shadow
-   public boolean enabled;
-
-   @Shadow
-   protected abstract void mouseDragged(Minecraft mc, int mouseX, int mouseY);
-
-   @Shadow
-   public String displayString;
-
-   @Shadow
-   @Final
-   protected static ResourceLocation buttonTextures;
    private float cut;
    private float alpha;
 
    /**
     * @author CCBlueX
     */
+   @SuppressWarnings("OverwriteAuthorRequired")
    @Overwrite
    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
       if (visible) {

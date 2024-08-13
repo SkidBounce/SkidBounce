@@ -3,12 +3,15 @@
   "package": "net.ccbluex.liquidbounce.injection.forge.mixins",
   "refmap": "liquidbounce.mixins.refmap.json",
   "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.7.11",
   "mixins": [
     "block.MixinBlock",
     "block.MixinBlockAnvil",
     "block.MixinBlockLadder",
     "block.MixinBlockLiquid",
     "block.MixinBlockModelRenderer",
+    "block.MixinBlockPistonBase",
+    "block.MixinBlockSlime",
     "block.MixinBlockSoulSand",
     "client.MixinGameSettings",
     "client.MixinMinecraft",
@@ -22,6 +25,7 @@
     "entity.MixinEntityPlayer",
     "entity.MixinEntityPlayerSP",
     "entity.MixinPlayerControllerMP",
+    "gui.MixinGuiAchievement",
     "gui.MixinGuiButton",
     "gui.MixinGuiButtonExt",
     "gui.MixinGuiChat",
@@ -63,13 +67,9 @@
     "render.MixinVisGraph",
     "resources.MixinSkinManager",
     "tweaks.MixinAnvilChunkLoader",
+    "tweaks.MixinEntityFX",
     "tweaks.MixinMinecraftServer",
     "world.MixinChunk",
-    "world.MixinWorld",
     "world.MixinWorldClient"
-  ],
-  "client": [
-    "gui.MixinGuiAchievement",
-    "tweaks.MixinEntityFX"
   ]
 }

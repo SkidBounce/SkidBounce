@@ -1,9 +1,15 @@
+/*
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
+ */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.blocksmc
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.boostSpeed
+import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clipDistance
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.debugFly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.extraBoost
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stable
@@ -11,11 +17,11 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnLandi
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnNoMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.world.World
@@ -35,6 +41,7 @@ import net.minecraft.world.World
  * you get the Fly message Line(153). Also avoid flying too many times (At long distance).
  *
  * @author EclipsesDev
+ * @author CCBlueX/LiquidBounce
  */
 object BlocksMC : FlyMode("BlocksMC") {
 
@@ -51,13 +58,13 @@ object BlocksMC : FlyMode("BlocksMC") {
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
                 if (debugFly)
-                    Chat.print("Ground Detected.. Stopping Fly")
+                    displayClientMessage("Ground Detected.. Stopping Fly")
                 Fly.state = false
             }
 
             if (!isMoving && stopOnNoMove) {
                 if (debugFly)
-                    Chat.print("No Movement Detected.. Stopping Fly. (Could be flagged)")
+                    displayClientMessage("No Movement Detected.. Stopping Fly. (Could be flagged)")
                 Fly.state = false
             }
         }
@@ -66,7 +73,6 @@ object BlocksMC : FlyMode("BlocksMC") {
 
         if (shouldFly(player, world)) {
             if (isTeleported) {
-
                 if (stable)
                     player.motionY = 0.0
 
@@ -74,7 +80,7 @@ object BlocksMC : FlyMode("BlocksMC") {
                 handlePlayerFlying(player)
             } else {
                 if (debugFly)
-                    Chat.print("Waiting to be Teleported.. Please ensure you're below a block.")
+                    displayClientMessage("Waiting to be Teleported.. Please ensure you're below a block.")
             }
         } else {
             handleTeleport(player)
@@ -120,7 +126,7 @@ object BlocksMC : FlyMode("BlocksMC") {
             0 -> {
                 if (isNotUnder && isTeleported) {
                     strafe(boostSpeed + extraBoost)
-                    player.tryJump()
+                    player.jmp()
                     isFlying = true
                     isNotUnder = false
                 }
@@ -140,7 +146,7 @@ object BlocksMC : FlyMode("BlocksMC") {
                 C04PacketPlayerPosition(
                     player.posX,
                     // Clipping is now patch in BlocksMC
-                    player.posY - 0.05,
+                    player.posY - clipDistance,
                     player.posZ,
                     false
                 )
@@ -156,7 +162,7 @@ object BlocksMC : FlyMode("BlocksMC") {
 
             isTeleported = true
             if (debugFly)
-                Chat.print("Teleported.. Fly Now!")
+                displayClientMessage("Teleported.. Fly Now!")
         }
     }
 }

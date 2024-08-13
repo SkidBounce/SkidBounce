@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils.login
 
@@ -76,19 +76,18 @@ object UserUtils {
             HttpURLConnection.setFollowRedirects(true)
             httpConnection.doOutput = true
 
-            if(httpConnection.responseCode != 200)
+            if (httpConnection.responseCode != 200)
                 return ""
 
             // Read response content and get id from json
             InputStreamReader(httpConnection.inputStream).use {
                 val jsonElement = JsonParser().parse(it)
 
-                if(jsonElement.isJsonObject) {
+                if (jsonElement.isJsonObject) {
                     return jsonElement.asJsonObject["id"].asString
                 }
             }
-        } catch(ignored : Throwable) {
-        }
+        } catch(ignored: Throwable) {}
 
         return ""
     }

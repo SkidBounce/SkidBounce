@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.command.commands
 
@@ -36,7 +36,7 @@ object ReloadCommand : Command("reload", "configreload") {
         disableScripts()
         unloadScripts()
 
-        for(module in moduleManager.modules)
+        for (module in moduleManager.modules)
             moduleManager.generateCommand(module)
 
         chat("§c§lReloading scripts...")
@@ -47,7 +47,6 @@ object ReloadCommand : Command("reload", "configreload") {
 
         chat("§c§lReloading modules...")
         loadConfig(modulesConfig)
-
 
         chat("§c§lReloading values...")
         loadConfig(valuesConfig)

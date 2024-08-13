@@ -1,12 +1,12 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
 object PPSCounter {
-    private val TIMESTAMP_BUFFERS = Array(PacketType.values().size) { RollingArrayLongBuffer(99999) }
+    private val TIMESTAMP_BUFFERS = Array(2) { RollingArrayLongBuffer(99999) }
 
     /**
      * Registers a packet type

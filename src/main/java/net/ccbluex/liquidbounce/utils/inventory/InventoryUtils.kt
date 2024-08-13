@@ -1,27 +1,31 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.modules.misc.NoSlotSet
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestAura
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.extensions.canUse
+import net.ccbluex.liquidbounce.utils.extensions.isEmpty
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickedActions
 import net.minecraft.block.BlockBush
 import net.minecraft.init.Blocks
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
+import net.minecraft.item.*
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT
-import net.minecraft.network.play.server.S09PacketHeldItemChange
-import net.minecraft.network.play.server.S2DPacketOpenWindow
-import net.minecraft.network.play.server.S2EPacketCloseWindow
+import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
+import net.minecraft.network.play.server.*
+import net.minecraft.util.BlockPos.ORIGIN
+import net.minecraft.util.EnumFacing.DOWN
 
 object InventoryUtils : MinecraftInstance(), Listenable {
 
@@ -35,6 +39,21 @@ object InventoryUtils : MinecraftInstance(), Listenable {
 
                 _serverSlot = value
             }
+        }
+
+    // Are we using an item on server-side?
+    var serverUsing
+        get() = _serverUsing
+        set(value) {
+            if (value == _serverUsing)
+                return
+
+            when (value) {
+                true -> sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+                false -> sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, ORIGIN, DOWN))
+            }
+
+            _serverUsing = value
         }
 
     // Is inventory open on server-side?
@@ -56,6 +75,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
 
     // Backing fields
     private var _serverSlot = 0
+    private var _serverUsing = false
     private var _serverOpenInventory = false
 
     var isFirstInventoryClick = true
@@ -135,17 +155,26 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return if (parsed in 0..8) parsed else null
     }
 
-    @EventTarget
+    @EventTarget(priority = Int.MIN_VALUE + 1)
     fun onPacket(event: PacketEvent) {
 
         if (event.isCancelled) return
 
         when (val packet = event.packet) {
-            is C08PacketPlayerBlockPlacement, is C0EPacketClickWindow -> {
+            is C07PacketPlayerDigging ->
+                if (packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
+                    _serverUsing = false
+            is C08PacketPlayerBlockPlacement -> {
                 CLICK_TIMER.reset()
 
-                if (packet is C0EPacketClickWindow)
-                    isFirstInventoryClick = false
+                // check if the item was used
+                if (packet.placedBlockDirection == 255 && packet.stack.canUse)
+                    _serverUsing = true
+            }
+
+            is C0EPacketClickWindow -> {
+                CLICK_TIMER.reset()
+                isFirstInventoryClick = false
             }
 
             is C16PacketClientStatus ->
@@ -170,12 +199,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             }
 
             is C09PacketHeldItemChange -> {
-                // Support for Singleplayer
-                // (client packets get sent and received, duplicates would get cancelled, making slot changing impossible)
-                if (event.eventType == EventState.RECEIVE) return
-
-                if (packet.slotId == _serverSlot) event.cancelEvent()
-                else _serverSlot = packet.slotId
+                _serverSlot = packet.slotId
             }
 
             is S09PacketHeldItemChange -> {

@@ -1,23 +1,27 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.ncp
 
+import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 
-object OnGround : SpeedMode("OnGround") {
-    override fun onMotion() {
-        val thePlayer = mc.thePlayer
+/**
+ * @author CCBlueX/LiquidBounce
+ */
+object OnGround : SpeedMode("OnGround", true) {
+    override fun onMotion(event: MotionEvent) {
+        val thePlayer = mc.thePlayer ?: return
 
-        if (thePlayer == null || !isMoving)
+        if (!isMoving)
             return
 
         if (thePlayer.fallDistance > 3.994)
             return
-        if (thePlayer.isInWater || thePlayer.isOnLadder || thePlayer.isCollidedHorizontally)
+        if (thePlayer.isCollidedHorizontally)
             return
 
         thePlayer.posY -= 0.3993000090122223
@@ -36,5 +40,4 @@ object OnGround : SpeedMode("OnGround") {
             mc.timer.timerSpeed = 1.199f
         }
     }
-
 }

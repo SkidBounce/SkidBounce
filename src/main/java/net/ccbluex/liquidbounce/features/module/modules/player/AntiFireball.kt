@@ -1,16 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.event.TickEvent
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.TickEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.PLAYER
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.isRotationFaced
@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.Entity
@@ -28,13 +28,13 @@ import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.world.WorldSettings
 
-object AntiFireball : Module("AntiFireball", ModuleCategory.PLAYER, hideModule = false) {
+object AntiFireball : Module("AntiFireball", PLAYER) {
     private val range by FloatValue("Range", 4.5f, 3f..8f)
     private val swing by ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
 
-    private val rotations by BoolValue("Rotations", true)
+    private val rotations by BooleanValue("Rotations", true)
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { rotations }
-    private val strafe by BoolValue("Strafe", false) { rotations }
+    private val strafe by BooleanValue("Strafe", false) { rotations }
 
     private val maxTurnSpeedValue: FloatValue = object : FloatValue("MaxTurnSpeed", 120f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minTurnSpeed)
@@ -43,7 +43,7 @@ object AntiFireball : Module("AntiFireball", ModuleCategory.PLAYER, hideModule =
 
     private val minTurnSpeed by object : FloatValue("MinTurnSpeed", 80f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxTurnSpeed)
-        override fun isSupported() = !maxTurnSpeedValue.isMinimal()
+        override fun isSupported() = !maxTurnSpeedValue.isMinimal
     }
 
     private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { rotations }
@@ -82,7 +82,8 @@ object AntiFireball : Module("AntiFireball", ModuleCategory.PLAYER, hideModule =
 
             if (rotations) {
                 setTargetRotation(
-                    limitAngleChange(currentRotation ?: player.rotation,
+                    limitAngleChange(
+                        currentRotation ?: player.rotation,
                         toRotation(nearestPoint, true),
                         nextFloat(minTurnSpeed, maxTurnSpeed),
                         smootherMode
@@ -112,7 +113,6 @@ object AntiFireball : Module("AntiFireball", ModuleCategory.PLAYER, hideModule =
                 "Normal" -> mc.thePlayer.swingItem()
                 "Packet" -> sendPacket(C0APacketAnimation())
             }
-
             sendPacket(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
 
             if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {

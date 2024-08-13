@@ -1,16 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
-import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
@@ -22,7 +22,7 @@ import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.rotation
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.Entity
@@ -33,26 +33,27 @@ import net.minecraft.item.ItemEnderPearl
 import net.minecraft.item.ItemSnowball
 import java.awt.Color
 
-object BowAimbot : Module("BowAimbot", ModuleCategory.COMBAT, hideModule = false) {
+object BowAimBot : Module("BowAimBot", COMBAT) {
 
-    private val bow by BoolValue("Bow", true, subjective = true)
-    private val egg by BoolValue("Egg", true, subjective = true)
-    private val snowball by BoolValue("Snowball", true, subjective = true)
-    private val pearl by BoolValue("EnderPearl", false, subjective = true)
+    private val bow by BooleanValue("Bow", true, subjective = true)
+    private val egg by BooleanValue("Egg", true, subjective = true)
+    private val snowball by BooleanValue("Snowball", true, subjective = true)
+    private val pearl by BooleanValue("EnderPearl", false, subjective = true)
 
-    private val priority by ListValue("Priority",
+    private val priority by ListValue(
+        "Priority",
         arrayOf("Health", "Distance", "Direction"),
         "Direction",
         subjective = true
     )
 
-    private val predict by BoolValue("Predict", true)
+    private val predict by BooleanValue("Predict", true)
     private val predictSize by FloatValue("PredictSize", 2F, 0.1F..5F) { predict }
 
-    private val throughWalls by BoolValue("ThroughWalls", false, subjective = true)
-    private val mark by BoolValue("Mark", true, subjective = true)
+    private val throughWalls by BooleanValue("ThroughWalls", false)
+    private val mark by BooleanValue("Mark", true, subjective = true)
 
-    private val silent by BoolValue("Silent", true)
+    private val silent by BooleanValue("Silent", true)
     private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { silent }
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative")
     private val maxTurnSpeedValue: FloatValue = object : FloatValue("MaxTurnSpeed", 120f, 0f..180f) {
@@ -65,7 +66,7 @@ object BowAimbot : Module("BowAimbot", ModuleCategory.COMBAT, hideModule = false
     private val minTurnSpeed by object : FloatValue("MinTurnSpeed", 80f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxTurnSpeed)
 
-        override fun isSupported() = !maxTurnSpeedValue.isMinimal() && silent
+        override fun isSupported() = !maxTurnSpeedValue.isMinimal && silent
     }
 
     private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { silent }
@@ -100,7 +101,8 @@ object BowAimbot : Module("BowAimbot", ModuleCategory.COMBAT, hideModule = false
 
                 target = getTarget(throughWalls, priority)
 
-                targetRotation = faceTrajectory(target ?: return,
+                targetRotation = faceTrajectory(
+                    target ?: return,
                     predict,
                     predictSize,
                     gravity = 0.03f,

@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.vulcan
 
-import net.ccbluex.liquidbounce.event.BlockBBEvent
-import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.events.BlockBBEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.minecraft.block.BlockLadder
 import net.minecraft.block.material.Material
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -17,17 +17,14 @@ import net.minecraft.util.AxisAlignedBB
 object VulcanGhost : FlyMode("VulcanGhost") {
 
     override fun onEnable() {
-        Chat.print("Ensure that you sneak on landing.")
-        Chat.print("After landing, go backward (Air) and go forward to landing location, then sneak again.")
-        Chat.print("And then you can turn off fly.")
+        displayClientMessage("Ensure that you sneak on landing.")
+        displayClientMessage("After landing, go backward (Air) and go forward to landing location, then sneak again.")
+        displayClientMessage("And then you can turn off fly.")
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (packet is S08PacketPlayerPosLook) {
+        if (event.packet is S08PacketPlayerPosLook)
             event.cancelEvent()
-        }
     }
 
     override fun onBB(event: BlockBBEvent) {

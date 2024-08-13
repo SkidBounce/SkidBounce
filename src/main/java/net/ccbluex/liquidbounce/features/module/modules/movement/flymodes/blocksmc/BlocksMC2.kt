@@ -1,6 +1,16 @@
+/*
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
+ */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.blocksmc
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState.RECEIVE
+import net.ccbluex.liquidbounce.event.EventState.SEND
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.boostSpeed
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.debugFly
@@ -10,12 +20,12 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnLandi
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.stopOnNoMove
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.timerSlowed
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.Packet
@@ -34,6 +44,7 @@ import net.minecraft.world.World
  * certain (VL). Prolonged flight over long distances is not recommended.
  *
  * @author EclipsesDev
+ * @author CCBlueX/LiquidBounce
  */
 object BlocksMC2 : FlyMode("BlocksMC2") {
 
@@ -52,14 +63,12 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
 
         if (isFlying) {
             if (player.onGround && stopOnLanding) {
-                if (debugFly)
-                    Chat.print("Ground Detected.. Stopping Fly")
+                if (debugFly) displayClientMessage("Ground Detected.. Stopping Fly")
                 Fly.state = false
             }
 
             if (!isMoving && stopOnNoMove) {
-                if (debugFly)
-                    Chat.print("No Movement Detected.. Stopping Fly. (Could be flagged)")
+                if (debugFly) displayClientMessage("No Movement Detected.. Stopping Fly. (Could be flagged)")
                 Fly.state = false
             }
         }
@@ -74,14 +83,8 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
 
                 handleTimerSlow(player)
                 handlePlayerFlying(player)
-            } else {
-                if (player.onGround)
-                    strafe()
-            }
-        } else {
-            if (debugFly)
-                Chat.print("Pls stand under a block")
-        }
+            } else if (player.onGround) strafe()
+        } else if (debugFly) displayClientMessage("Pls stand under a block")
     }
 
     override fun onDisable() {
@@ -113,14 +116,9 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
 
     private fun handleTimerSlow(player: EntityPlayerSP) {
         if (!player.onGround && timerSlowed) {
-            if (player.ticksExisted % 4 == 0) {
-                mc.timer.timerSpeed = 0.45f
-            } else {
-                mc.timer.timerSpeed = 0.4f
-            }
-        } else {
-            mc.timer.timerSpeed = 1.0f
-        }
+            if (player.ticksExisted % 4 == 0) mc.timer.timerSpeed = 0.45f
+            else mc.timer.timerSpeed = 0.4f
+        } else mc.timer.timerSpeed = 1.0f
     }
 
     private fun shouldFly(player: EntityPlayerSP, world: World): Boolean {
@@ -132,7 +130,7 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
             0 -> {
                 if (isNotUnder) {
                     strafe(boostSpeed + extraBoost)
-                    player.tryJump()
+                    player.jmp()
                     isFlying = true
                     isNotUnder = false
                 }
@@ -167,15 +165,15 @@ object BlocksMC2 : FlyMode("BlocksMC2") {
             isBlinked = true
 
             if (debugFly)
-                Chat.print("blinked.. fly now!")
+                displayClientMessage("blinked.. fly now!")
 
-            if (event.eventType == EventState.RECEIVE && mc.thePlayer.ticksExisted > 10) {
+            if (event.eventType == RECEIVE && mc.thePlayer.ticksExisted > 10) {
                 event.cancelEvent()
                 synchronized(packetsReceived) {
                     packetsReceived += packet
                 }
             }
-            if (event.eventType == EventState.SEND) {
+            if (event.eventType == SEND) {
                 synchronized(packets) {
                     sendPackets(*packets.toTypedArray(), triggerEvents = false)
                 }

@@ -1,13 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.WORLD
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.AutoTool
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -20,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isFullBlock
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
@@ -27,35 +31,39 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.block.Block
-import net.minecraft.init.Blocks.air
+import net.minecraft.init.Blocks.*
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.*
-import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.awt.Color
 
-object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
+object Fucker : Module("Fucker", WORLD) {
 
     /**
      * SETTINGS
      */
 
-    private val hypixel by BoolValue("Hypixel", false)
+    private val hypixel by BooleanValue("Hypixel", false)
 
     private val block by BlockValue("Block", 26)
-    private val throughWalls by ListValue("ThroughWalls", arrayOf("None", "Raycast", "Around"), "None") { !hypixel }
+    private val throughWalls by ListValue(
+        "ThroughWalls",
+        arrayOf("None", "Raycast", "Around", "Vulcan"),
+        "None"
+    ) { !hypixel }
     private val range by FloatValue("Range", 5F, 1F..7F)
 
     private val action by ListValue("Action", arrayOf("Destroy", "Use"), "Destroy")
-    private val surroundings by BoolValue("Surroundings", true) { !hypixel }
-    private val instant by BoolValue("Instant", false) { (action == "Destroy" || surroundings) && !hypixel }
+    private val surroundings by BooleanValue("Surroundings", true) { !hypixel }
+    private val instant by BooleanValue("Instant", false) { (action == "Destroy" || surroundings) && !hypixel }
 
-    private val switch by IntegerValue("SwitchDelay", 250, 0..1000)
-    private val swing by BoolValue("Swing", true)
-    private val noHit by BoolValue("NoHit", false)
+    private val switch by IntValue("SwitchDelay", 250, 0..1000)
+    private val swing by SwingValue()
+    private val noHit by BooleanValue("NoHit", false)
 
-    private val rotations by BoolValue("Rotations", true)
+    private val rotations by BooleanValue("Rotations", true)
     private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { rotations }
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { rotations }
     private val maxTurnSpeedValue: FloatValue = object : FloatValue("MaxTurnSpeed", 120f, 0f..180f) {
@@ -67,7 +75,7 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
 
     private val minTurnSpeed by object : FloatValue("MinTurnSpeed", 80f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxTurnSpeed)
-        override fun isSupported() = !maxTurnSpeedValue.isMinimal() && rotations
+        override fun isSupported() = !maxTurnSpeedValue.isMinimal && rotations
     }
 
     private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { rotations }
@@ -208,9 +216,7 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
                     // CivBreak style block breaking
                     sendPacket(C07PacketPlayerDigging(START_DESTROY_BLOCK, currentPos, raytrace.sideHit))
 
-                    if (swing) {
-                        player.swingItem()
-                    }
+                    mc.thePlayer.swing(swing)
 
                     sendPacket(C07PacketPlayerDigging(STOP_DESTROY_BLOCK, currentPos, raytrace.sideHit))
                     currentDamage = 0F
@@ -229,9 +235,7 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
                             currentPos
                         ) >= 1f
                     ) {
-                        if (swing) {
-                            player.swingItem()
-                        }
+                        mc.thePlayer.swing(swing)
 
                         controller.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
 
@@ -242,9 +246,7 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
                     }
                 }
 
-                if (swing) {
-                    player.swingItem()
-                }
+                mc.thePlayer.swing(swing)
 
                 currentDamage += block.getPlayerRelativeBlockHardness(player, world, currentPos)
                 world.sendBlockBreakProgress(player.entityId, currentPos, (currentDamage * 10F).toInt() - 1)
@@ -262,8 +264,7 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
             // Use block
             action == "Use" -> {
                 if (player.onPlayerRightClick(currentPos, raytrace.sideHit, raytrace.hitVec, player.heldItem)) {
-                    if (swing) player.swingItem()
-                    else sendPacket(C0APacketAnimation())
+                    mc.thePlayer.swing(swing)
 
                     blockHitDelay = 4
                     currentDamage = 0F
@@ -301,7 +302,8 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
                     if (Block.getIdFromBlock(block) != targetID
                         || getCenterDistance(blockPos) > range
                         || nearestBlockDistance < distance
-                        || !isHittable(blockPos) && !surroundings && !hypixel) {
+                        || !isHittable(blockPos) && !surroundings && !hypixel
+                    ) {
                         continue
                     }
 
@@ -329,6 +331,31 @@ object Fucker : Module("Fucker", ModuleCategory.WORLD, hideModule = false) {
             }
 
             "around" -> EnumFacing.values().any { !isFullBlock(blockPos.offset(it)) }
+
+            "vulcan" ->
+                blockPos.y > mc.thePlayer.posY || (
+                        EnumFacing.values().any {
+                            val abb = blockPos.offset(it).getBlock()?.getCollisionBoundingBox(
+                                mc.theWorld,
+                                blockPos.offset(it),
+                                getState(blockPos.offset(it))
+                            )
+                            val fbb = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(
+                                blockPos.offset(it).x.toDouble(),
+                                blockPos.offset(it).y.toDouble(),
+                                blockPos.offset(it).z.toDouble()
+                            )!!
+                            val sbb =
+                                if (abb == null) false else (abb.maxX == fbb.maxX && abb.minX == fbb.minX && abb.maxY == fbb.maxY && abb.minY == fbb.minY && abb.maxZ == fbb.maxZ && abb.minZ == fbb.minZ)
+                            when (blockPos.offset(it).getBlock()) {
+                                // probably more, but these are just the ones I found
+                                sticky_piston, piston, beacon, hopper, cauldron, sea_lantern, tnt, glowstone, redstone_block, leaves, leaves2, ice -> true
+                                bedrock -> it != EnumFacing.DOWN
+                                end_portal_frame, soul_sand -> false
+                                else -> blockPos.offset(it).getBlock() != blockPos.getBlock() && !sbb
+                            }
+                        }
+                        )
 
             else -> true
         }

@@ -1,27 +1,69 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.MoveEvent
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.utils.extensions.stopXZ
-import net.ccbluex.liquidbounce.utils.extensions.toRadiansD
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.MoveEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.minecraft.init.Blocks.*
 import net.minecraft.network.play.client.C03PacketPlayer
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import net.minecraft.potion.Potion.moveSpeed
+import net.minecraft.potion.Potion.jump
+import net.minecraft.util.BlockPos
+import kotlin.math.*
 
 object MovementUtils : MinecraftInstance(), Listenable {
+    const val JUMP_HEIGHT = 0.41999998688697815
+    val aboveVoid: Boolean
+        get() {
+            mc.thePlayer ?: return false
+            mc.theWorld ?: return false
+            var void = true
+            var i = -(mc.thePlayer.posY - 1.4857625).toInt()
 
+            while (i <= 0) {
+                void = mc.theWorld.getCollisionBoxes(
+                    mc.thePlayer.entityBoundingBox.offset(
+                        mc.thePlayer.motionX * 0.5,
+                        i.toDouble(),
+                        mc.thePlayer.motionZ * 0.5
+                    )
+                ).isEmpty()
+                ++i
+                if (!void) break
+            }
+
+            return void
+        }
+    val onIce
+        get() = mc.theWorld.getBlockState(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ)).block in arrayOf(packed_ice, ice)
     var speed
         get() = mc.thePlayer?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
         set(value) { strafe(value) }
 
+    val baseMoveSpeed
+        get() = 0.2873 * 1.0 + if (mc.thePlayer.isPotionActive(moveSpeed)) 0.2 * (mc.thePlayer.getActivePotionEffect(moveSpeed).amplifier + 1).toDouble() else 0.0
+
+    fun getBaseMoveSpeed(customSpeed: Double): Double {
+        var baseSpeed = if (onIce) 0.258977700006 else customSpeed
+        if (mc.thePlayer.isPotionActive(moveSpeed)) {
+            val amplifier = mc.thePlayer.getActivePotionEffect(moveSpeed).amplifier
+            baseSpeed *= 1.0 + 0.2 * (amplifier + 1)
+        }
+        return baseSpeed
+    }
+    fun getJumpBoostModifier(baseJumpHeight: Double, potionJump: Boolean = true): Double {
+        var height = baseJumpHeight
+        if (mc.thePlayer.isPotionActive(jump) && potionJump) {
+            val amplifier = mc.thePlayer.getActivePotionEffect(jump).amplifier
+            height += (amplifier + 1f * 0.1f).toDouble()
+        }
+        return height
+    }
     val isMoving
         get() = mc.thePlayer?.movementInput?.run { moveForward != 0f || moveStrafe != 0f } ?: false
 
@@ -29,7 +71,7 @@ object MovementUtils : MinecraftInstance(), Listenable {
         get() = mc.thePlayer?.run { motionX != .0 || motionY != .0 || motionZ != .0 } ?: false
 
     @JvmOverloads
-    fun strafe(speed: Float = this.speed, stopWhenNoInput: Boolean = false, moveEvent: MoveEvent? = null) =
+    fun strafe(speed: Number = this.speed, stopWhenNoInput: Boolean = false, moveEvent: MoveEvent? = null, strength: Number = 1f) =
         mc.thePlayer?.run {
             if (!isMoving) {
                 if (stopWhenNoInput) {
@@ -40,9 +82,8 @@ object MovementUtils : MinecraftInstance(), Listenable {
                 return@run
             }
 
-            val yaw = direction
-            val x = -sin(yaw) * speed
-            val z = cos(yaw) * speed
+            val x = -sin(direction) * (speed.toDouble() * strength.toDouble()) + (mc.thePlayer.motionX * (1 - strength.toDouble()))
+            val z = cos(direction) * (speed.toDouble() * strength.toDouble()) + (mc.thePlayer.motionZ * (1 - strength.toDouble()))
 
             if (moveEvent != null) {
                 moveEvent.x = x
@@ -80,13 +121,15 @@ object MovementUtils : MinecraftInstance(), Listenable {
         mc.theWorld != null && mc.thePlayer != null &&
         mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -height, 0.0)).isNotEmpty()
 
+    @JvmStatic
     var serverOnGround = false
+        private set
 
     var serverX = .0
     var serverY = .0
     var serverZ = .0
 
-    @EventTarget
+    @EventTarget(priority = Int.MIN_VALUE + 1)
     fun onPacket(event: PacketEvent) {
         if (event.isCancelled)
             return
@@ -96,7 +139,7 @@ object MovementUtils : MinecraftInstance(), Listenable {
         if (packet is C03PacketPlayer) {
             serverOnGround = packet.onGround
 
-            if (packet.isMoving) {
+            if (packet.hasPosition) {
                 serverX = packet.x
                 serverY = packet.y
                 serverZ = packet.z

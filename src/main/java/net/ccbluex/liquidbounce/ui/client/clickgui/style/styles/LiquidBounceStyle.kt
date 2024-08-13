@@ -1,12 +1,12 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui.style.styles
 
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.guiColor
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.scale
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.clamp
 import net.ccbluex.liquidbounce.ui.client.clickgui.Panel
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.extensions.component1
 import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRectNewInt
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRectNewInt 
 import net.ccbluex.liquidbounce.value.*
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.util.StringUtils
@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.awt.Color
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 @SideOnly(Side.CLIENT)
 object LiquidBounceStyle : Style() {
@@ -36,7 +37,7 @@ object LiquidBounceStyle : Style() {
         font35.drawString(panel.name, xPos, panel.y + 7, Color.WHITE.rgb)
 
         if (panel.scrollbar && panel.fade > 0) {
-            drawRectNewInt(panel.x - 2, panel.y + 21, panel.x, panel.y + 16 + panel.fade, Color.DARK_GRAY.rgb)
+            drawRectNewInt (panel.x - 2, panel.y + 21, panel.x, panel.y + 16 + panel.fade, Color.DARK_GRAY.rgb)
 
             val visibleRange = panel.getVisibleRange()
             val minY = panel.y + 21 + panel.fade *
@@ -46,7 +47,7 @@ object LiquidBounceStyle : Style() {
                     if (visibleRange.last > 0) visibleRange.last / panel.elements.lastIndex.toFloat()
                     else 0f
 
-            drawRectNewInt(panel.x - 2, minY.roundToInt(), panel.x, maxY.roundToInt(), Color.GRAY.rgb)
+            drawRectNewInt (panel.x - 2, minY.roundToInt(), panel.x, maxY.roundToInt(), Color.GRAY.rgb)
         }
     }
 
@@ -101,12 +102,12 @@ object LiquidBounceStyle : Style() {
                     assumeNonVolatile = value.get() is Number
 
                     when (value) {
-                        is BoolValue -> {
+                        is BooleanValue -> {
                             val text = value.name
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
-                            drawRectNewInt(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+                            drawRectNewInt (minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
                             if (mouseButton == 0
                                 && mouseX in minX..maxX
@@ -137,7 +138,7 @@ object LiquidBounceStyle : Style() {
                                 return true
                             }
 
-                            drawRectNewInt(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+                            drawRectNewInt (minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
                             font35.drawString("§c$text", minX + 2, yPos + 4, Color.WHITE.rgb)
                             font35.drawString(
@@ -151,7 +152,7 @@ object LiquidBounceStyle : Style() {
                                 moduleElement.settingsWidth = font35.getStringWidth(valueOfList) + 16
 
                                 if (value.openList) {
-                                    drawRectNewInt(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+                                    drawRectNewInt (minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
                                     if (mouseButton == 0
                                         && mouseX in minX..maxX
@@ -173,8 +174,12 @@ object LiquidBounceStyle : Style() {
                                 }
                             }
                         }
-                        is FloatValue -> {
-                            val text = value.name + "§f: §c" + round(value.get())
+
+                        is FloatValue, is DoubleValue -> {
+                            if (value !is NumberValue || value.maximum !is Number || value.minimum !is Number)
+                                throw AssertionError()
+
+                            val text = value.name + "§f: §c" + round(value.get() as Number)
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
 
@@ -183,7 +188,7 @@ object LiquidBounceStyle : Style() {
                                 && mouseY in yPos + 15..yPos + 21
                             ) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
-                                value.set(round(value.minimum + (value.maximum - value.minimum) * percentage).coerceIn(value.range))
+                                value.set(round(value.minimum.toDouble() + (value.maximum.toDouble() - value.minimum.toDouble()) * percentage).coerceIn(value.range as ClosedRange<Double>))
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -192,18 +197,21 @@ object LiquidBounceStyle : Style() {
                                 if (mouseButton == 0) return true
                             }
 
-                            drawRectNewInt(minX, yPos + 2, maxX, yPos + 24, Int.MIN_VALUE)
-                            drawRectNewInt(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
+                            drawRectNewInt (minX, yPos + 2, maxX, yPos + 24, Int.MIN_VALUE)
+                            drawRectNewInt (minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
 
-                            val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)).roundToInt()
-                            drawRectNewInt(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
+                            val displayValue = (value.get() as Number).toDouble().coerceIn(value.range as ClosedRange<Double>)
+                            val sliderValue = (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum.toDouble()) / (value.maximum.toDouble() - value.minimum.toDouble())).roundToInt()
+                            drawRectNewInt (8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
                             font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
 
                             yPos += 22
                         }
-                        is IntegerValue -> {
+                        is IntValue, is ShortValue, is ByteValue, is LongValue -> {
+                            if (value !is NumberValue || value.maximum !is Number || value.minimum !is Number)
+                                throw AssertionError()
+
                             val text = value.name + "§f: §c" + if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get()
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
@@ -213,7 +221,7 @@ object LiquidBounceStyle : Style() {
                                 && mouseY in yPos + 15..yPos + 21
                             ) {
                                 val percentage = (mouseX - minX - 4) / (maxX - minX - 8).toFloat()
-                                value.set((value.minimum + (value.maximum - value.minimum) * percentage).roundToInt().coerceIn(value.range))
+                                value.set((value.minimum.toLong() + (value.maximum.toLong() - value.minimum.toLong()) * percentage).roundToLong().coerceIn(value.range as ClosedRange<Long>).toInt())
 
                                 // Keep changing this slider until mouse is unpressed.
                                 sliderValueHeld = value
@@ -222,12 +230,12 @@ object LiquidBounceStyle : Style() {
                                 if (mouseButton == 0) return true
                             }
 
-                            drawRectNewInt(minX, yPos + 2, maxX, yPos + 24, Int.MIN_VALUE)
-                            drawRectNewInt(minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
+                            drawRectNewInt (minX, yPos + 2, maxX, yPos + 24, Int.MIN_VALUE)
+                            drawRectNewInt (minX + 4, yPos + 18, maxX - 4, yPos + 19, Int.MAX_VALUE)
 
-                            val displayValue = value.get().coerceIn(value.range)
-                            val sliderValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum) / (value.maximum - value.minimum)
-                            drawRectNewInt(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
+                            val displayValue = (value.get() as Number).toLong().coerceIn(value.range as ClosedRange<Long>)
+                            val sliderValue = (moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (displayValue - value.minimum.toLong()) / (value.maximum.toLong() - value.minimum.toLong())).toInt()
+                            drawRectNewInt (8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor)
 
                             font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
 
@@ -248,7 +256,7 @@ object LiquidBounceStyle : Style() {
                                 return true
                             }
 
-                            drawRectNewInt(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+                            drawRectNewInt (minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
                             font35.drawString(displayString, minX + 2, yPos + 4, Color.WHITE.rgb)
 
@@ -259,7 +267,7 @@ object LiquidBounceStyle : Style() {
 
                             moduleElement.settingsWidth = font35.getStringWidth(text) + 8
 
-                            drawRectNewInt(minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
+                            drawRectNewInt (minX, yPos + 2, maxX, yPos + 14, Int.MIN_VALUE)
 
                             font35.drawString(text, minX + 2, yPos + 4, Color.WHITE.rgb)
 

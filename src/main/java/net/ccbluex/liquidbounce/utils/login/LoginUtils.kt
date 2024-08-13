@@ -1,18 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils.login
 
 import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
-import net.ccbluex.liquidbounce.event.SessionEvent
+import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.util.Session
 import java.util.*
-
-fun me.liuli.elixir.compat.Session.intoMinecraftSession() = Session(username, uuid, token, type)
 
 object LoginUtils : MinecraftInstance() {
 

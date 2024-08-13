@@ -1,54 +1,83 @@
-# LiquidBounce
-A free mixin-based injection hacked-client for Minecraft using Minecraft Forge, supporting version 1.8.9
+# SkidBounce
+A free hacked-client for Minecraft 1.8.9 Forge.
 
-Website: https://liquidbounce.net \
-Forum: https://forums.ccbluex.net \
-Guilded: https://www.guilded.gg/CCBlueX \
-YouTube: https://youtube.com/CCBlueX \
-Twitter: https://twitter.com/CCBlueX 
+Discord: https://discord.gg/hdbzjQdewu
+
+## Installation
+
+1. Install [Forge](https://maven.minecraftforge.net/net/minecraftforge/forge/1.8.9-11.15.1.2318-1.8.9/forge-1.8.9-11.15.1.2318-1.8.9-installer.jar) for 1.8.9
+2. Download the client
+   1. For the latest release, download the jar from the [latest GitHub release](https://github.com/ManInMyVan/SkidBounce/releases/latest)
+   2. For the latest build/commit, download [this](https://nightly.link/ManInMyVan/SkidBounce/workflows/build/main/skidbounce.zip) and unzip
+3. Put the client jar (`skidbounce-vX.X.X.jar`) into your mods folder
+   1. the mods folder should be located at `.minecraft/mods`
+   2. If it does not exist, launch forge, or make it yourself
+4. Launch Forge, if the main menu has changed, installation is complete
+
+## Completion
+
+skidding:
+* [LiquidBounce](https://github.com/CCBlueX/LiquidBounce/tree/legacy)
+* [FDPClient](https://github.com/SkidderMC/FDPClient)
+* [NightX](https://github.com/Aspw-w/NightX-Client)
+* [CrossSine](https://github.com/shxp3/CrossSine)
+* [LiquidBouncePlus-Reborn](https://github.com/liquidbounceplusreborn/LiquidbouncePlus-Reborn)
+
+As Of Latest Commit:\
+:green_circle: 100%\
+:yellow_circle: 50% - 99%\
+:orange_circle: 1% - 49%\
+:red_circle: 0%
+|      Thing       |   Completion    |
+|:----------------:|:---------------:|
+|      Total       | :orange_circle: |
+|      NoWeb       | :green_circle:  |
+|      NoFall      | :green_circle:  |
+|      Spider      | :green_circle:  |
+|    Criticals     | :yellow_circle: |
+|      NoSlow      | :yellow_circle: |
+|      Speed       | :orange_circle: |
+|       Fly        | :orange_circle: |
+|     Disabler     | :orange_circle: |
+|     Velocity     | :orange_circle: |
+|       Hud        |  :red_circle:   |
+|    Animations    |  :red_circle:   |
+|     LongJump     |  :red_circle:   |
+|      Jesus       |  :red_circle:   |
+|      Phase       |  :red_circle:   |
+|     ClickGUI     |  :red_circle:   |
+|    AutoBlock     |  :red_circle:   |
+|     Modules      |  :red_circle:   |
+|     Scaffold     |  :red_circle:   |
+|      Tower       |  :red_circle:   |
+|       Step       |  :red_circle:   |
+|     AntiVoid     |  :red_circle:   |
+|    FastClimb     |  :red_circle:   |
+| InventoryManager |  :red_circle:   |
+|     FastUse      |  :red_circle:   |
+| Everything Else  |  :red_circle:   |
 
 ## Issues
-If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/CCBlueX/LiquidBounce/issues).
-
-## License
-This project is subject to the [GNU General Public License v3.0](LICENSE). This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
-
-For those who are unfamiliar with the license, here is a summary of its main points. This is by no means legal advice nor legally binding.
-
-You are allowed to
-- use
-- share
-- modify
-
-this project entirely or partially for free and even commercially. However, please consider the following:
-
-- **You must disclose the source code of your modified work and the source code you took from this project. This means you are not allowed to use code from this project (even partially) in a closed-source (or even obfuscated) application.**
-- **Your modified application must also be licensed under the GPL** 
-
-Do the above and share your source code with everyone; just like we do.
-
-## Setting up a Workspace
-LiquidBounce is using Gradle, so make sure that it is installed properly. Instructions can be found on [Gradle's website](https://gradle.org/install/).
-1. Clone the repository using `git clone https://github.com/CCBlueX/LiquidBounce/`. 
-2. CD into the local repository folder.
-3. Switch to the legacy branch using `git checkout legacy`
-4. Depending on which IDE you are using execute either of the following commands:
-    - For IntelliJ: `gradlew --debug setupDevWorkspace idea genIntellijRuns build`
-    - For Eclipse: `gradlew --debug setupDevWorkspace eclipse build`
-5. Open the folder as a Gradle project in your IDE.
-6. Select either the Forge or Vanilla run configuration.
-
-## Additional libraries
-### Mixins
-Mixins can be used to modify classes at runtime before they are loaded. LiquidBounce is using it to inject its code into the Minecraft client. This way, we do not have to ship Mojang's copyrighted code. If you want to learn more about it, check out its [Documentation](https://docs.spongepowered.org/5.1.0/en/plugin/internals/mixins.html).
+If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/ManInMyVan/SkidBounce/issues).
 
 ## Contributing
 
-We appreciate contributions. So if you want to support us, feel free to make changes to LiquidBounce's source code and submit a pull request. Currently, our main goals are the following:
-1. Improve LiquidBounce's performance.
-2. Re-work most of the render code.
+We appreciate contributions. So if you want to support us, feel free to make changes to SkidBounce's source code and submit a pull request. Currently, our main goals are the following:
+- Performance
+- Bypasses
+- Visuals
+- Merging LiquidBounce commits
 
-If you have experience in one or more of these fields, we would highly appreciate your support.
+### Setting up a Workspace
 
-## Stats
-![Alt](https://repobeats.axiom.co/api/embed/53a8b71ca387182c6f12a1c98a88edbe0a7bae99.svg "Repobeats analytics image")
+SkidBounce uses Gradle, so make sure that it is installed properly. Instructions can be found on [Gradle's website](https://gradle.org/install/).
+1. Clone the repository using `git clone https://github.com/ManInMyVan/SkidBounce/`. 
+2. CD into the local repository folder.
+3. Depending on which IDE you are using execute either of the following commands:
+    - For IntelliJ: `gradlew setupDevWorkspace idea genIntellijRuns build`
+    - For Eclipse: `gradlew setupDevWorkspace eclipse build`
+4. Open the folder as a Gradle project in your IDE.
+5. Select either the Forge or Vanilla run configuration.
+
+## License
+This project is distributed under the `GPl 3.0-or-later` license. Check the `LICENSE` file for more information.

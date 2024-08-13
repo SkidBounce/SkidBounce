@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.rewinside
 
@@ -15,22 +15,25 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * @author CCBlueX/LiquidBounce
+ */
 object TeleportRewinside : FlyMode("TeleportRewinside") {
-	override fun onUpdate() {
-		val (startX, startY, startZ) = mc.thePlayer
+    override fun onUpdate() {
+        val (startX, startY, startZ) = mc.thePlayer
 
-		val yawRad = -mc.thePlayer.rotationYaw.toRadiansD()
-		val pitchRad = -mc.thePlayer.rotationPitch.toRadiansD()
-		val distance = 9.9
+        val yawRad = -mc.thePlayer.rotationYaw.toRadiansD()
+        val pitchRad = -mc.thePlayer.rotationPitch.toRadiansD()
+        val distance = 9.9
 
-		val endX = sin(yawRad) * cos(pitchRad) * distance + startX
-		val endZ = cos(yawRad) * cos(pitchRad) * distance + startZ
+        val endX = sin(yawRad) * cos(pitchRad) * distance + startX
+        val endZ = cos(yawRad) * cos(pitchRad) * distance + startZ
 
-		sendPackets(
-			C04PacketPlayerPosition(endX, startY + 2, endZ, true),
-			C04PacketPlayerPosition(startX, startY + 2, startZ, true)
-		)
+        sendPackets(
+            C04PacketPlayerPosition(endX, startY + 2, endZ, true),
+            C04PacketPlayerPosition(startX, startY + 2, startZ, true)
+        )
 
-		mc.thePlayer.motionY = 0.0
-	}
+        mc.thePlayer.motionY = 0.0
+    }
 }

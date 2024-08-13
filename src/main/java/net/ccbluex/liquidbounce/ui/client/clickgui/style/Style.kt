@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui.style
 
@@ -33,10 +33,10 @@ abstract class Style : MinecraftInstance() {
 
     fun showSettingsSound() = mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("random.bow"), 1f))
 
-    protected fun round(v: Float): Float {
+    protected fun round(v: Number): Double {
         var bigDecimal = BigDecimal(v.toString())
         bigDecimal = bigDecimal.setScale(2, 4)
-        return bigDecimal.toFloat()
+        return bigDecimal.toDouble()
     }
 
     protected fun getHoverColor(color: Color, hover: Int, inactiveModule: Boolean = false): Int {

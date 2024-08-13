@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.chat
 
@@ -23,6 +23,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import net.ccbluex.liquidbounce.chat.packet.PacketDeserializer
 import net.ccbluex.liquidbounce.chat.packet.PacketSerializer
 import net.ccbluex.liquidbounce.chat.packet.packets.*
+import net.ccbluex.liquidbounce.features.module.modules.client.LiquidChat.session
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.login.UserUtils
 import java.net.URI
@@ -66,7 +67,7 @@ abstract class Client : ClientListener, MinecraftInstance() {
         val uri = URI("wss://chat.liquidbounce.net:7886/ws")
 
         val ssl = uri.scheme.equals("wss", true)
-        val sslContext = if(ssl) SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE) else null
+        val sslContext = if (ssl) SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE) else null
 
         val group = NioEventLoopGroup()
         val handler = ClientHandler(this, WebSocketClientHandshakerFactory.newHandshaker(
@@ -89,7 +90,7 @@ abstract class Client : ClientListener, MinecraftInstance() {
                     override fun initChannel(ch: SocketChannel) {
                         val pipeline = ch.pipeline()
 
-                        if(sslContext != null) pipeline.addLast(sslContext.newHandler(ch.alloc()))
+                        if (sslContext != null) pipeline.addLast(sslContext.newHandler(ch.alloc()))
 
                         pipeline.addLast(HttpClientCodec(), HttpObjectAggregator(8192), handler)
                     }
@@ -99,7 +100,7 @@ abstract class Client : ClientListener, MinecraftInstance() {
         channel = bootstrap.connect(uri.host, uri.port).sync().channel()
         handler.handshakeFuture.sync()
 
-        if(isConnected()) onConnected()
+        if (isConnected()) onConnected()
     }
 
     /**
@@ -138,18 +139,18 @@ abstract class Client : ClientListener, MinecraftInstance() {
 
         val packet = gson.fromJson(message, Packet::class.java)
 
-        if(packet is ClientMojangInfoPacket) {
+        if (packet is ClientMojangInfoPacket) {
             onLogon()
 
             try {
                 val sessionHash = packet.sessionHash
 
-                mc.sessionService.joinServer(mc.session.profile, mc.session.token, sessionHash)
-                username = mc.session.username
+                mc.sessionService.joinServer(session.profile, session.token, sessionHash)
+                username = session.username
                 jwt = false
 
-                sendPacket(ServerLoginMojangPacket(mc.session.username, mc.session.profile.id, allowMessages = true))
-            }catch (throwable: Throwable) {
+                sendPacket(ServerLoginMojangPacket(session.username, session.profile.id, allowMessages = true))
+            } catch (throwable: Throwable) {
                 onError(throwable)
             }
             return
@@ -197,10 +198,10 @@ abstract class Client : ClientListener, MinecraftInstance() {
             UUID.fromString(target)
 
             target
-        }catch (_: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             val incomingUUID = UserUtils.getUUID(target)
 
-            if(incomingUUID.isBlank()) return ""
+            if (incomingUUID.isBlank()) return ""
 
             val uuid = StringBuffer(incomingUUID)
                     .insert(20, '-')

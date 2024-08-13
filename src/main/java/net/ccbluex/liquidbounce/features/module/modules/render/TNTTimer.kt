@@ -1,44 +1,43 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.RENDER
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.FontValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.entity.item.EntityTNTPrimed
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.pow
 
-object TNTTimer : Module("TNTTimer", ModuleCategory.RENDER, spacedName = "TNT Timer", hideModule = false) {
-
+object TNTTimer : Module("TNTTimer", RENDER, spacedName = "TNT Timer") {
     private val scale by FloatValue("Scale", 3F, 1F..4F)
     private val font by FontValue("Font", Fonts.font40)
-    private val fontShadow by BoolValue("Shadow", true)
+    private val fontShadow by BooleanValue("Shadow", true)
 
-    private val colorRed by IntegerValue("R", 255, 0..255)
-    private val colorGreen by IntegerValue("G", 255, 0..255)
-    private val colorBlue by IntegerValue("B", 255, 0..255)
+    private val colorRed by IntValue("R", 255, 0..255)
+    private val colorGreen by IntValue("G", 255, 0..255)
+    private val colorBlue by IntValue("B", 255, 0..255)
 
-    private val maxRenderDistance by object : IntegerValue("MaxRenderDistance", 100, 1..200) {
+    private val maxRenderDistance by object : IntValue("MaxRenderDistance", 100, 1..200) {
         override fun onUpdate(value: Int) {
             maxRenderDistanceSq = value.toDouble().pow(2.0)
         }
     }
 
-    private val onLook by BoolValue("OnLook", false)
+    private val onLook by BooleanValue("OnLook", false)
     private val maxAngleDifference by FloatValue("MaxAngleDifference", 5.0f, 5.0f..90f) { onLook }
 
     private var maxRenderDistanceSq = 0.0
@@ -101,5 +100,4 @@ object TNTTimer : Module("TNTTimer", ModuleCategory.RENDER, spacedName = "TNT Ti
         glPopMatrix()
         glPopAttrib()
     }
-
 }

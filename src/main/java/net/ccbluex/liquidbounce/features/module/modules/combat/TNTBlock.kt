@@ -1,25 +1,25 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
+import net.ccbluex.liquidbounce.utils.extensions.isActuallyPressed
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.minecraft.client.settings.GameSettings
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.entity.item.EntityTNTPrimed
 import net.minecraft.item.ItemSword
 
-object TNTBlock : Module("TNTBlock", ModuleCategory.COMBAT, spacedName = "TNT Block", hideModule = false) {
-    private val fuse by IntegerValue("Fuse", 10, 0..80)
+object TNTBlock : Module("TNTBlock", COMBAT, spacedName = "TNT Block") {
+    private val fuse by IntValue("Fuse", 10, 0..80)
     private val range by FloatValue("Range", 9F, 1F..20F)
-    private val autoSword by BoolValue("AutoSword", true)
+    private val autoSword by BooleanValue("AutoSword", true)
     private var blocked = false
 
     @EventTarget
@@ -62,7 +62,7 @@ object TNTBlock : Module("TNTBlock", ModuleCategory.COMBAT, spacedName = "TNT Bl
             }
         }
 
-        if (blocked && !GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)) {
+        if (blocked && !mc.gameSettings.keyBindUseItem.isActuallyPressed) {
             mc.gameSettings.keyBindUseItem.pressed = false
             blocked = false
         }

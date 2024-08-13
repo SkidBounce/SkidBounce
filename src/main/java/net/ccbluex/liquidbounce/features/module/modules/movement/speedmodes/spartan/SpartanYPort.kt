@@ -1,20 +1,24 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.spartan
 
+import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextDouble
 
+/**
+ * @author CCBlueX/LiquidBounce
+ */
 object SpartanYPort : SpeedMode("SpartanYPort") {
     private var airMoves = 0
-    override fun onMotion() {
+    override fun onMotion(event: MotionEvent) {
         if (mc.gameSettings.keyBindForward.isKeyDown) {
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.tryJump()
+                mc.thePlayer.jmp()
                 airMoves = 0
             } else {
                 mc.timer.timerSpeed = 1.08f
@@ -27,5 +31,4 @@ object SpartanYPort : SpeedMode("SpartanYPort") {
             }
         }
     }
-
 }

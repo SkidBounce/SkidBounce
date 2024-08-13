@@ -1,16 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
 import net.ccbluex.liquidbounce.features.command.CommandManager;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
 import net.ccbluex.liquidbounce.features.module.modules.misc.ComponentOnHover;
-import net.ccbluex.liquidbounce.features.module.modules.render.HUD;
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration;
-import net.ccbluex.liquidbounce.utils.Background;
+import net.ccbluex.liquidbounce.utils.background.Background;
 import net.ccbluex.liquidbounce.utils.render.ParticleUtils;
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.BackgroundShader;
 import net.minecraft.client.Minecraft;
@@ -44,36 +44,18 @@ import static net.minecraft.client.renderer.GlStateManager.disableLighting;
 @Mixin(GuiScreen.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinGuiScreen {
-    @Shadow
-    public Minecraft mc;
-
-    @Shadow
-    protected List<GuiButton> buttonList;
-
-    @Shadow
-    public int width;
-
-    @Shadow
-    public int height;
-
-    @Shadow
-    protected FontRenderer fontRendererObj;
-
-    @Shadow
-    public void updateScreen() {
-    }
-
-    @Shadow
-    public abstract void handleComponentHover(IChatComponent component, int x, int y);
-
-    @Shadow
-    protected abstract void drawHoveringText(List<String> textLines, int x, int y);
+    @Shadow public Minecraft mc;
+    @Shadow public List<GuiButton> buttonList;
+    @Shadow public int width;
+    @Shadow public int height;
+    @Shadow public FontRenderer fontRendererObj;
+    @Shadow public abstract void updateScreen();
+    @Shadow public abstract void handleComponentHover(IChatComponent component, int x, int y);
+    @Shadow protected abstract void drawHoveringText(List<String> textLines, int x, int y);
 
     @Inject(method = "drawWorldBackground", at = @At("HEAD"))
     private void drawWorldBackground(final CallbackInfo callbackInfo) {
-        final HUD hud = HUD.INSTANCE;
-
-        if(hud.getInventoryParticle() && mc.thePlayer != null) {
+        if (HUD.INSTANCE.getInventoryParticle() && mc.thePlayer != null) {
             final ScaledResolution scaledResolution = new ScaledResolution(mc);
             final int width = scaledResolution.getScaledWidth();
             final int height = scaledResolution.getScaledHeight();
@@ -89,7 +71,7 @@ public abstract class MixinGuiScreen {
         disableLighting();
         disableFog();
 
-        if(GuiClientConfiguration.Companion.getEnabledCustomBackground()) {
+        if (GuiClientConfiguration.Companion.getEnabledCustomBackground()) {
             final Background background = LiquidBounce.INSTANCE.getBackground();
 
             if (background == null) {
@@ -122,7 +104,7 @@ public abstract class MixinGuiScreen {
 
     @Inject(method = "drawBackground", at = @At("RETURN"))
     private void drawParticles(final CallbackInfo callbackInfo) {
-        if(GuiClientConfiguration.Companion.getParticles())
+        if (GuiClientConfiguration.Companion.getParticles())
             ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
     }
 

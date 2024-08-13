@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.cape
 
@@ -15,7 +15,6 @@ import java.io.File
 import java.util.*
 
 object CapeAPI : MinecraftInstance() {
-
     private val capesCache = File(dir, "capes").apply {
         mkdir()
     }
@@ -51,5 +50,3 @@ object CapeAPI : MinecraftInstance() {
     }
 
 }
-
-data class CapeInfo(val resourceLocation: ResourceLocation, var isCapeAvailable: Boolean = false)

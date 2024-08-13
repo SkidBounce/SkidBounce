@@ -1,26 +1,19 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module
 
 import net.ccbluex.liquidbounce.event.EventManager.registerListener
 import net.ccbluex.liquidbounce.event.EventManager.unregisterListener
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.KeyEvent
+import net.ccbluex.liquidbounce.event.events.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.command.CommandManager.registerCommand
-import net.ccbluex.liquidbounce.features.module.modules.combat.*
-import net.ccbluex.liquidbounce.features.module.modules.exploit.*
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.Derp
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.SkinDerp
-import net.ccbluex.liquidbounce.features.module.modules.misc.*
-import net.ccbluex.liquidbounce.features.module.modules.movement.*
-import net.ccbluex.liquidbounce.features.module.modules.player.*
-import net.ccbluex.liquidbounce.features.module.modules.render.*
-import net.ccbluex.liquidbounce.features.module.modules.world.*
-import net.ccbluex.liquidbounce.features.module.modules.world.Timer
+import net.ccbluex.liquidbounce.utils.ClassUtils.getAllClassesIn
+import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
+import net.ccbluex.liquidbounce.utils.ClassUtils.isObject
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import java.util.*
@@ -38,183 +31,18 @@ object ModuleManager : Listenable {
      * Register all modules
      */
     fun registerModules() {
-        LOGGER.info("[ModuleManager] Loading modules...")
+        val classes = getAllClassesIn<Module>(javaClass.`package`.name).run {
+            // Register modules which need to be instanced (Java classes)
+            this.filter { !it.isObject }.forEach { registerModule(it) }
+            this
+        }
 
         // Register modules which have already been instanced (Kotlin objects)
-        registerModules(
-            AbortBreaking,
-            Aimbot,
-            AirJump,
-            AirLadder,
-            Ambience,
-            Animations,
-            AntiAFK,
-            AntiBlind,
-            AntiBot,
-            AntiCactus,
-            AntiExploit,
-            AntiHunger,
-            AntiFireball,
-            AtAllProvider,
-            AttackEffects,
-            AutoAccount,
-            AutoArmor,
-            AutoBow,
-            AutoBreak,
-            AutoClicker,
-            AutoDisable,
-            AutoFish,
-            AutoProjectile,
-            AutoPlay,
-            AutoLeave,
-            AutoPot,
-            AutoRespawn,
-            AutoRod,
-            AutoSoup,
-            AutoTool,
-            AutoWalk,
-            AutoWeapon,
-            AvoidHazards,
-            Backtrack,
-            BedGodMode,
-            BedProtectionESP,
-            Blink,
-            BlockESP,
-            BlockOverlay,
-            BowAimbot,
-            Breadcrumbs,
-            BufferSpeed,
-            BugUp,
-            CameraClip,
-            Chams,
-            ChestAura,
-            ChestStealer,
-            CivBreak,
-            ClickGUI,
-            Clip,
-            ComponentOnHover,
-            ConsoleSpammer,
-            Criticals,
-            Damage,
-            Derp,
-            ESP,
-            Eagle,
-            FakeLag,
-            FastBow,
-            FastBreak,
-            FastClimb,
-            FastPlace,
-            FastStairs,
-            FastUse,
-            FlagCheck,
-            Fly,
-            ForceUnicodeChat,
-            FreeCam,
-            Freeze,
-            Fucker,
-            Fullbright,
-            GameDetector,
-            Ghost,
-            GhostHand,
-            GodMode,
-            HUD,
-            HighJump,
-            HitBox,
-            IceSpeed,
-            Ignite,
-            InventoryCleaner,
-            InventoryMove,
-            ItemESP,
-            ItemPhysics,
-            ItemTeleport,
-            KeepAlive,
-            KeepContainer,
-            KeyPearl,
-            Kick,
-            KillAura,
-            LadderJump,
-            LiquidChat,
-            LiquidWalk,
-            Liquids,
-            LongJump,
-            MidClick,
-            MoreCarry,
-            MultiActions,
-            NameProtect,
-            NameTags,
-            NoAchievement,
-            NoBob,
-            NoBooks,
-            NoClip,
-            NoFOV,
-            NoFall,
-            NoFluid,
-            NoFriends,
-            NoHurtCam,
-            NoJumpDelay,
-            NoPitchLimit,
-            NoRotateSet,
-            NoScoreboard,
-            NoSlotSet,
-            NoSlow,
-            NoSlowBreak,
-            NoSwing,
-            NoWeb,
-            Nuker,
-            Parkour,
-            PerfectHorseJump,
-            Phase,
-            PingSpoof,
-            Plugins,
-            PortalMenu,
-            PotionSaver,
-            PotionSpoof,
-            Projectiles,
-            ProphuntESP,
-            Reach,
-            Refill,
-            Regen,
-            ResourcePackSpoof,
-            ReverseStep,
-            Rotations,
-            SafeWalk,
-            Scaffold,
-            ServerCrasher,
-            SkinDerp,
-            SlimeJump,
-            Sneak,
-            Spammer,
-            Speed,
-            Sprint,
-            StaffDetector,
-            Step,
-            StorageESP,
-            Strafe,
-            SuperKnockback,
-            Teleport,
-            TeleportHit,
-            TNTBlock,
-            TNTESP,
-            TNTTimer,
-            Teams,
-            TimerRange,
-            Timer,
-            Tracers,
-            Trigger,
-            TrueSight,
-            VehicleOneHit,
-            Velocity,
-            WallClimb,
-            WaterSpeed,
-            XRay,
-            Zoot,
-            KeepSprint,
-            Disabler
-        )
+        registerModules(*classes.getAllObjects())
 
         InventoryManager.startCoroutine()
 
-        LOGGER.info("[ModuleManager] Loaded ${modules.size} modules.")
+        LOGGER.info("Loaded ${modules.size} modules")
     }
 
     /**

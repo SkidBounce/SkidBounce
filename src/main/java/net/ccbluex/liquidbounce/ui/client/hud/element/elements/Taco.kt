@@ -1,12 +1,11 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
-
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import net.ccbluex.liquidbounce.features.command.commands.TacoCommand.tacoToggle
+import net.ccbluex.liquidbounce.features.command.commands.TacoCommand.toggle
 import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui.width
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -44,7 +43,7 @@ class Taco(x: Double = 2.0, y: Double = 441.0) : Element(x = x, y = y) {
     )
 
     override fun drawElement(): Border {
-        if (tacoToggle)
+        if (toggle)
             return Border(0F, 0F, 0F, 0F)
 
         val currentTime = System.currentTimeMillis()
@@ -68,5 +67,4 @@ class Taco(x: Double = 2.0, y: Double = 441.0) : Element(x = x, y = y) {
     private fun updateAnimation() {
         image = (image + 1) % tacoTextures.size
     }
-
 }

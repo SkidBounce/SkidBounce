@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
@@ -19,10 +19,10 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorder
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect2
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.RainbowShader
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.FontValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.client.gui.FontRenderer
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.glColor4f
@@ -31,40 +31,38 @@ import java.awt.Color
 @ElementInfo(name = "TabGUI")
 class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element(x = x, y = y) {
 
-    private val rectRainbow by BoolValue("Rectangle Rainbow", false)
-    private val rectRed by IntegerValue("Rectangle Red", 0, 0..255) { !rectRainbow }
-    private val rectGreen by IntegerValue("Rectangle Green", 148, 0..255) { !rectRainbow }
-    private val rectBlue by IntegerValue("Rectangle Blue", 255, 0..255) { !rectRainbow }
-    private val rectAlpha by IntegerValue("Rectangle Alpha", 140, 0..255) { !rectRainbow }
+    private val rectRainbow by BooleanValue("Rectangle Rainbow", false)
+    private val rectRed by IntValue("Rectangle Red", 0, 0..255) { !rectRainbow }
+    private val rectGreen by IntValue("Rectangle Green", 148, 0..255) { !rectRainbow }
+    private val rectBlue by IntValue("Rectangle Blue", 255, 0..255) { !rectRainbow }
+    private val rectAlpha by IntValue("Rectangle Alpha", 140, 0..255) { !rectRainbow }
 
     private val roundedRectRadius by FloatValue("Rounded-Radius", 3F, 0F..5F)
 
-    private val backgroundRed by IntegerValue("Background Red", 0, 0..255)
-    private val backgroundGreen by IntegerValue("Background Green", 0, 0..255)
-    private val backgroundBlue by IntegerValue("Background Blue", 0, 0..255)
-    private val backgroundAlpha by IntegerValue("Background Alpha", 150, 0..255)
+    private val backgroundRed by IntValue("Background Red", 0, 0..255)
+    private val backgroundGreen by IntValue("Background Green", 0, 0..255)
+    private val backgroundBlue by IntValue("Background Blue", 0, 0..255)
+    private val backgroundAlpha by IntValue("Background Alpha", 150, 0..255)
 
-    private val borderValue by BoolValue("Border", false)
+    private val borderValue by BooleanValue("Border", false)
         private val borderStrength by FloatValue("Border Strength", 2F, 1F..5F) { borderValue }
-        private val borderRainbow by BoolValue("Border Rainbow", false) { borderValue }
-            private val borderRed by IntegerValue("Border Red", 0, 0..255) { borderValue && !borderRainbow }
-            private val borderGreen by IntegerValue("Border Green", 0, 0..255) { borderValue && !borderRainbow }
-            private val borderBlue by IntegerValue("Border Blue", 0, 0..255) { borderValue && !borderRainbow }
-            private val borderAlpha by IntegerValue("Border Alpha", 150, 0..255) { borderValue && !borderRainbow }
+        private val borderRainbow by BooleanValue("Border Rainbow", false) { borderValue }
+            private val borderRed by IntValue("Border Red", 0, 0..255) { borderValue && !borderRainbow }
+            private val borderGreen by IntValue("Border Green", 0, 0..255) { borderValue && !borderRainbow }
+            private val borderBlue by IntValue("Border Blue", 0, 0..255) { borderValue && !borderRainbow }
+            private val borderAlpha by IntValue("Border Alpha", 150, 0..255) { borderValue && !borderRainbow }
 
-    private val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F)
-        { rectRainbow || (borderValue && borderRainbow) }
-    private val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F)
-        { rectRainbow || (borderValue && borderRainbow) }
+    private val rainbowX by FloatValue("Rainbow-X", -1000F, -2000F..2000F) { rectRainbow || (borderValue && borderRainbow) }
+    private val rainbowY by FloatValue("Rainbow-Y", -1000F, -2000F..2000F) { rectRainbow || (borderValue && borderRainbow) }
 
-    private val arrows by BoolValue("Arrows", true)
+    private val arrows by BooleanValue("Arrows", true)
     private val font by FontValue("Font", Fonts.font35)
-    private val textShadow by BoolValue("TextShadow", false)
-    private val textFade by BoolValue("TextFade", true)
+    private val textShadow by BooleanValue("TextShadow", false)
+    private val textFade by BooleanValue("TextFade", true)
     private val textPositionY by FloatValue("TextPosition-Y", 2F, 0F..5F)
     private val width by FloatValue("Width", 60F, 55F..100F)
     private val tabHeight by FloatValue("TabHeight", 12F, 10F..15F)
-    private val upperCase by BoolValue("UpperCase", false)
+    private val upperCase by BooleanValue("UpperCase", false)
 
     private val tabs = mutableListOf<Tab>()
 
@@ -125,11 +123,10 @@ class TabGUI(x: Double = 5.0, y: Double = 25.0) : Element(x = x, y = y) {
         val rectColor = if (rectRainbow) Color.black else Color(rectRed, rectGreen, rectBlue, rectAlpha)
 
         RainbowShader.begin(rectRainbow, if (rainbowX == 0f) 0f else 1f / rainbowX, if (rainbowY == 0f) 0f else 1f / rainbowY, System.currentTimeMillis() % 10000 / 10000F).use {
-            if (!borderValue) {
+            if (!borderValue)
                 drawRoundedRect2(1F, 1 + tabY - 1, width, tabY + tabHeight, rectColor, roundedRectRadius)
-            } else {
-                drawRoundedRect2(2.5F, 5 + tabY - 3.5F, width - 1.5F, tabY + tabHeight - 1.5F, rectColor, roundedRectRadius)
-            }
+            else
+                drawRoundedRect2(2.5F, 5 + tabY - 3.5F, width - 2F, tabY + tabHeight - 1.5F, rectColor, roundedRectRadius)
         }
 
         glColor4f(1f, 1f, 1f, 1f)

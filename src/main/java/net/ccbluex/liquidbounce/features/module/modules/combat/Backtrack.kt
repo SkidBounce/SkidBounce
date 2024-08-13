@@ -1,30 +1,30 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState.RECEIVE
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot.isBot
-import net.ccbluex.liquidbounce.features.module.modules.misc.Teams
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
+import net.ccbluex.liquidbounce.features.module.modules.targets.AntiBot.isBot
+import net.ccbluex.liquidbounce.features.module.modules.targets.Friends
+import net.ccbluex.liquidbounce.features.module.modules.targets.Teams
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.StringUtils.contains
-import net.ccbluex.liquidbounce.utils.realX
-import net.ccbluex.liquidbounce.utils.realY
-import net.ccbluex.liquidbounce.utils.realZ
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -37,12 +37,10 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.*
 
-
-object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false) {
-
-    private val delay by object : IntegerValue("Delay", 80, 0..700) {
+object Backtrack : Module("Backtrack", COMBAT) {
+    private val delay by object : IntValue("Delay", 80, 0..700) {
         override fun onChange(oldValue: Int, newValue: Int): Int {
             if (mode == "Modern")
                 clearPackets()
@@ -59,7 +57,8 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
     }
 
     // Legacy
-    private val legacyPos by ListValue("Caching mode",
+    private val legacyPos by ListValue(
+        "CachingMode",
         arrayOf("ClientPos", "ServerPos"),
         "ClientPos"
     ) { mode == "Legacy" }
@@ -76,14 +75,14 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceIn(minimum, maxDistance)
         override fun isSupported() = mode == "Modern"
     }
-    private val smart by BoolValue("Smart", true) { mode == "Modern" }
+    private val smart by BooleanValue("Smart", true) { mode == "Modern" }
 
     // ESP
-    private val esp by BoolValue("ESP", true, subjective = true) { mode == "Modern" }
-    private val rainbow by BoolValue("Rainbow", true, subjective = true) { mode == "Modern" && esp }
-    private val red by IntegerValue("R", 0, 0..255, subjective = true) { !rainbow && mode == "Modern" && esp }
-    private val green by IntegerValue("G", 255, 0..255, subjective = true) { !rainbow && mode == "Modern" && esp }
-    private val blue by IntegerValue("B", 0, 0..255, subjective = true) { !rainbow && mode == "Modern" && esp }
+    private val esp by BooleanValue("ESP", true, subjective = true) { mode == "Modern" }
+    private val rainbow by BooleanValue("Rainbow", true, subjective = true) { mode == "Modern" && esp }
+    private val red by IntValue("R", 0, 0..255, subjective = true) { !rainbow && mode == "Modern" && esp }
+    private val green by IntValue("G", 255, 0..255, subjective = true) { !rainbow && mode == "Modern" && esp }
+    private val blue by IntValue("B", 0, 0..255, subjective = true) { !rainbow && mode == "Modern" && esp }
 
     private val packetQueue = LinkedHashMap<Packet<*>, Long>()
     private val positions = mutableListOf<Pair<Vec3, Long>>()
@@ -97,7 +96,7 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
     private var ignoreWholeTick = false
 
     // Legacy
-    private val maximumCachedPositions by IntegerValue("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
+    private val maximumCachedPositions by IntValue("MaxCachedPositions", 10, 1..20) { mode == "Legacy" }
 
     private val backtrackedPlayer = ConcurrentHashMap<UUID, MutableList<BacktrackData>>()
 
@@ -219,7 +218,7 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
                 }
 
                 // Cancel every received packet to avoid possible server synchronization issues from random causes.
-                if (event.eventType == EventState.RECEIVE) {
+                if (event.eventType == RECEIVE) {
                     when (packet) {
                         is S14PacketEntity ->
                             if (packet.entityId == target?.entityId)
@@ -490,19 +489,13 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
     private fun removeBacktrackData(id: UUID) = backtrackedPlayer.remove(id)
 
     private fun isEnemy(entity: Entity?): Boolean {
-        if (entity is EntityLivingBase && entity != mc.thePlayer) {
-            if (entity is EntityPlayer) {
-                if (entity.isSpectator || isBot(entity)) return false
-
-                if (entity.isClientFriend() && !NoFriends.handleEvents()) return false
-
-                return !Teams.handleEvents() || !Teams.isInYourTeam(entity)
-            }
-
-            return true
+        return when {
+            entity !is EntityLivingBase || entity == mc.thePlayer -> false
+            entity !is EntityPlayer -> true
+            entity.isSpectator || isBot(entity) -> false
+            entity.isClientFriend && !Friends.handleEvents() -> false
+            else -> !Teams.handleEvents() || !Teams.isInYourTeam(entity)
         }
-
-        return false
     }
 
     /**
@@ -532,7 +525,6 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
             return
 
         val backtrackDataArray = getBacktrackData(entity.uniqueID) ?: return
-
         val currPos = entity.currPos
         val prevPos = entity.prevPos
 
@@ -604,6 +596,6 @@ object Backtrack : Module("Backtrack", ModuleCategory.COMBAT, hideModule = false
         target = null
         globalTimer.reset()
     }
-}
 
-data class BacktrackData(val x: Double, val y: Double, val z: Double, val time: Long)
+    data class BacktrackData(val x: Double, val y: Double, val z: Double, val time: Long)
+}

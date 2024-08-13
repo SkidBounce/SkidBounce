@@ -1,7 +1,12 @@
+/*
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
+ */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.other
 
-import net.ccbluex.liquidbounce.event.JumpEvent
-import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.events.JumpEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.boostMotion
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.boostTicksValue
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.damage
@@ -22,18 +27,52 @@ import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
  * Note:
  * - Getting below block (Like NCPLatest Fly Method), should help to temporarily bypass Speed(A) Checks
  * - Turning off Damage should bypass Fly(G) Checks
+ *
+ * @author Arcane
+ * @author EclipsesDev
+ * @author CCBlueX/LiquidBounce
  */
 object Verus : FlyMode("Verus") {
     private var boostTicks = 0
 
     override fun onEnable() {
         boostTicks = 0
-        if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, 3.0001, 0.0).expand(0.0, 0.0, 0.0)).isEmpty()) {
+        if (mc.theWorld.getCollidingBoundingBoxes(
+                mc.thePlayer,
+                mc.thePlayer.entityBoundingBox.offset(0.0, 3.0001, 0.0)
+                    .expand(0.0, 0.0, 0.0)
+            ).isEmpty()
+        ) {
             if (damage)
-                sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.0001, mc.thePlayer.posZ, false))
+                sendPacket(
+                    C04PacketPlayerPosition(
+                        mc.thePlayer.posX,
+                        mc.thePlayer.posY + 3.0001,
+                        mc.thePlayer.posZ,
+                        false
+                    )
+                )
 
-            sendPacket(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
-            sendPacket(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true))
+            sendPacket(
+                C06PacketPlayerPosLook(
+                    mc.thePlayer.posX,
+                    mc.thePlayer.posY,
+                    mc.thePlayer.posZ,
+                    mc.thePlayer.rotationYaw,
+                    mc.thePlayer.rotationPitch,
+                    false
+                )
+            )
+            sendPacket(
+                C06PacketPlayerPosLook(
+                    mc.thePlayer.posX,
+                    mc.thePlayer.posY,
+                    mc.thePlayer.posZ,
+                    mc.thePlayer.rotationYaw,
+                    mc.thePlayer.rotationPitch,
+                    true
+                )
+            )
         }
         mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + yBoost.toDouble(), mc.thePlayer.posZ)
     }
@@ -62,7 +101,7 @@ object Verus : FlyMode("Verus") {
                 mc.timer.timerSpeed = 0.08f
             }
         }
-
+        // separate
         strafe(boostMotion, true)
     }
 

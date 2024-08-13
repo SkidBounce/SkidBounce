@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.other
 
@@ -18,31 +18,34 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * @author CCBlueX/LiquidBounce
+ */
 object MineSecure : FlyMode("MineSecure") {
-	private val timer = MSTimer()
+    private val timer = MSTimer()
 
-	override fun onUpdate() {
-		mc.thePlayer.capabilities.isFlying = false
+    override fun onUpdate() {
+        mc.thePlayer.capabilities.isFlying = false
 
-		mc.thePlayer.motionY =
-			if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0
-			else -0.01
+        mc.thePlayer.motionY =
+            if (mc.gameSettings.keyBindSneak.isKeyDown) 0.0
+            else -0.01
 
-		strafe(vanillaSpeed, true)
+        strafe(vanillaSpeed, true)
 
-		if (!timer.hasTimePassed(150) || !mc.gameSettings.keyBindJump.isKeyDown)
-			return
+        if (!timer.hasTimePassed(150) || !mc.gameSettings.keyBindJump.isKeyDown)
+            return
 
-		val (x, y, z) = mc.thePlayer
+        val (x, y, z) = mc.thePlayer
 
-		sendPackets(
-			C04PacketPlayerPosition(x, y + 5, z, false),
-			C04PacketPlayerPosition(0.5, -1000.0, 0.5, false)
-		)
+        sendPackets(
+            C04PacketPlayerPosition(x, y + 5, z, false),
+            C04PacketPlayerPosition(0.5, -1000.0, 0.5, false)
+        )
 
-		val yaw = mc.thePlayer.rotationYaw.toRadiansD()
+        val yaw = mc.thePlayer.rotationYaw.toRadiansD()
 
-		mc.thePlayer.setPosition(x - sin(yaw) * 0.4, y, z + cos(yaw) * 0.4)
-		timer.reset()
-	}
+        mc.thePlayer.setPosition(x - sin(yaw) * 0.4, y, z + cos(yaw) * 0.4)
+        timer.reset()
+    }
 }

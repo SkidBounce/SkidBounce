@@ -1,23 +1,21 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
 import net.ccbluex.liquidbounce.LiquidBounce;
-import net.ccbluex.liquidbounce.api.ClientUpdate;
 import net.ccbluex.liquidbounce.event.*;
+import net.ccbluex.liquidbounce.event.events.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker;
+import net.ccbluex.liquidbounce.features.module.modules.combat.NoClickDelay;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AbortBreaking;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions;
 import net.ccbluex.liquidbounce.features.module.modules.world.FastPlace;
-import net.ccbluex.liquidbounce.file.FileManager;
 import net.ccbluex.liquidbounce.injection.forge.SplashProgressLock;
 import net.ccbluex.liquidbounce.ui.client.GuiClientConfiguration;
 import net.ccbluex.liquidbounce.ui.client.GuiMainMenu;
-import net.ccbluex.liquidbounce.ui.client.GuiUpdate;
-import net.ccbluex.liquidbounce.ui.client.GuiWelcome;
 import net.ccbluex.liquidbounce.utils.CPSCounter;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.ccbluex.liquidbounce.utils.render.IconUtils;
@@ -39,16 +37,13 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Util;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.ByteBuffer;
@@ -58,45 +53,25 @@ import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 @Mixin(Minecraft.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinMinecraft {
+    @Shadow @Final private static Logger logger = LogManager.getLogger();
+    @Shadow public GuiScreen currentScreen;
+    @Shadow public boolean skipRenderWorld;
+    @Shadow private int leftClickCounter;
+    @Shadow public MovingObjectPosition objectMouseOver;
+    @Shadow public WorldClient theWorld;
+    @Shadow public EntityPlayerSP thePlayer;
+    @Shadow public EffectRenderer effectRenderer;
+    @Shadow public PlayerControllerMP playerController;
+    @Shadow public int displayWidth;
+    @Shadow public int displayHeight;
+    @Shadow public int rightClickDelayTimer;
+    @Shadow public GameSettings gameSettings;
+    @Shadow public abstract void displayGuiScreen(GuiScreen guiScreenIn);
 
-    @Shadow
-    public GuiScreen currentScreen;
-
-    @Shadow
-    public boolean skipRenderWorld;
-
-    @Shadow
-    private int leftClickCounter;
-
-    @Shadow
-    public MovingObjectPosition objectMouseOver;
-
-    @Shadow
-    public WorldClient theWorld;
-
-    @Shadow
-    public EntityPlayerSP thePlayer;
-
-    @Shadow
-    public EffectRenderer effectRenderer;
-
-    @Shadow
-    public PlayerControllerMP playerController;
-
-    @Shadow
-    public int displayWidth;
-
-    @Shadow
-    public int displayHeight;
-
-    @Shadow
-    public int rightClickDelayTimer;
-
-    @Shadow
-    public GameSettings gameSettings;
-
-    @Shadow
-    public abstract void displayGuiScreen(GuiScreen guiScreenIn);
+    private long lastFrame = getTime();
+    public long getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+    }
 
     @Inject(method = "run", at = @At("HEAD"))
     private void init(CallbackInfo callbackInfo) {
@@ -130,15 +105,6 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Inject(method = "startGame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayGuiScreen(Lnet/minecraft/client/gui/GuiScreen;)V", shift = At.Shift.AFTER))
-    private void afterMainScreen(CallbackInfo callbackInfo) {
-        if (FileManager.INSTANCE.getFirstStart()) {
-            displayGuiScreen(new GuiWelcome());
-        } else if (ClientUpdate.INSTANCE.hasUpdate()) {
-            displayGuiScreen(new GuiUpdate());
-        }
-    }
-
     @Inject(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;setTitle(Ljava/lang/String;)V", shift = At.Shift.AFTER))
     private void createDisplay(CallbackInfo callbackInfo) {
         if (GuiClientConfiguration.Companion.getEnabledClientTitle()) {
@@ -159,8 +125,6 @@ public abstract class MixinMinecraft {
         EventManager.INSTANCE.callEvent(new ScreenEvent(currentScreen));
     }
 
-    private long lastFrame = getTime();
-
     @Inject(method = "runGameLoop", at = @At("HEAD"))
     private void runGameLoop(final CallbackInfo callbackInfo) {
         final long currentTime = getTime();
@@ -168,10 +132,6 @@ public abstract class MixinMinecraft {
         lastFrame = currentTime;
 
         RenderUtils.INSTANCE.setDeltaTime(deltaTime);
-    }
-
-    public long getTime() {
-        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
     }
 
     @Inject(method = "runTick", at = @At("HEAD"))
@@ -219,7 +179,7 @@ public abstract class MixinMinecraft {
     private void clickMouse(CallbackInfo callbackInfo) {
         CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.LEFT);
 
-        if (AutoClicker.INSTANCE.handleEvents()) {
+        if (AutoClicker.INSTANCE.handleEvents() || NoClickDelay.INSTANCE.handleEvents()) {
             leftClickCounter = 0;
         }
     }
@@ -274,7 +234,6 @@ public abstract class MixinMinecraft {
 
                 if (leftClickCounter == 0)
                     EventManager.INSTANCE.callEvent(new ClickBlockEvent(blockPos, objectMouseOver.sideHit));
-
 
                 if (theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && playerController.onPlayerDamageBlock(blockPos, objectMouseOver.sideHit)) {
                     effectRenderer.addBlockHitEffects(blockPos, objectMouseOver.sideHit);

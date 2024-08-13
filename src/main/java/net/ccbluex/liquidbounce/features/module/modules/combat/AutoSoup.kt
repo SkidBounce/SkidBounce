@@ -1,14 +1,14 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
@@ -16,9 +16,9 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryC
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.init.Items
@@ -29,17 +29,17 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
-object AutoSoup : Module("AutoSoup", ModuleCategory.COMBAT, hideModule = false) {
+object AutoSoup : Module("AutoSoup", COMBAT) {
 
     private val health by FloatValue("Health", 15f, 0f..20f)
-    private val delay by IntegerValue("Delay", 150, 0..500)
+    private val delay by IntValue("Delay", 150, 0..500)
 
-    private val openInventory by BoolValue("OpenInv", true)
-        private val startDelay by IntegerValue("StartDelay", 100, 0..1000) { openInventory }
-        private val autoClose by BoolValue("AutoClose", false) { openInventory }
-        private val autoCloseDelay by IntegerValue("CloseDelay", 500, 0..1000) { openInventory && autoClose }
+    private val openInventory by BooleanValue("OpenInv", true)
+    private val startDelay by IntValue("StartDelay", 100, 0..1000) { openInventory }
+    private val autoClose by BooleanValue("AutoClose", false) { openInventory }
+    private val autoCloseDelay by IntValue("CloseDelay", 500, 0..1000) { openInventory && autoClose }
 
-    private val simulateInventory by BoolValue("SimulateInventory", false) { !openInventory }
+    private val simulateInventory by BooleanValue("SimulateInventory", false) { !openInventory }
 
     private val bowl by ListValue("Bowl", arrayOf("Drop", "Move", "Stay"), "Drop")
 

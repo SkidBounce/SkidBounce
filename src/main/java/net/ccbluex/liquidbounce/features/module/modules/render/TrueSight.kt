@@ -1,15 +1,15 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.RENDER
+import net.ccbluex.liquidbounce.value.BooleanValue
 
-object TrueSight : Module("TrueSight", ModuleCategory.RENDER) {
-    val barriers by BoolValue("Barriers", true)
-    val entities by BoolValue("Entities", true)
+object TrueSight : Module("TrueSight", RENDER) {
+    val barriers by BooleanValue("Barriers", true)
+    val entities by BooleanValue("Entities", true)
 }

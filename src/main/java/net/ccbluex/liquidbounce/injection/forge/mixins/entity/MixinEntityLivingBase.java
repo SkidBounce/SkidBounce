@@ -1,22 +1,22 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.JumpEvent;
+import net.ccbluex.liquidbounce.event.events.JumpEvent;
+import net.ccbluex.liquidbounce.features.module.modules.client.Rotations;
 import net.ccbluex.liquidbounce.features.module.modules.movement.AirJump;
-import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidWalk;
+import net.ccbluex.liquidbounce.features.module.modules.movement.Jesus;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoJumpDelay;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.render.Rotations;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
-import net.ccbluex.liquidbounce.utils.extensions.MathExtensionsKt;
+import net.ccbluex.liquidbounce.utils.extensions.ExtensionsKt;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
@@ -35,45 +35,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityLivingBase.class)
 public abstract class MixinEntityLivingBase extends MixinEntity {
-
-    @Shadow
-    public float rotationYawHead;
-    @Shadow
-    public boolean isJumping;
-    @Shadow
-    public int jumpTicks;
-
-    @Shadow
-    protected abstract float getJumpUpwardsMotion();
-
-    @Shadow
-    public abstract PotionEffect getActivePotionEffect(Potion potionIn);
-
-    @Shadow
-    public abstract boolean isPotionActive(Potion potionIn);
-
-    @Shadow
-    public void onLivingUpdate() {
-    }
-
-    @Shadow
-    protected abstract void updateFallState(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
-
-    @Shadow
-    public abstract float getHealth();
-
-    @Shadow
-    public abstract ItemStack getHeldItem();
-
-    @Shadow
-    protected abstract void updateAITick();
+    @Shadow public float rotationYawHead;
+    @Shadow public boolean isJumping;
+    @Shadow public int jumpTicks;
+    @Shadow protected abstract float getJumpUpwardsMotion();
+    @Shadow public abstract PotionEffect getActivePotionEffect(Potion potionIn);
+    @Shadow public abstract boolean isPotionActive(Potion potionIn);
+    @Shadow public void onLivingUpdate() {}
+    @Shadow protected abstract void updateFallState(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
+    @Shadow public abstract float getHealth();
+    @Shadow public abstract ItemStack getHeldItem();
+    @Shadow protected abstract void updateAITick();
 
     /**
      * @author CCBlueX
      */
+    @SuppressWarnings("OverwriteAuthorRequired")
     @Overwrite
     protected void jump() {
-        final JumpEvent jumpEvent = new JumpEvent(getJumpUpwardsMotion());
+        final JumpEvent jumpEvent = new JumpEvent(getJumpUpwardsMotion(), 0.2f);
         EventManager.INSTANCE.callEvent(jumpEvent);
         if (jumpEvent.isCancelled()) return;
 
@@ -82,7 +62,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         if (isPotionActive(Potion.jump))
             motionY += (float) (getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
 
-        if (isSprinting()) {
+        if (isSprinting() && MovementUtils.INSTANCE.isMoving()) {
             float fixedYaw = this.rotationYaw;
 
             final RotationUtils rotationUtils = RotationUtils.INSTANCE;
@@ -92,13 +72,13 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             }
 
             final Sprint sprint = Sprint.INSTANCE;
-            if (sprint.handleEvents() && sprint.getAllDirections() && sprint.getJumpDirections()) {
-                fixedYaw += MathExtensionsKt.toDegreesF(MovementUtils.INSTANCE.getDirection()) - this.rotationYaw;
+            if (sprint.handleEvents() && sprint.getJumpDirections()) {
+                fixedYaw += ExtensionsKt.toDegreesF(MovementUtils.INSTANCE.getDirection()) - this.rotationYaw;
             }
 
             final float f = fixedYaw * 0.017453292F;
-            motionX -= MathHelper.sin(f) * 0.2F;
-            motionZ += MathHelper.cos(f) * 0.2F;
+            motionX -= MathHelper.sin(f) * jumpEvent.getSprintBoost();
+            motionZ += MathHelper.cos(f) * jumpEvent.getSprintBoost();
         }
 
         isAirBorne = true;
@@ -116,7 +96,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             jumpTicks = 10;
         }
 
-        final LiquidWalk liquidWalk = LiquidWalk.INSTANCE;
+        final Jesus liquidWalk = Jesus.INSTANCE;
 
         if (liquidWalk.handleEvents() && !isJumping && !isSneaking() && isInWater() && liquidWalk.getMode().equals("Swim")) {
             updateAITick();
@@ -133,11 +113,11 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     /**
      * Inject head yaw rotation modification
      */
+    @SuppressWarnings("UnreachableCode")
     @Inject(method = "onLivingUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;updateEntityActionState()V", shift = At.Shift.AFTER))
     private void hookHeadRotations(CallbackInfo ci) {
         Rotation rotation = Rotations.INSTANCE.getRotation();
 
-        //noinspection ConstantValue
         this.rotationYawHead = ((EntityLivingBase) (Object) this) instanceof EntityPlayerSP && Rotations.INSTANCE.shouldUseRealisticMode() && rotation != null ? rotation.getYaw() : this.rotationYawHead;
     }
 

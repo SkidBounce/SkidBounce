@@ -1,17 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.block;
 
-import net.ccbluex.liquidbounce.event.BlockBBEvent;
+import net.ccbluex.liquidbounce.event.events.BlockBBEvent;
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.GhostHand;
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall;
 import net.ccbluex.liquidbounce.features.module.modules.render.XRay;
 import net.ccbluex.liquidbounce.features.module.modules.world.NoSlowBreak;
+import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
@@ -40,17 +39,9 @@ import java.util.List;
 @Mixin(Block.class)
 @SideOnly(Side.CLIENT)
 public abstract class MixinBlock {
-
-    @Shadow
-    @Final
-    protected BlockState blockState;
-
-    @Shadow
-    public abstract AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state);
-
-    @Shadow
-    public abstract void setBlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
-
+    @Shadow @Final protected BlockState blockState;
+    @Shadow public abstract AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state);
+    @Shadow public abstract void setBlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ);
     // Has to be implemented since a non-virtual call on an abstract method is illegal
     @Shadow
     public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
@@ -80,9 +71,7 @@ public abstract class MixinBlock {
 
     @Inject(method = "isCollidable", at = @At("HEAD"), cancellable = true)
     private void isCollidable(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        final GhostHand ghostHand = GhostHand.INSTANCE;
-
-        if (ghostHand.handleEvents() && !(ghostHand.getBlock() == Block.getIdFromBlock((Block) (Object) this))) {
+        if (GhostHand.INSTANCE.handleEvents() && !(GhostHand.INSTANCE.getBlock() == Block.getIdFromBlock((Block) (Object) this))) {
             callbackInfoReturnable.setReturnValue(false);
         }
     }
@@ -99,22 +88,16 @@ public abstract class MixinBlock {
         float f = callbackInfo.getReturnValue();
 
         // NoSlowBreak
-        final NoSlowBreak noSlowBreak = NoSlowBreak.INSTANCE;
-        if (noSlowBreak.handleEvents()) {
-            if (noSlowBreak.getWater() && playerIn.isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityModifier(playerIn)) {
+        if (NoSlowBreak.INSTANCE.handleEvents()) {
+            if (NoSlowBreak.getWater() && playerIn.isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityModifier(playerIn)) {
                 f *= 5f;
             }
 
-            if (noSlowBreak.getAir() && !playerIn.onGround) {
+            if (NoSlowBreak.getAir() && !playerIn.onGround) {
                 f *= 5f;
             }
-        } else if (playerIn.onGround) { // NoGround
-            final NoFall noFall = NoFall.INSTANCE;
-            final Criticals criticals = Criticals.INSTANCE;
-
-            if (noFall.handleEvents() && noFall.getMode().equals("NoGround") || criticals.handleEvents() && criticals.getMode().equals("NoGround")) {
-                f /= 5F;
-            }
+        } else if (playerIn.onGround && !MovementUtils.getServerOnGround()) { // NoGround
+            f /= 5F;
         }
 
         callbackInfo.setReturnValue(f);

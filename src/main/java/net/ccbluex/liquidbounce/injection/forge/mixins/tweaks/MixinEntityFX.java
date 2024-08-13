@@ -12,7 +12,7 @@ public class MixinEntityFX {
     @Unique
     private static final int BRIGHTNESS_VALUE = 0xF000F0;
 
-    @Redirect(method={"renderParticle"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/particle/EntityFX;getBrightnessForRender(F)I"))
+    @Redirect(method = "renderParticle", at = @At(value="INVOKE", target="Lnet/minecraft/client/particle/EntityFX;getBrightnessForRender(F)I"))
     private int renderParticle(EntityFX entityFX, float f) {
         return BRIGHTNESS_VALUE;
     }

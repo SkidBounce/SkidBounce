@@ -1,7 +1,7 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.injection.forge.mixins.client;
 
@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(MovementInput.class)
 public class MixinMovementInput {
-
     @Shadow public float moveStrafe;
-    @Shadow
-    public float moveForward;
+    @Shadow public float moveForward;
 }

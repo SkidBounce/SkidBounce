@@ -1,19 +1,15 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client.clickgui
 
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
-import net.ccbluex.liquidbounce.api.ClientApi
-import net.ccbluex.liquidbounce.api.autoSettingsList
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.guiColor
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scale
-import net.ccbluex.liquidbounce.features.module.modules.render.ClickGUI.scrolls
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.scale
+import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.scrolls
 import net.ccbluex.liquidbounce.file.FileManager.clickGuiConfig
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.ui.client.clickgui.elements.ButtonElement
@@ -22,35 +18,23 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.style.Style
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.BlackStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.LiquidBounceStyle
 import net.ccbluex.liquidbounce.ui.client.clickgui.style.styles.SlowlyStyle
-import net.ccbluex.liquidbounce.ui.client.hud.HUD
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.utils.ClientUtils
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetAnimals
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetDead
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetInvisible
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetMobs
-import net.ccbluex.liquidbounce.utils.EntityUtils.targetPlayer
-import net.ccbluex.liquidbounce.utils.SettingsUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.deltaTime
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawImage
-import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager.disableLighting
 import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.glScaled
-import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
 object ClickGui : GuiScreen() {
 
     val panels = mutableListOf<Panel>()
-    private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
+    private val hudIcon = ClientUtils.resource("custom_hud_icon.png")
     var style: Style = LiquidBounceStyle
     private var mouseX = 0
         set(value) {
@@ -82,78 +66,7 @@ object ClickGui : GuiScreen() {
         }
 
         yPos += 20
-        panels += setupTargetsPanel(100, yPos, width, height)
-
-        // Settings Panel
-        yPos += 20
-        panels += setupSettingsPanel(100, yPos, width, height)
     }
-
-    private fun setupTargetsPanel(xPos: Int = 100, yPos: Int, width: Int, height: Int) =
-        object : Panel("Targets", xPos, yPos, width, height, false) {
-
-            override val elements = listOf(
-                ButtonElement("Players", { if (targetPlayer) guiColor else Int.MAX_VALUE }) {
-                    targetPlayer = !targetPlayer
-                },
-                ButtonElement("Mobs", { if (targetMobs) guiColor else Int.MAX_VALUE }) {
-                    targetMobs = !targetMobs
-                },
-                ButtonElement("Animals", { if (targetAnimals) guiColor else Int.MAX_VALUE }) {
-                    targetAnimals = !targetAnimals
-                },
-                ButtonElement("Invisible", { if (targetInvisible) guiColor else Int.MAX_VALUE }) {
-                    targetInvisible = !targetInvisible
-                },
-                ButtonElement("Dead", { if (targetDead) guiColor else Int.MAX_VALUE }) {
-                    targetDead = !targetDead
-                },
-            )
-
-        }
-
-    private fun setupSettingsPanel(xPos: Int = 100, yPos: Int, width: Int, height: Int) =
-        object : Panel("Auto Settings", xPos, yPos, width, height, false) {
-
-            /**
-             * Auto settings list
-             */
-            override val elements = autoSettingsList?.map {
-                ButtonElement(it.name, { Integer.MAX_VALUE }) {
-                    thread {
-                        runCatching {
-                            displayChatMessage("Loading settings...")
-
-                            // Load settings and apply them
-                            val settings = ClientApi.requestSettingsScript(it.settingId)
-
-                            displayChatMessage("Applying settings...")
-                            SettingsUtils.applyScript(settings)
-                        }.onSuccess {
-                            displayChatMessage("§6Settings applied successfully")
-                            HUD.addNotification(Notification("Updated Settings"))
-                            mc.soundHandler.playSound(
-                                PositionedSoundRecord.create(
-                                    ResourceLocation("random.anvil_use"), 1F
-                                )
-                            )
-                        }.onFailure {
-                            ClientUtils.LOGGER.error("Failed to load settings", it)
-                            displayChatMessage("Failed to load settings: ${it.message}")
-                        }
-                    }
-                }.apply {
-                    this.hoverText = buildString {
-                        appendLine("§7Description: §e${it.description.ifBlank { "No description available" }}")
-                        appendLine("§7Type: §e${it.type.displayName}")
-                        appendLine("§7Contributors: §e${it.contributors}")
-                        appendLine("§7Last updated: §e${it.date}")
-                        append("§7Status: §e${it.statusType.displayName} §a(${it.statusDate})")
-                    }
-                }
-            } ?: emptyList()
-
-        }
 
     override fun drawScreen(x: Int, y: Int, partialTicks: Float) {
         // Enable DisplayList optimization

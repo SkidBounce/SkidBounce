@@ -1,15 +1,15 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render2DEvent
-import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.Render2DEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.RENDER
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
@@ -20,8 +20,8 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBorderedRect
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawSelectionBoundingBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager.*
@@ -29,13 +29,13 @@ import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-object BlockOverlay : Module("BlockOverlay", ModuleCategory.RENDER, gameDetecting = false, hideModule = false) {
-    val info by BoolValue("Info", false)
+object BlockOverlay : Module("BlockOverlay", RENDER, gameDetecting = false) {
+    val info by BooleanValue("Info", false)
 
-    private val colorRainbow by BoolValue("Rainbow", false)
-        private val colorRed by IntegerValue("R", 68, 0..255) { !colorRainbow }
-        private val colorGreen by IntegerValue("G", 117, 0..255) { !colorRainbow }
-        private val colorBlue by IntegerValue("B", 255, 0..255) { !colorRainbow }
+    private val colorRainbow by BooleanValue("Rainbow", false)
+    private val colorRed by IntValue("R", 68, 0..255) { !colorRainbow }
+    private val colorGreen by IntValue("G", 117, 0..255) { !colorRainbow }
+    private val colorBlue by IntValue("B", 255, 0..255) { !colorRainbow }
 
     val currentBlock: BlockPos?
         get() {
@@ -54,8 +54,10 @@ object BlockOverlay : Module("BlockOverlay", ModuleCategory.RENDER, gameDetectin
         val block = getBlock(blockPos) ?: return
         val partialTicks = event.partialTicks
 
-        val color = if (colorRainbow) rainbow(alpha = 0.4F) else Color(colorRed,
-                colorGreen, colorBlue, (0.4F * 255).toInt())
+        val color = if (colorRainbow) rainbow(alpha = 0.4F) else Color(
+            colorRed,
+            colorGreen, colorBlue, (0.4F * 255).toInt()
+        )
 
         enableBlend()
         tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
@@ -95,11 +97,11 @@ object BlockOverlay : Module("BlockOverlay", ModuleCategory.RENDER, gameDetectin
             val (width, height) = ScaledResolution(mc)
 
             drawBorderedRect(
-                    width / 2 - 2F,
-                    height / 2 + 5F,
-                    width / 2 + Fonts.font40.getStringWidth(info) + 2F,
-                    height / 2 + 16F,
-                    3F, Color.BLACK.rgb, Color.BLACK.rgb
+                width / 2 - 2F,
+                height / 2 + 5F,
+                width / 2 + Fonts.font40.getStringWidth(info) + 2F,
+                height / 2 + 16F,
+                3F, Color.BLACK.rgb, Color.BLACK.rgb
             )
 
             resetColor()

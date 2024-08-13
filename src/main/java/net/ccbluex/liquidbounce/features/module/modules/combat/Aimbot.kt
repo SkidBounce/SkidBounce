@@ -1,15 +1,15 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.MotionEvent
+import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RotationUtils.getRotationDifference
@@ -20,38 +20,38 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.entity.Entity
 import java.util.*
 import kotlin.math.atan
 
-object Aimbot : Module("Aimbot", ModuleCategory.COMBAT, hideModule = false) {
-
-    private val horizontalAim by BoolValue("HorizontalAim", true)
-    private val verticalAim by BoolValue("VerticalAim", true)
+object AimBot : Module("AimBot", COMBAT) {
+    private val horizontalAim by BooleanValue("HorizontalAim", true)
+    private val verticalAim by BooleanValue("VerticalAim", true)
     private val range by FloatValue("Range", 4.4F, 1F..8F)
     private val turnSpeed by FloatValue("TurnSpeed", 10f, 1F..180F)
     private val inViewTurnSpeed by FloatValue("InViewTurnSpeed", 35f, 1f..180f)
-    private val predictClientMovement by IntegerValue("PredictClientMovement", 2, 0..5)
+    private val predictClientMovement by IntValue("PredictClientMovement", 2, 0..5)
     private val predictEnemyPosition by FloatValue("PredictEnemyPosition", 1.5f, -1f..2f)
     private val fov by FloatValue("FOV", 180F, 1F..180F)
-    private val lock by BoolValue("Lock", true)
-    private val onClick by BoolValue("OnClick", false)
-    private val jitter by BoolValue("Jitter", false)
+    private val lock by BooleanValue("Lock", true)
+    private val onClick by BooleanValue("OnClick", false)
+    private val jitter by BooleanValue("Jitter", false)
     private val yawJitterMultiplier by FloatValue("JitterYawMultiplier", 1f, 0.1f..2.5f)
     private val pitchJitterMultiplier by FloatValue("JitterPitchMultiplier", 1f, 0.1f..2.5f)
-    private val center by BoolValue("Center", false)
-    private val headLock by BoolValue("Headlock", false) { center && lock }
+    private val center by BooleanValue("Center", false)
+    private val headLock by BooleanValue("Headlock", false) { center && lock }
     private val headLockBlockHeight by FloatValue("HeadBlockHeight", -1f, -2f..0f) { headLock && center && lock }
-    private val breakBlocks by BoolValue("BreakBlocks", true)
+    private val breakBlocks by BooleanValue("BreakBlocks", true)
 
     private val clickTimer = MSTimer()
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (event.eventState != EventState.POST) return
+        if (event.eventState != EventState.POST)
+            return
 
         val thePlayer = mc.thePlayer ?: return
 
@@ -127,7 +127,8 @@ object Aimbot : Module("Aimbot", ModuleCategory.COMBAT, hideModule = false) {
         val destinationRotation = if (center) {
             toRotation(boundingBox.center, true)
         } else {
-            searchCenter(boundingBox,
+            searchCenter(
+                boundingBox,
                 outborder = false,
                 random = false,
                 gaussianOffset = false,

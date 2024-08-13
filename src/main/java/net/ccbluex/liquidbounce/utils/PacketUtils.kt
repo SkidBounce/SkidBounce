@@ -1,25 +1,35 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
+import io.netty.buffer.Unpooled.buffer
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.GameLoopEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.TickEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
+import net.ccbluex.liquidbounce.features.module.modules.client.PacketDebugger
 import net.ccbluex.liquidbounce.features.module.modules.player.FakeLag
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.PPSCounter.PacketType.SEND
+import net.ccbluex.liquidbounce.utils.PacketType.*
+import net.ccbluex.liquidbounce.utils.extensions.*
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.client.C0CPacketInput
 import net.minecraft.network.play.server.S0CPacketSpawnPlayer
 import net.minecraft.network.play.server.S0FPacketSpawnMob
-import net.minecraft.network.play.server.S0EPacketSpawnObject
-import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.network.play.server.S18PacketEntityTeleport
-import kotlin.math.roundToInt
+import net.minecraft.util.MovementInput
 
 object PacketUtils : MinecraftInstance(), Listenable {
 
@@ -40,7 +50,6 @@ object PacketUtils : MinecraftInstance(), Listenable {
             }
         }
     }
-
     @EventTarget(priority = 2)
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
@@ -90,7 +99,6 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 }
         }
     }
-
     @EventTarget(priority = -5)
     fun onGameLoop(event: GameLoopEvent) {
         synchronized(queuedPackets) {
@@ -109,13 +117,16 @@ object PacketUtils : MinecraftInstance(), Listenable {
     @JvmStatic
     fun sendPacket(packet: Packet<*>, triggerEvent: Boolean = true) {
         if (triggerEvent) {
+            if (packet is C03PacketPlayer && packet !is C04PacketPlayerPosition && packet !is C06PacketPlayerPosLook)
+                mc.thePlayer.positionUpdateTicks++
             mc.netHandler?.addToSendQueue(packet)
             return
         }
-
         val netManager = mc.netHandler?.networkManager ?: return
-
-        PPSCounter.registerType(PPSCounter.PacketType.SEND)
+        PacketDebugger.onPacket(PacketEvent(packet, EventState.SEND))
+        PPSCounter.registerType(SEND)
+        if (packet is C03PacketPlayer && packet !is C04PacketPlayerPosition && packet !is C06PacketPlayerPosLook)
+            mc.thePlayer.positionUpdateTicks++
         if (netManager.isChannelOpen) {
             netManager.flushOutboundQueue()
             netManager.dispatchPacket(packet, null)
@@ -130,6 +141,16 @@ object PacketUtils : MinecraftInstance(), Listenable {
     }
 
     @JvmStatic
+    fun C0CPacketInput(input: MovementInput, inputMultiplier: Float = 0.98f) = C0CPacketInput(
+        input.moveStrafe * inputMultiplier,
+        input.moveForward * inputMultiplier,
+        input.jump,
+        input.sneak
+    )
+
+    fun PacketBuffer() = net.minecraft.network.PacketBuffer(buffer())
+
+    @JvmStatic
     fun sendPackets(vararg packets: Packet<*>, triggerEvents: Boolean = true) =
         packets.forEach { sendPacket(it, triggerEvents) }
 
@@ -137,77 +158,14 @@ object PacketUtils : MinecraftInstance(), Listenable {
         packets.forEach { handlePacket(it) }
 
     fun handlePacket(packet: Packet<*>?) {
-        runCatching { (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler) }.onSuccess {
+        runCatching {
+            (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler)
+        }.onSuccess {
             PPSCounter.registerType(PPSCounter.PacketType.RECEIVED)
         }
     }
 
     val Packet<*>.type
-        get() = when (this.javaClass.simpleName[0]) {
-            'C' -> PacketType.CLIENT
-            'S' -> PacketType.SERVER
-            else -> PacketType.UNKNOWN
-        }
-
-    enum class PacketType { CLIENT, SERVER, UNKNOWN }
+        get() = if (javaClass.simpleName[0] == 'C')
+            CLIENT else SERVER
 }
-
-var S12PacketEntityVelocity.realMotionX
-    get() = motionX / 8000.0
-    set(value) {
-        motionX = (value * 8000.0).roundToInt()
-    }
-var S12PacketEntityVelocity.realMotionY
-    get() = motionY / 8000.0
-    set(value) {
-        motionX = (value * 8000.0).roundToInt()
-    }
-var S12PacketEntityVelocity.realMotionZ
-    get() = motionZ / 8000.0
-    set(value) {
-        motionX = (value * 8000.0).roundToInt()
-    }
-
-val S14PacketEntity.realMotionX
-    get() = func_149062_c() / 32.0
-val S14PacketEntity.realMotionY
-    get() = func_149061_d() / 32.0
-val S14PacketEntity.realMotionZ
-    get() = func_149064_e() / 32.0
-
-var S0EPacketSpawnObject.realX
-    get() = x / 32.0
-    set(value) {
-        x = (value * 32.0).roundToInt()
-    }
-var S0EPacketSpawnObject.realY
-    get() = y / 32.0
-    set(value) {
-        y = (value * 32.0).roundToInt()
-    }
-var S0EPacketSpawnObject.realZ
-    get() = z / 32.0
-    set(value) {
-        z = (value * 32.0).roundToInt()
-    }
-
-val S0CPacketSpawnPlayer.realX
-    get() = x / 32.0
-val S0CPacketSpawnPlayer.realY
-    get() = y / 32.0
-val S0CPacketSpawnPlayer.realZ
-    get() = z / 32.0
-
-val S0FPacketSpawnMob.realX
-    get() = x / 32.0
-val S0FPacketSpawnMob.realY
-    get() = y / 32.0
-val S0FPacketSpawnMob.realZ
-    get() = z / 32.0
-
-val S18PacketEntityTeleport.realX
-    get() = x / 32.0
-val S18PacketEntityTeleport.realY
-    get() = y / 32.0
-val S18PacketEntityTeleport.realZ
-    get() = z / 32.0

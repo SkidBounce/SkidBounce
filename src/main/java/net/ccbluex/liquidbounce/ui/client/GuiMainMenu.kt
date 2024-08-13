@@ -1,19 +1,16 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.ui.client
 
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
-import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_WEBSITE
 import net.ccbluex.liquidbounce.LiquidBounce.clientVersionText
-import net.ccbluex.liquidbounce.api.messageOfTheDay
-import net.ccbluex.liquidbounce.lang.translationMenu
+import net.ccbluex.liquidbounce.lang.LanguageManager.translationMenu
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.misc.MiscUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedBorderRect
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawRoundedRect
 import net.minecraft.client.gui.*
 import net.minecraft.client.resources.I18n
 
@@ -31,21 +28,19 @@ class GuiMainMenu : GuiScreen() {
             add(GuiButton(1, width / 2 - 100, defaultHeight, 98, 20, I18n.format("menu.singleplayer")))
             add(GuiButton(2, width / 2 + 2, defaultHeight, 98, 20, I18n.format("menu.multiplayer")))
 
-            // Minecraft Realms
-            //		this.buttonList.add(new GuiButton(14, this.width / 2 - 100, j + 24 * 2, I18n.format("menu.online", new Object[0])));
-
-            add(GuiButton(108, width / 2 - 100, defaultHeight + 24 * 3, translationMenu("contributors")))
-            add(GuiButton(0, width / 2 - 100, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.options")))
-            add(GuiButton(4, width / 2 + 2, defaultHeight + 24 * 4, 98, 20, I18n.format("menu.quit")))
+            add(GuiButton(0, width / 2 - 100, defaultHeight + 24 * 3, 98, 20, I18n.format("menu.options")))
+            add(GuiButton(4, width / 2 + 2, defaultHeight + 24 * 3, 98, 20, I18n.format("menu.quit")))
         }
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
 
-        drawRoundedBorderRect(width / 2f - 115, height / 4f + 35, width / 2f + 115, height / 4f + 175,
-            2f,
-            Integer.MIN_VALUE,
+        drawRoundedRect(
+            width / 2f - 115,
+            height / 4f + 35,
+            width / 2f + 115,
+            height / 4f + 151,
             Integer.MIN_VALUE,
             3F
         )
@@ -53,46 +48,7 @@ class GuiMainMenu : GuiScreen() {
         Fonts.fontBold180.drawCenteredString(CLIENT_NAME, width / 2F, height / 8F, 4673984, true)
         Fonts.font35.drawCenteredString(clientVersionText, width / 2F + 148, height / 8F + Fonts.font35.fontHeight, 0xffffff, true)
 
-        val messageOfTheDay = messageOfTheDay?.message
-        if (messageOfTheDay?.isNotBlank() == true) {
-            val lines = messageOfTheDay.lines()
-
-            drawRoundedBorderRect(width / 2f - 115,
-                height / 4f + 190,
-                width / 2f + 115,
-                height / 4f + 192 + (Fonts.font35.fontHeight * lines.size),
-                2f,
-                Integer.MIN_VALUE,
-                Integer.MIN_VALUE,
-                3F
-            )
-
-            // Draw rect below main rect and within draw MOTD text
-            for ((index, line) in lines.withIndex()) {
-                Fonts.font35.drawCenteredString(line, width / 2F, height / 4f + 197.5f
-                        + (Fonts.font35.fontHeight * index), 0xffffff, true)
-            }
-        }
-
         super.drawScreen(mouseX, mouseY, partialTicks)
-    }
-
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        // When clicking the message of the day text
-        val messageOfTheDay = messageOfTheDay?.message
-        if (messageOfTheDay?.isNotBlank() == true) {
-            val lines = messageOfTheDay.lines()
-            val motdHeight = height / 4f + 190
-            val motdWidth = width / 2f - 115
-            val motdHeightEnd = motdHeight + 192 + (Fonts.font35.fontHeight * lines.size)
-
-            if (mouseX >= motdWidth && mouseX <= width / 2f + 115 && mouseY >= motdHeight && mouseY <= motdHeightEnd) {
-                // Open liquidbounce website
-                MiscUtils.showURL("https://$CLIENT_WEBSITE")
-            }
-        }
-
-        super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
     override fun actionPerformed(button: GuiButton) {
@@ -105,7 +61,6 @@ class GuiMainMenu : GuiScreen() {
             101 -> mc.displayGuiScreen(GuiServerStatus(this))
             102 -> mc.displayGuiScreen(GuiClientConfiguration(this))
             103 -> mc.displayGuiScreen(GuiModsMenu(this))
-            108 -> mc.displayGuiScreen(GuiContributors(this))
         }
     }
 }

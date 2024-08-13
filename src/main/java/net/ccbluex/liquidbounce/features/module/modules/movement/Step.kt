@@ -1,45 +1,58 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.tryJump
+import net.ccbluex.liquidbounce.utils.extensions.fakeJump
+import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
-import net.minecraft.stats.StatList
 import kotlin.math.cos
 import kotlin.math.sin
 
-object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hideModule = false) {
+object Step : Module("Step", MOVEMENT, gameDetecting = false) {
 
     /**
      * OPTIONS
      */
 
-    private val mode by ListValue("Mode",
-        arrayOf("Vanilla", "Jump", "NCP", "MotionNCP", "OldNCP", "AAC", "LAAC", "AAC3.3.4", "Spartan", "Rewinside"), "NCP")
+    private val mode by ListValue(
+        "Mode",
+        arrayOf(
+            "Vanilla",
+            "Jump",
+            "NCP",
+            "MotionNCP",
+            "OldNCP",
+            "AAC",
+            "LAAC",
+            "AAC3.3.4",
+            "Spartan",
+            "Rewinside"
+        ).sortedArray(), "Vanilla"
+    )
 
-        private val height by FloatValue("Height", 1F, 0.6F..10F)
-            { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4") }
-        private val jumpHeight by FloatValue("JumpHeight", 0.42F, 0.37F..0.42F)
-            { mode == "Jump" }
+    private val height by FloatValue("Height", 1F, 0.6F..10F)
+    { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4") }
+    private val jumpHeight by FloatValue("JumpHeight", 0.42F, 0.37F..0.42F)
+    { mode == "Jump" }
 
-    private val delay by IntegerValue("Delay", 0, 0..500)
+    private val delay by IntValue("Delay", 0, 0..500)
 
     /**
      * VALUES
@@ -63,6 +76,7 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
         thePlayer.stepHeight = 0.6F
     }
 
+    @Suppress("UNUSED_PARAMETER")
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         val mode = mode
@@ -72,15 +86,16 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
         when (mode) {
             "Jump" ->
                 if (thePlayer.isCollidedHorizontally && thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
-                    fakeJump()
+                    mc.thePlayer.fakeJump()
                     thePlayer.motionY = jumpHeight.toDouble()
                 }
+
             "LAAC" ->
                 if (thePlayer.isCollidedHorizontally && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isInLava && !thePlayer.isInWeb) {
                     if (thePlayer.onGround && timer.hasTimePassed(delay)) {
                         isStep = true
 
-                        fakeJump()
+                        mc.thePlayer.fakeJump()
                         thePlayer.motionY += 0.620000001490116
 
                         val yaw = direction
@@ -91,12 +106,13 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
 
                     thePlayer.onGround = true
                 } else isStep = false
+
             "AAC3.3.4" ->
                 if (thePlayer.isCollidedHorizontally && isMoving) {
                     if (thePlayer.onGround && couldStep()) {
                         thePlayer.motionX *= 1.26
                         thePlayer.motionZ *= 1.26
-                        thePlayer.tryJump()
+                        thePlayer.jmp()
                         isAACStep = true
                     }
 
@@ -120,7 +136,7 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
         // Motion steps
         when {
             thePlayer.onGround && couldStep() -> {
-                fakeJump()
+                mc.thePlayer.fakeJump()
                 thePlayer.motionY = 0.0
                 event.y = 0.41999998688698
                 ncpNextStep = 1
@@ -154,8 +170,15 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
         }
 
         // Some fly modes should disable step
-        if (Fly.handleEvents() && Fly.mode in arrayOf("Hypixel", "OtherHypixel", "LatestHypixel", "Rewinside", "Mineplex")
-            && thePlayer.inventory.getCurrentItem() == null) {
+        if (Fly.handleEvents() && Fly.mode in arrayOf(
+                "Hypixel",
+                "OtherHypixel",
+                "LatestHypixel",
+                "Rewinside",
+                "Mineplex"
+            )
+            && thePlayer.inventory.getCurrentItem() == null
+        ) {
             event.stepHeight = 0F
             return
         }
@@ -164,7 +187,8 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
 
         // Set step to default in some cases
         if (!thePlayer.onGround || !timer.hasTimePassed(delay) ||
-                mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4")) {
+            mode in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4")
+        ) {
             thePlayer.stepHeight = 0.6F
             event.stepHeight = 0.6F
             return
@@ -195,7 +219,7 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
 
             when (mode) {
                 "NCP", "AAC" -> {
-                    fakeJump()
+                    mc.thePlayer.fakeJump()
 
                     // Half legit step (1 packet missing) [COULD TRIGGER TOO MANY PACKETS]
                     sendPackets(
@@ -204,8 +228,9 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
                     )
                     timer.reset()
                 }
+
                 "Spartan" -> {
-                    fakeJump()
+                    mc.thePlayer.fakeJump()
 
                     if (spartanSwitch) {
                         // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
@@ -223,8 +248,9 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
                     // Reset timer
                     timer.reset()
                 }
+
                 "Rewinside" -> {
-                    fakeJump()
+                    mc.thePlayer.fakeJump()
 
                     // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
                     sendPackets(
@@ -255,21 +281,13 @@ object Step : Module("Step", ModuleCategory.MOVEMENT, gameDetecting = false, hid
         }
     }
 
-    // There could be some anti cheats which tries to detect step by checking for achievements and stuff
-    private fun fakeJump() {
-        val thePlayer = mc.thePlayer ?: return
-
-        thePlayer.isAirBorne = true
-        thePlayer.triggerAchievement(StatList.jumpStat)
-    }
-
     private fun couldStep(): Boolean {
         val yaw = direction
         val x = -sin(yaw) * 0.4
         val z = cos(yaw) * 0.4
 
         return mc.theWorld.getCollisionBoxes(mc.thePlayer.entityBoundingBox.offset(x, 1.001335979112147, z))
-                .isEmpty()
+            .isEmpty()
     }
 
     override val tag

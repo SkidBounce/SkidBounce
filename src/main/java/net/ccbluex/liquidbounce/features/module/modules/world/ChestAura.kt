@@ -1,18 +1,20 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.WORLD
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
+import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.getVectorForRotation
@@ -25,18 +27,11 @@ import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenContainer
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.misc.StringUtils.contains
-import net.ccbluex.liquidbounce.utils.realX
-import net.ccbluex.liquidbounce.utils.realY
-import net.ccbluex.liquidbounce.utils.realZ
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.*
 import net.minecraft.block.BlockChest
 import net.minecraft.block.BlockEnderChest
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.server.S0EPacketSpawnObject
 import net.minecraft.network.play.server.S24PacketBlockAction
 import net.minecraft.network.play.server.S29PacketSoundEffect
@@ -52,10 +47,10 @@ import java.util.*
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
+object ChestAura : Module("ChestAura", WORLD) {
 
-    private val chest by BoolValue("Chest", true)
-    private val enderChest by BoolValue("EnderChest", false)
+    private val chest by BooleanValue("Chest", true)
+    private val enderChest by BooleanValue("EnderChest", false)
 
     private val range: Float by object : FloatValue("Range", 5F, 1F..5F) {
         override fun onUpdate(value: Float) {
@@ -63,9 +58,9 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
             searchRadiusSq = (value + 1).pow(2)
         }
     }
-    private val delay by IntegerValue("Delay", 200, 50..500)
+    private val delay by IntValue("Delay", 200, 50..500)
 
-    private val throughWalls by BoolValue("ThroughWalls", true)
+    private val throughWalls by BooleanValue("ThroughWalls", true)
     private val wallsRange: Float by object : FloatValue("ThroughWallsRange", 3F, 1F..5F) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(this@ChestAura.range)
 
@@ -82,13 +77,13 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
         }
     }
 
-    private val visualSwing by BoolValue("VisualSwing", true, subjective = true)
+    private val swing by SwingValue()
 
-    private val ignoreLooted by BoolValue("IgnoreLootedChests", true)
-    private val detectRefill by BoolValue("DetectChestRefill", true)
+    private val ignoreLooted by BooleanValue("IgnoreLootedChests", true)
+    private val detectRefill by BooleanValue("DetectChestRefill", true)
 
-    private val rotations by BoolValue("Rotations", true)
-    private val silentRotation by BoolValue("SilentRotation", true) { rotations }
+    private val rotations by BooleanValue("Rotations", true)
+    private val silentRotation by BooleanValue("SilentRotation", true) { rotations }
     private val maxTurnSpeedValue: FloatValue = object : FloatValue("MaxTurnSpeed", 120f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minTurnSpeed)
         override fun isSupported() = rotations
@@ -97,14 +92,15 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
 
     private val minTurnSpeed by object : FloatValue("MinTurnSpeed", 80f, 0f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxTurnSpeed)
-        override fun isSupported() = !maxTurnSpeedValue.isMinimal() && rotations
+        override fun isSupported() = !maxTurnSpeedValue.isMinimal && rotations
     }
     private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { silentRotation && rotations }
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { rotations }
 
-    private val keepRotation by IntegerValue("KeepRotationTicks", 5, 1..20) { silentRotation && rotations }
+    private val keepRotation by IntValue("KeepRotationTicks", 5, 1..20) { silentRotation && rotations }
 
-    private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset",
+    private val angleThresholdUntilReset by FloatValue(
+        "AngleThresholdUntilReset",
         5f,
         0.1f..180f
     ) { silentRotation && rotations }
@@ -129,15 +125,18 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if (Blink.handleEvents() || KillAura.isBlockingChestAura || event.eventState != EventState.POST || !timer.hasTimePassed(delay))
+        if (Blink.handleEvents() || KillAura.isBlockingChestAura || event.eventState != EventState.POST || !timer.hasTimePassed(
+                delay
+            )
+        )
             return
 
         val thePlayer = mc.thePlayer ?: return
 
         // Check if there is an opponent in range
         if (mc.theWorld.loadedEntityList.any {
-            isSelected(it, true) && thePlayer.getDistanceSqToEntity(it) < minDistanceFromOpponentSq
-        }) return
+                isSelected(it, true) && thePlayer.getDistanceSqToEntity(it) < minDistanceFromOpponentSq
+            }) return
 
         if (serverOpenContainer && tileTarget != null) {
             timer.reset()
@@ -153,7 +152,11 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
         val pointsInRange = mc.theWorld.tickableTileEntities
             // Check if tile entity is correct type, not already clicked, not blocked by a block and in range
             .filter {
-                shouldClickTileEntity(it) && it.getDistanceSq(thePlayer.posX, thePlayer.posY, thePlayer.posZ) <= searchRadiusSq
+                shouldClickTileEntity(it) && it.getDistanceSq(
+                    thePlayer.posX,
+                    thePlayer.posY,
+                    thePlayer.posZ
+                ) <= searchRadiusSq
             }.flatMap { entity ->
                 val box = entity.blockType.getSelectedBoundingBox(mc.theWorld, entity.pos)
 
@@ -221,8 +224,7 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
         performRayTrace(entity.pos, vec)?.run {
             TickScheduler += {
                 if (thePlayer.onPlayerRightClick(blockPos, sideHit, hitVec)) {
-                    if (visualSwing) thePlayer.swingItem()
-                    else sendPacket(C0APacketAnimation())
+                    mc.thePlayer.swing(swing)
 
                     timer.reset()
                 }
@@ -306,10 +308,11 @@ object ChestAura : Module("ChestAura", ModuleCategory.WORLD) {
                     val actionMsg = if (packet.data2 == 1) "§a§lOpened§3" else "§c§lClosed§3"
                     val timeTakenMsg = if (packet.data2 == 0 && prevTime != null)
                         ", took §b${decimalFormat.format((System.currentTimeMillis() - prevTime) / 1000.0)} s§3"
-                        else ""
-                    val playerMsg = if (player == mc.thePlayer) actionMsg else "§b${player.name} §3${actionMsg.lowercase()}"
+                    else ""
+                    val playerMsg =
+                        if (player == mc.thePlayer) actionMsg else "§b${player.name} §3${actionMsg.lowercase()}"
 
-                    displayChatMessage("§8[§9§lChestAura§8] $playerMsg chest from §b$distance m§3$timeTakenMsg.")
+                    displayClientMessage("§8[§9§lChestAura§8] $playerMsg chest from §b$distance m§3$timeTakenMsg.")
 
                     chestOpenMap[packet.blockPosition] = packet.data2 to System.currentTimeMillis()
                 }

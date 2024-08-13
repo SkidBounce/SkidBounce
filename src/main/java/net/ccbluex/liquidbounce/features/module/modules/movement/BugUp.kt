@@ -1,13 +1,17 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.BlockBBEvent
+import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.MOVEMENT
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
@@ -18,9 +22,9 @@ import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawFilledBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.renderNameTag
-import net.ccbluex.liquidbounce.value.BoolValue
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.block.BlockAir
 import net.minecraft.client.renderer.GlStateManager.resetColor
@@ -35,15 +39,15 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
 
-object BugUp : Module("BugUp", ModuleCategory.MOVEMENT, hideModule = false) {
-
-    private val mode by ListValue("Mode",
-        arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "MotionTeleport-Flag", "GhostBlock"),
+object BugUp : Module("BugUp", MOVEMENT) {
+    private val mode by ListValue(
+        "Mode",
+        arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "MotionTeleport-Flag", "GhostBlock").sortedArray(),
         "FlyFlag"
     )
-    private val maxFallDistance by IntegerValue("MaxFallDistance", 10, 2..255)
+    private val maxFallDistance by IntValue("MaxFallDistance", 10, 2..255)
     private val maxDistanceWithoutGround by FloatValue("MaxDistanceToSetback", 2.5f, 1f..30f)
-    private val indicator by BoolValue("Indicator", true, subjective = true)
+    private val indicator by BooleanValue("Indicator", true, subjective = true)
 
     private var detectedLocation: BlockPos? = null
     private var lastFound = 0F
@@ -79,7 +83,8 @@ object BugUp : Module("BugUp", ModuleCategory.MOVEMENT, hideModule = false) {
             detectedLocation = fallingPlayer.findCollision(60)?.pos
 
             if (detectedLocation != null && abs(thePlayer.posY - detectedLocation!!.y) +
-                thePlayer.fallDistance <= maxFallDistance) {
+                thePlayer.fallDistance <= maxFallDistance
+            ) {
                 lastFound = thePlayer.fallDistance
             }
 
@@ -119,7 +124,8 @@ object BugUp : Module("BugUp", ModuleCategory.MOVEMENT, hideModule = false) {
     fun onBlockBB(event: BlockBBEvent) {
         if (mode == "GhostBlock" && shouldSimulateBlock) {
             if (event.y < mc.thePlayer.posY.toInt()) {
-                event.boundingBox = AxisAlignedBB(event.x.toDouble(),
+                event.boundingBox = AxisAlignedBB(
+                    event.x.toDouble(),
                     event.y.toDouble(),
                     event.z.toDouble(),
                     event.x + 1.0,
@@ -143,7 +149,8 @@ object BugUp : Module("BugUp", ModuleCategory.MOVEMENT, hideModule = false) {
         val thePlayer = mc.thePlayer ?: return
 
         if (detectedLocation == null || !indicator ||
-            thePlayer.fallDistance + (thePlayer.posY - (detectedLocation!!.y + 1)) < 3)
+            thePlayer.fallDistance + (thePlayer.posY - (detectedLocation!!.y + 1)) < 3
+        )
             return
 
         val (x, y, z) = detectedLocation ?: return

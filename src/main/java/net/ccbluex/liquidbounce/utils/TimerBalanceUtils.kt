@@ -1,16 +1,19 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.events.*
 import net.minecraft.network.play.client.C03PacketPlayer
 
 object TimerBalanceUtils : MinecraftInstance(), Listenable {
 
-    private var balance = 0L
+    var balance = 0L
+        private set
     private var frametime = -1L
     private var prevframetime = -1L
     private var currframetime = -1L
@@ -49,10 +52,6 @@ object TimerBalanceUtils : MinecraftInstance(), Listenable {
     @EventTarget
     fun onWorld(event: WorldEvent) {
         balance = 0
-    }
-
-    fun getBalance(): Long {
-        return balance
     }
 
     override fun handleEvents() = true

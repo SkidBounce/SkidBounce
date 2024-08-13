@@ -1,24 +1,19 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.other
 
-import net.ccbluex.liquidbounce.event.BlockBBEvent
+import net.ccbluex.liquidbounce.event.events.BlockBBEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
-import net.minecraft.block.Block
 import net.minecraft.block.BlockLadder
 import net.minecraft.block.material.Material
-import net.minecraft.init.Blocks.air
 import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.BlockPos
 
-import net.minecraft.world.IBlockAccess
-
-
-
-
+/**
+ * @author CCBlueX/LiquidBounce
+ */
 object Collide : FlyMode("Collide") {
     override fun onBB(event: BlockBBEvent) {
         if (!mc.gameSettings.keyBindJump.isKeyDown && mc.gameSettings.keyBindSneak.isKeyDown) return

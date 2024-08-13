@@ -1,16 +1,15 @@
 /*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
+ * SkidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
+ * https://github.com/ManInMyVan/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.RENDER
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.searchBlocks
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
@@ -18,26 +17,24 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.draw2D
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.BlockValue
-import net.ccbluex.liquidbounce.value.BoolValue
-import net.ccbluex.liquidbounce.value.IntegerValue
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.block.Block
-import net.minecraft.init.Blocks
 import net.minecraft.init.Blocks.air
-import net.minecraft.init.Blocks.bed
 import net.minecraft.util.BlockPos
 import java.awt.Color
 
-object BlockESP : Module("BlockESP", ModuleCategory.RENDER, hideModule = false) {
+object BlockESP : Module("BlockESP", RENDER) {
     private val mode by ListValue("Mode", arrayOf("Box", "2D"), "Box")
     private val block by BlockValue("Block", 168)
-    private val radius by IntegerValue("Radius", 40, 5..120)
-    private val blockLimit by IntegerValue("BlockLimit", 256, 0..2056)
+    private val radius by IntValue("Radius", 40, 5..120)
+    private val blockLimit by IntValue("BlockLimit", 256, 0..2056)
 
-    private val colorRainbow by BoolValue("Rainbow", false)
-        private val colorRed by IntegerValue("R", 255, 0..255) { !colorRainbow }
-        private val colorGreen by IntegerValue("G", 179, 0..255) { !colorRainbow }
-        private val colorBlue by IntegerValue("B", 72, 0..255) { !colorRainbow }
+    private val colorRainbow by BooleanValue("Rainbow", false)
+    private val colorRed by IntValue("R", 255, 0..255) { !colorRainbow }
+    private val colorGreen by IntValue("G", 179, 0..255) { !colorRainbow }
+    private val colorBlue by IntValue("B", 72, 0..255) { !colorRainbow }
 
     private val searchTimer = MSTimer()
     private val posList = mutableListOf<BlockPos>()
@@ -54,14 +51,14 @@ object BlockESP : Module("BlockESP", ModuleCategory.RENDER, hideModule = false) 
                 return
 
             thread = Thread({
-                val blocks = searchBlocks(radius, setOf(selectedBlock), blockLimit)
-                searchTimer.reset()
+                                val blocks = searchBlocks(radius, setOf(selectedBlock), blockLimit)
+                                searchTimer.reset()
 
-                synchronized(posList) {
-                    posList.clear()
-                    posList += blocks.keys
-                }
-            }, "BlockESP-BlockFinder")
+                                synchronized(posList) {
+                                    posList.clear()
+                                    posList += blocks.keys
+                                }
+                            }, "BlockESP-BlockFinder")
 
             thread!!.start()
         }
