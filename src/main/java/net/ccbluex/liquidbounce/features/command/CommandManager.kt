@@ -5,14 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.command
 
-import net.ccbluex.liquidbounce.features.command.commands.*
 import net.ccbluex.liquidbounce.features.command.shortcuts.Shortcut
 import net.ccbluex.liquidbounce.features.command.shortcuts.ShortcutParser
-import net.ccbluex.liquidbounce.features.command.special.*
-import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.file.FileManager.saveConfig
 import net.ccbluex.liquidbounce.file.FileManager.shortcutsConfig
-import net.ccbluex.liquidbounce.utils.ClassUtils.getAllClassesIn
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage

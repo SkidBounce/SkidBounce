@@ -31,9 +31,11 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
      * Execute commands with provided [args]
      */
     override fun execute(args: Array<String>) {
+        val usedAlias = args[0].lowercase()
+
         if (args.size > 1) {
-            when {
-                args[1].equals("import", true) -> {
+            when (args[1].lowercase()) {
+                "import" -> {
                     try {
                         val file = MiscUtils.openFileChooser() ?: return
                         val fileName = file.name
@@ -86,10 +88,10 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
                     }
                 }
 
-                args[1].equals("delete", true) -> {
+                "delete" -> {
                     try {
                         if (args.size <= 2) {
-                            chatSyntax("scriptmanager delete <index>")
+                            chatSyntax("$usedAlias delete <index>")
                             return
                         }
 
@@ -115,7 +117,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
                     }
                 }
 
-                args[1].equals("reload", true) -> {
+                "reload" -> {
                     try {
                         CommandManager.registerCommands()
 
@@ -136,7 +138,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
                     }
                 }
 
-                args[1].equals("folder", true) -> {
+                "folder" -> {
                     try {
                         Desktop.getDesktop().open(scriptsFolder)
                         chat("Successfully opened scripts folder.")
@@ -157,7 +159,7 @@ object ScriptManagerCommand : Command("scriptmanager", "scripts") {
             scriptManager.scripts.forEachIndexed { index, script -> chat("$index: §a§l${script.scriptName} §a§lv${script.scriptVersion} §3by §a§l${script.scriptAuthors.joinToString(", ")}") }
         }
 
-        chatSyntax("scriptmanager <import/delete/reload/folder>")
+        chatSyntax("$usedAlias <import/delete/reload/folder>")
     }
 
     override fun tabComplete(args: Array<String>): List<String> {

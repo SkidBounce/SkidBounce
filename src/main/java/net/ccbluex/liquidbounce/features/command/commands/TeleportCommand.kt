@@ -14,14 +14,16 @@ import net.minecraft.util.Vec3
 import kotlin.math.ceil
 
 object TeleportCommand : Command("tp", "teleport") {
-    /**
-     * Execute commands with provided [args]
-     */
-    override fun execute(args: Array<String>) {
-        if (args.size !in 4..5 ) {
-            chatSyntax("tp <x> <y> <z> [maxDistancePerPacket = 5]")
-            return
-        }
+	/**
+	 * Execute commands with provided [args]
+	 */
+	override fun execute(args: Array<String>) {
+        val usedAlias = args[0].lowercase()
+
+		if (args.size !in 4..5 ) {
+			chatSyntax("$usedAlias <x> <y> <z> [maxDistancePerPacket = 5]")
+			return
+		}
 
         val (x, y, z) = args.drop(1).map { it.toDoubleOrNull() }
 
@@ -33,10 +35,10 @@ object TeleportCommand : Command("tp", "teleport") {
             return
         }
 
-        if (x == null || y == null || z == null) {
-            chatSyntax("tp <x> <y> <z> [maxDistancePerPacket = 5]")
-            return
-        }
+		if (x == null || y == null || z == null) {
+			chatSyntax("$usedAlias <x> <y> <z> [maxDistancePerPacket = 5]")
+			return
+		}
 
         val moveVec = Vec3(x, y, z) - mc.thePlayer.positionVector
 
