@@ -112,7 +112,7 @@ object TimerRange : Module("TimerRange", COMBAT), IBlink {
 
     // Prediction Settings
     private val predictClientMovement by IntValue("PredictClientMovement", 2, 0..5)
-    private val predictEnemyPosition by DoubleValue("PredictEnemyPosition", 1.5f, -1f..2f)
+    private val predictEnemyPosition by DoubleValue("PredictEnemyPosition", 1.5, -1.0..2.0)
 
     private val maxAngleDifference by DoubleValue("MaxAngleDifference", 5.0, 5.0..90.0) { timerBoostMode == "Modern" }
 
