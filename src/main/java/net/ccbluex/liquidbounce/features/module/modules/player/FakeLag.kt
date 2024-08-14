@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.PLAYER
+import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.render.Breadcrumbs
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -38,7 +38,7 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-object FakeLag : Module("FakeLag", PLAYER, gameDetecting = false) {
+object FakeLag : Module("FakeLag", COMBAT, gameDetecting = false) {
 
     private val delay by IntValue("Delay", 550, 0..1000)
     private val recoilTime by IntValue("RecoilTime", 750, 0..2000)
@@ -76,6 +76,14 @@ object FakeLag : Module("FakeLag", PLAYER, gameDetecting = false) {
         if (ignoreWholeTick)
             return
 
+        // Check if player got damaged
+        if (mc.thePlayer.health < mc.thePlayer.maxHealth) {
+            if (mc.thePlayer.hurtTime != 0) {
+                blink()
+                return
+            }
+        }
+
         when (packet) {
             is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is C01PacketChatMessage, is S01PacketPong -> return
 
@@ -106,13 +114,18 @@ object FakeLag : Module("FakeLag", PLAYER, gameDetecting = false) {
                 }
             }
 
+            /*
+             * Temporarily disabled (It seems like it only detects when player is healing??)
+             * And "packet.health < mc.thePlayer.health" check doesn't really work.
+             */
+
             // Flush on damage
-            is S06PacketUpdateHealth -> {
-                if (packet.health < mc.thePlayer.health) {
-                    blink()
-                    return
-                }
-            }
+//            is S06PacketUpdateHealth -> {
+//                if (packet.health < mc.thePlayer.health) {
+//                    blink()
+//                    return
+//                }
+//            }
         }
 
         if (!resetTimer.hasTimePassed(recoilTime))
