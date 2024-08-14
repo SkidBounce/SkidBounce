@@ -3,7 +3,7 @@ Everyone is invited to participate in the development of SkidBounce with pull re
 
 We kindly ask you to use [Kotlin](https://kotlinlang.org/) instead of Java for new code, if possible.
 
-Contributors: https://github.com/ManInMyVan/SkidBounce/graphs/contributors
+Contributors: https://github.com/SkidBounce/SkidBounce/graphs/contributors
 
 ## General
 This section lists the official conventions of the languages Kotlin and Java. This project tries to follow them as closely as possible and we expect outside developers to do the same when working on the client.
@@ -30,7 +30,7 @@ To document the ownership of a file, we include the following text in all code f
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 ```
 

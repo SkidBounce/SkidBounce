@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
@@ -40,7 +40,7 @@ object Spammer : Module("Spammer", MISC) {
     }
 
     private val message by
-    TextValue("Message", "$CLIENT_NAME Client | github.com/ManInMyVan/SkidBounce", subjective = true)
+    TextValue("Message", "$CLIENT_NAME Client | github.com/SkidBounce/SkidBounce", subjective = true)
 
     private val custom by BooleanValue("Custom", false)
 

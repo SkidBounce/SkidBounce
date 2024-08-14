@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitymodes.other
 
@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
 
 /**
- * @author ManInMyVan/SkidBounce
+ * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
 object Vulcan : VelocityMode("Vulcan") {

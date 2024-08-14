@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other
 
@@ -26,7 +26,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange
 
 /**
  * @author CCBlueX/LiquidBounce
- * @author ManInMyVan/SkidBounce
+ * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
 object SwitchItem : NoSlowMode("SwitchItem") {
@@ -56,7 +56,7 @@ object SwitchItem : NoSlowMode("SwitchItem") {
                     if (!bowSwitchItemEveryTick && !send) return
                     bowSwitchItemPackets
                 }
-                OTHER -> throw Exception("NoSlowItem.OTHER does not map to a value. Please report this error at https://github.com/ManInMyVan/SkidBounce/issues")
+                OTHER -> throw Exception("NoSlowItem.OTHER does not map to a value. Please report this error at https://github.com/SkidBounce/SkidBounce/issues")
             }
 
             repeat(packets - 1) { serverSlot = (serverSlot + 1) % 9 }

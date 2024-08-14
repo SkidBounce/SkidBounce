@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitymodes.grim
 
@@ -33,7 +33,7 @@ import net.minecraft.util.EnumFacing.DOWN
 
 /**
  * @author SkidderMC/FDPClient
- * @author ManInMyVan/SkidBounce
+ * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
 object Grim : VelocityMode("Grim") {

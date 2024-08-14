@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.vulcan
 
@@ -15,7 +15,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
 /**
- * @author ManInMyVan/SkidBounce
+ * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
 object Vulcan2 : NoFallMode("Vulcan2") {

@@ -58,7 +58,7 @@ As Of Latest Commit:\
 | Everything Else  |  :red_circle:   |
 
 ## Issues
-If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/ManInMyVan/SkidBounce/issues).
+If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/SkidBounce/SkidBounce/issues).
 
 ## Contributing
 
@@ -71,7 +71,7 @@ We appreciate contributions. So if you want to support us, feel free to make cha
 ### Setting up a Workspace
 
 SkidBounce uses Gradle, so make sure that it is installed properly. Instructions can be found on [Gradle's website](https://gradle.org/install/).
-1. Clone the repository using `git clone https://github.com/ManInMyVan/SkidBounce/`. 
+1. Clone the repository using `git clone https://github.com/SkidBounce/SkidBounce/`. 
 2. CD into the local repository folder.
 3. Depending on which IDE you are using execute either of the following commands:
     - For IntelliJ: `gradlew setupDevWorkspace idea genIntellijRuns build`

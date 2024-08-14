@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.nowebmodes.other
 
@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.nowebmodes.NoWe
 import net.ccbluex.liquidbounce.utils.MovementUtils
 
 /**
- * @author ManInMyVan/SkidBounce
+ * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
 object Custom : NoWebMode("Custom") {

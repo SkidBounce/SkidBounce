@@ -1,7 +1,7 @@
 /*
  * SkidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
- * https://github.com/ManInMyVan/SkidBounce/
+ * https://github.com/SkidBounce/SkidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.ncp
 
@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 /**
- * @author ManInMyVan/SkidBounce
+ * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
 object UNCPYPort : SpeedMode("UNCPYPort") {
