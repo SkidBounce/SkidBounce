@@ -97,6 +97,7 @@ class BlockCounter(x: Double = 520.0, y: Double = 245.0) : Element(x = x, y = y)
                 GL11.glTranslatef(0f, 15f, 0f)
 
             val info = "Blocks: §7$blocksAmount"
+
             val textCustomColor = Color(textRed, textGreen, textBlue, 1).rgb
             val backgroundCustomColor = Color(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha).rgb
             val borderCustomColor = Color(borderRed, borderGreen, borderBlue, borderAlpha).rgb
@@ -142,9 +143,9 @@ class BlockCounter(x: Double = 520.0, y: Double = 245.0) : Element(x = x, y = y)
                     gradientOffset
                 ).use {
                     RainbowShader.begin(backgroundMode == "Rainbow",
-                                        rainbowX,
-                                        rainbowY,
-                                        rainbowOffset
+                        rainbowX,
+                        rainbowY,
+                        rainbowOffset
                     ).use {
                         RenderUtils.drawRoundedBorderRect(
                             0F,

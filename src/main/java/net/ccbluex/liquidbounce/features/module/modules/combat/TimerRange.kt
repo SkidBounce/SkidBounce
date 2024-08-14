@@ -238,6 +238,8 @@ object TimerRange : Module("TimerRange", COMBAT), IBlink {
             } else {
                 shouldResetTimer()
             }
+        } else {
+            shouldResetTimer()
         }
     }
 
@@ -415,13 +417,19 @@ object TimerRange : Module("TimerRange", COMBAT), IBlink {
     private fun shouldResetTimer() {
         val nearestEntity = getNearestEntityInRange()
 
-        if (nearestEntity == null || mc.timer.timerSpeed == 1f) {
-            shouldReset = false
-            return
+        if (nearestEntity == null || nearestEntity.isDead) {
+            if (!shouldReset) {
+                mc.timer.timerSpeed = 1f
+                shouldReset = true
+            }
+        } else {
+            if (mc.timer.timerSpeed != 1f) {
+                mc.timer.timerSpeed = 1f
+                shouldReset = true
+            } else {
+                shouldReset = false
+            }
         }
-
-        shouldReset = true
-        mc.timer.timerSpeed = 1f
     }
 
     /**
@@ -478,6 +486,8 @@ object TimerRange : Module("TimerRange", COMBAT), IBlink {
                 if (notificationDebug) {
                     hud.addNotification(Notification("Lagback Received | Timer Reset", 1000F))
                 }
+
+                shouldReset = false
             }
         }
 
@@ -492,6 +502,8 @@ object TimerRange : Module("TimerRange", COMBAT), IBlink {
                 if (notificationDebug) {
                     hud.addNotification(Notification("Knockback Received | Timer Reset", 1000F))
                 }
+
+                shouldReset = false
             }
         }
     }
