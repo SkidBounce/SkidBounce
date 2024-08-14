@@ -7,8 +7,8 @@ Discord: https://discord.gg/hdbzjQdewu
 
 1. Install [Forge](https://maven.minecraftforge.net/net/minecraftforge/forge/1.8.9-11.15.1.2318-1.8.9/forge-1.8.9-11.15.1.2318-1.8.9-installer.jar) for 1.8.9
 2. Download the client
-   1. For the latest release, download the jar from the [latest GitHub release](https://github.com/ManInMyVan/SkidBounce/releases/latest)
-   2. For the latest build/commit, download [this](https://nightly.link/ManInMyVan/SkidBounce/workflows/build/main/skidbounce.zip) and unzip
+   1. For the latest release, download the jar from the [latest GitHub release](https://github.com/SkidBounce/SkidBounce/releases/latest)
+   2. For the latest build/commit, download [this](https://nightly.link/SkidBounce/SkidBounce/workflows/build/main/skidbounce.zip) and unzip
 3. Put the client jar (`skidbounce-vX.X.X.jar`) into your mods folder
    1. the mods folder should be located at `.minecraft/mods`
    2. If it does not exist, launch forge, or make it yourself
