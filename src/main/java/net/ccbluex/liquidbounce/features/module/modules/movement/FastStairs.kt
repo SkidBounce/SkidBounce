@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.block.BlockStairs
 import net.minecraft.util.BlockPos
+import net.minecraft.util.MovementInput
 
 object FastStairs : Module("FastStairs", MOVEMENT) {
     private val mode by ListValue(
@@ -38,14 +39,25 @@ object FastStairs : Module("FastStairs", MOVEMENT) {
         }
 
         if (mode == "Legit") {
-            val simulatedPlayer = SimulatedPlayer.fromClientPlayer(mc.thePlayer.movementInput)
+            SimulatedPlayer.fromClientPlayer(
+                MovementInput()
+                    .apply {
+                        jump = true
+                        moveForward = mc.thePlayer.movementInput.moveForward
+                        moveStrafe = mc.thePlayer.movementInput.moveStrafe
+                        sneak = mc.thePlayer.movementInput.sneak
+                    }
+            ).apply {
+                stepConfirm = {
+                    if (box.minY != posY) { // ???
+                        mc.gameSettings.keyBindJump.pressed = true
+                        jumped = true
+                    }
+                }
 
-            simulatedPlayer.stepConfirm = {
-                mc.gameSettings.keyBindJump.pressed = true
-                jumped = true
+                tick()
             }
 
-            simulatedPlayer.tick()
             return
         }
 
