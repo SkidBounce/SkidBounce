@@ -29,7 +29,6 @@ object Drop : NoSlowMode("Drop") {
             received = false
 
         if (event.packet.isUse && mc.thePlayer.heldItem.canUse) {
-            // fixme this should be after the packet is sent
             sendPacket(C07PacketPlayerDigging(DROP_ITEM, ORIGIN, DOWN))
             received = false
         } else if (event.packet is S2FPacketSetSlot && mc.thePlayer.isUsingItem && !received) {
