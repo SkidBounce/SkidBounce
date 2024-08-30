@@ -432,7 +432,7 @@ object Scaffold : Module("Scaffold", WORLD) {
         if (mc.playerController.currentGameType == SPECTATOR)
             return
 
-        if (isMoving && autoJump && (!autoJumpOnlySprinting || mc.thePlayer.isSprinting) && !shouldGoDown && blocksAmount > 0) {
+        if (isMoving && autoJump && (!autoJumpOnlySprinting || !sprint || mc.thePlayer.isSprinting) && !shouldGoDown && blocksAmount > 0) {
             if (autoJumpInput) {
                 mc.gameSettings.keyBindJump.pressed = true
                 wasJumpingLastTick = true
