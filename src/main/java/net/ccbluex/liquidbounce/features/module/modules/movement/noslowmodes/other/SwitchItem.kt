@@ -59,9 +59,20 @@ object SwitchItem : NoSlowMode("SwitchItem") {
                 OTHER -> throw Exception("NoSlowItem.OTHER does not map to a value. Please report this error at https://github.com/SkidBounce/SkidBounce/issues")
             }
 
-            repeat(packets - 1) { serverSlot = (serverSlot + 1) % 9 }
-            if (packets == 1 || serverSlot != mc.thePlayer.inventory.currentItem)
-                sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+            if (packets <= 0) return
+
+            if (packets == 1) {
+                sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem), false)
+                return
+            }
+
+            repeat(packets - 2) {
+                serverSlot = (serverSlot + 1) % 9
+            }
+
+            val next = (serverSlot + 1) % 9
+            serverSlot = if (next == mc.thePlayer.inventory.currentItem) (next + 1) % 9 else next
+            serverSlot = mc.thePlayer.inventory.currentItem
 
             send = false
         }

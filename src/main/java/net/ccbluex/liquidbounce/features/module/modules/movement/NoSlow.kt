@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.utils.NoSlowItem
 import net.ccbluex.liquidbounce.utils.NoSlowItem.*
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.extensions.canUse
 import net.ccbluex.liquidbounce.utils.extensions.isSplashPotion
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverUsing
 import net.ccbluex.liquidbounce.value.BooleanValue
@@ -210,13 +209,13 @@ object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
 
         val mode = usedMode
 
-        if (mode == Drop && !Drop.received && when (noSlowItem) {
+        if (mode is Drop && !mode.received && when (noSlowItem) {
             CONSUMABLE -> consumeDropWaitForPacket
             SWORD -> blockingDropWaitForPacket
             else -> bowDropWaitForPacket
         }) return false
 
-        if (mode == Grim2365 && Grim2365.slow)
+        if (mode is Grim2365 && mode.slow)
             return false
 
         return true
@@ -291,7 +290,7 @@ object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
         }
 
     fun isUNCPBlocking() =
-        modeModuleBlocking == UNCP2 && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.thePlayer.heldItem?.item is ItemSword)
+        modeModuleBlocking is UNCP2 && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.thePlayer.heldItem?.item is ItemSword)
 
     private val isUsingItem get() = mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
 
