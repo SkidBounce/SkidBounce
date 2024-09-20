@@ -245,6 +245,7 @@ object KillAura : Module("KillAura", COMBAT) {
 
     // Extra swing
     private val failSwing by BooleanValue("FailSwing", true) { swing != "Off" }
+    private val respectMissCooldown by BooleanValue("RespectMissCooldown", false) { swing != "Off" && failSwing }
     private val swingOnlyInAir by BooleanValue("SwingOnlyInAir", true) { swing != "Off" && failSwing }
     private val maxRotationDifferenceToSwing by FloatValue("MaxRotationDifferenceToSwing", 180f, 0f..180f)
     { swing != "Off" && failSwing }
@@ -320,6 +321,7 @@ object KillAura : Module("KillAura", COMBAT) {
         if (event.eventState != POST) {
             return
         }
+
         update()
     }
 
@@ -380,8 +382,9 @@ object KillAura : Module("KillAura", COMBAT) {
             if (mc.thePlayer.getDistanceToEntityBox(target!!) > range && blockStatus) {
                 stopBlocking()
                 return
-            } else if (autoBlock != "Off")
+            } else if (autoBlock != "Off") {
                 renderBlocking = true
+            }
 
             // Usually when you butterfly click, you end up clicking two (and possibly more) times in a single tick.
             // Sometimes you also do not click. The positives outweigh the negatives, however.
@@ -399,7 +402,9 @@ object KillAura : Module("KillAura", COMBAT) {
                     return
                 }
             }
-        } else renderBlocking = false
+        } else {
+            renderBlocking = false
+        }
     }
 
     /**
@@ -484,15 +489,24 @@ object KillAura : Module("KillAura", COMBAT) {
             if (swing != "Off" && failSwing) {
                 val rotation = currentRotation ?: thePlayer.rotation
 
+                // Left click miss cool-down logic:
+                // When you click and miss, you receive a 10 tick cool down.
+                // It decreases gradually (tick by tick) when you hold the button.
+                // If you click and then release the button, the cool down drops from where it was immediately to 0.
+                // Most humans will release the button 1-2 ticks max after clicking, leaving them with an average of 10 CPS.
+                // The maximum CPS allowed when you miss is 20 CPS, if you click and release immediately, which is highly unlikely.
+                // With that being said, we force an average of 10 CPS by doing this below, since 10 CPS when missing is possible.
+                if (respectMissCooldown && ticksSinceClick() <= 1) {
+                    return
+                }
+
                 // Can humans keep click consistency when performing massive rotation changes?
                 // (10-30 rotation difference/doing large mouse movements for example)
                 // Maybe apply to attacks too?
                 if (getRotationDifference(rotation) > maxRotationDifferenceToSwing) {
-                    val lastAttack = attackTickTimes.lastOrNull()?.second ?: 0
-
                     // At the same time there is also a chance of the user clicking at least once in a while
                     // when the consistency has dropped a lot.
-                    val shouldIgnore = swingWhenTicksLate.isActive() && runTimeTicks - lastAttack >= ticksLateToSwing
+                    val shouldIgnore = swingWhenTicksLate.isActive() && ticksSinceClick() >= ticksLateToSwing
 
                     if (!shouldIgnore) {
                         return
@@ -552,8 +566,6 @@ object KillAura : Module("KillAura", COMBAT) {
             }
 
             prevTargetEntities += currentTarget.entityId
-
-            if (target == currentTarget) this.target = null
         }
 
         if (targetMode.equals("Switch", ignoreCase = true) && attackTimer.hasTimePassed(switchDelay)) {
@@ -710,6 +722,9 @@ object KillAura : Module("KillAura", COMBAT) {
         if (!onScaffold && Scaffold.state)
             return
 
+        if (!onDestroyBlock && mc.playerController.isHittingBlock)
+            return
+
         if ((thePlayer.isBlocking || renderBlocking) && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock)) {
             stopBlocking()
 
@@ -831,6 +846,8 @@ object KillAura : Module("KillAura", COMBAT) {
         return true
     }
 
+    private fun ticksSinceClick() = runTimeTicks - (attackTickTimes.lastOrNull()?.second ?: 0)
+
     /**
      * Check if enemy is hittable with current rotations
      */
@@ -895,8 +912,7 @@ object KillAura : Module("KillAura", COMBAT) {
 
                 if (intercept != null) {
                     // Is the entity box raycast vector visible? If not, check through-wall range
-                    hittable =
-                        isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
+                    hittable = isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
 
                     if (hittable) {
                         checkNormally = false
@@ -919,8 +935,7 @@ object KillAura : Module("KillAura", COMBAT) {
         )
 
         // Is the entity box raycast vector visible? If not, check through-wall range
-        hittable =
-            isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
+        hittable = isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
     }
 
     /**
