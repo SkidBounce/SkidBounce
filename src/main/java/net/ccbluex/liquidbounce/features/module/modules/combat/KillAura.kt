@@ -14,6 +14,8 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
 import net.ccbluex.liquidbounce.features.module.modules.targets.*
 import net.ccbluex.liquidbounce.features.module.modules.targets.AntiBot.isBot
+import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
+import net.ccbluex.liquidbounce.features.module.modules.world.Nuker
 import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold
 import net.ccbluex.liquidbounce.utils.CPSCounter
 import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
@@ -212,7 +214,7 @@ object KillAura : Module("KillAura", COMBAT) {
     private val raycastIgnored by BooleanValue("RayCastIgnored", false) { raycastValue.isActive() }
     private val livingRaycast by BooleanValue("LivingRayCast", true) { raycastValue.isActive() }
 
-    // Bypass
+    // Hit delay
     private val useHitDelay by BooleanValue("UseHitDelay", false)
     private val hitDelayTicks by IntValue("HitDelayTicks", 1, 1..5) { useHitDelay }
 
@@ -296,6 +298,9 @@ object KillAura : Module("KillAura", COMBAT) {
     // Swing
     private var cancelNextSwing = false
 
+    // Switch Delay
+    private val switchTimer = MSTimer()
+
     /**
      * Disable kill aura module
      */
@@ -337,7 +342,7 @@ object KillAura : Module("KillAura", COMBAT) {
     }
 
     @EventTarget
-    fun onWorld(event: WorldEvent) {
+    fun onWorldChange(event: WorldEvent) {
         attackTickTimes.clear()
     }
 
@@ -427,6 +432,13 @@ object KillAura : Module("KillAura", COMBAT) {
 
         target ?: return
 
+        if (attackTimer.hasTimePassed(attackDelay)) {
+            if (maxCPS > 0)
+                clicks++
+            attackTimer.reset()
+            attackDelay = randomClickDelay(minCPS, maxCPS)
+        }
+
         val hittableColor = if (hittable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70)
 
         if (targetMode != "Multi") {
@@ -434,13 +446,6 @@ object KillAura : Module("KillAura", COMBAT) {
                 "platform" -> drawPlatform(target!!, hittableColor)
                 "box" -> drawEntityBox(target!!, hittableColor, boxOutline)
             }
-        }
-
-        if (attackTimer.hasTimePassed(attackDelay)) {
-            if (maxCPS > 0)
-                clicks++
-            attackTimer.reset()
-            attackDelay = randomClickDelay(minCPS, maxCPS)
         }
     }
 
@@ -565,13 +570,14 @@ object KillAura : Module("KillAura", COMBAT) {
                 }
             }
 
-            prevTargetEntities += currentTarget.entityId
-        }
+            val switchMode = targetMode == "Switch"
 
-        if (targetMode.equals("Switch", ignoreCase = true) && attackTimer.hasTimePassed(switchDelay)) {
-            if (switchDelay != 0L) {
+            if (!switchMode || switchTimer.hasTimePassed(switchDelay)) {
                 prevTargetEntities += currentTarget.entityId
-                attackTimer.reset()
+
+                if (switchMode) {
+                    switchTimer.reset()
+                }
             }
         }
 
@@ -583,10 +589,10 @@ object KillAura : Module("KillAura", COMBAT) {
      * Update current target
      */
     private fun updateTarget() {
-        if (!onScaffold && Scaffold.state)
+        if (!onScaffold && Scaffold.handleEvents() && (Scaffold.placeInfo != null || Scaffold.placeRotation != null))
             return
 
-        if (!onDestroyBlock && mc.playerController.isHittingBlock)
+        if (!onDestroyBlock && ((Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null) || Nuker.handleEvents()))
             return
 
         // Reset fixed target to null
@@ -604,6 +610,11 @@ object KillAura : Module("KillAura", COMBAT) {
 
         for (entity in theWorld.loadedEntityList) {
             if (entity !is EntityLivingBase || !isEnemy(entity) || (switchMode && entity.entityId in prevTargetEntities)) continue
+
+            // Will skip new target nearby if fail to hit/couldn't be hit.
+            // Since without this check, it seems killaura (Switch) will get stuck.
+            // Temporary fix
+            if (switchMode && !hittable && prevTargetEntities.isNotEmpty()) continue
 
             var distance = thePlayer.getDistanceToEntityBox(entity)
 
@@ -719,10 +730,10 @@ object KillAura : Module("KillAura", COMBAT) {
         // Stop blocking
         val thePlayer = mc.thePlayer
 
-        if (!onScaffold && Scaffold.state)
+        if (!onScaffold && Scaffold.handleEvents() && (Scaffold.placeInfo != null || Scaffold.placeRotation != null))
             return
 
-        if (!onDestroyBlock && mc.playerController.isHittingBlock)
+        if (!onDestroyBlock && ((Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null) || Nuker.handleEvents()))
             return
 
         if ((thePlayer.isBlocking || renderBlocking) && (autoBlock == "Off" && blockStatus || autoBlock == "Packet" && releaseAutoBlock)) {
@@ -769,10 +780,10 @@ object KillAura : Module("KillAura", COMBAT) {
     private fun updateRotations(entity: Entity): Boolean {
         val player = mc.thePlayer ?: return false
 
-        if (!onScaffold && Scaffold.state)
+        if (!onScaffold && Scaffold.handleEvents() && (Scaffold.placeInfo != null || Scaffold.placeRotation != null))
             return false
 
-        if (!onDestroyBlock && mc.playerController.isHittingBlock)
+        if (!onDestroyBlock && ((Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null) || Nuker.handleEvents()))
             return false
 
         val (predictX, predictY, predictZ) = entity.currPos.subtract(entity.prevPos)
@@ -857,10 +868,10 @@ object KillAura : Module("KillAura", COMBAT) {
         val currentRotation = currentRotation ?: mc.thePlayer.rotation
         val target = this.target ?: return
 
-        if (!onScaffold && Scaffold.state)
+        if (!onScaffold && Scaffold.handleEvents() && (Scaffold.placeInfo != null || Scaffold.placeRotation != null))
             return
 
-        if (!onDestroyBlock && mc.playerController.isHittingBlock)
+        if (!onDestroyBlock && ((Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null) || Nuker.handleEvents()))
             return
 
         var chosenEntity: Entity? = null
@@ -945,10 +956,10 @@ object KillAura : Module("KillAura", COMBAT) {
         if (blockStatus && !uncpAutoBlock)
             return
 
-        if (!onScaffold && Scaffold.state)
+        if (!onScaffold && Scaffold.handleEvents() && (Scaffold.placeInfo != null || Scaffold.placeRotation != null))
             return
 
-        if (!onDestroyBlock && mc.playerController.isHittingBlock)
+        if (!onDestroyBlock && ((Fucker.handleEvents() && !Fucker.noHit && Fucker.pos != null) || Nuker.handleEvents()))
             return
 
         if (mc.thePlayer.isBlocking) {

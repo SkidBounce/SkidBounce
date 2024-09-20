@@ -324,7 +324,7 @@ object Scaffold : Module("Scaffold", WORLD) {
     private val itemSwapAnimation by BooleanValue("ItemSwapAnimation", false, subjective = true)
 
     // Target placement
-    private var placeRotation: PlaceRotation? = null
+    var placeRotation: PlaceRotation? = null
 
     // Launch position
     private var launchY = 0
@@ -415,7 +415,7 @@ object Scaffold : Module("Scaffold", WORLD) {
     private var doSpoof = false
 
     // Target block
-    private var placeInfo: PlaceInfo? = null
+    var placeInfo: PlaceInfo? = null
 
     // Rotation lock
     private var lockRotation: Rotation? = null

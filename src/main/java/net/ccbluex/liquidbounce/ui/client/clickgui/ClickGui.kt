@@ -64,8 +64,6 @@ object ClickGui : GuiScreen() {
 
             yPos += 20
         }
-
-        yPos += 20
     }
 
     override fun drawScreen(x: Int, y: Int, partialTicks: Float) {
