@@ -1,5 +1,5 @@
 # SkidBounce
-A free hacked-client for Minecraft 1.8.9 Forge.
+A free hacked-client for Minecraft 1.8.9 Forge, based on [LiquidBounce](https://github.com/CCBlueX/LiquidBounce/tree/legacy).
 
 Discord: https://discord.gg/hdbzjQdewu
 
@@ -13,49 +13,6 @@ Discord: https://discord.gg/hdbzjQdewu
    1. the mods folder should be located at `.minecraft/mods`
    2. If it does not exist, launch forge, or make it yourself
 4. Launch Forge, if the main menu has changed, installation is complete
-
-## Completion
-
-skidding:
-* [LiquidBounce](https://github.com/CCBlueX/LiquidBounce/tree/legacy)
-* [FDPClient](https://github.com/SkidderMC/FDPClient)
-* [NightX](https://github.com/Aspw-w/NightX-Client)
-* [CrossSine](https://github.com/shxp3/CrossSine)
-* [LiquidBouncePlus-Reborn](https://github.com/liquidbounceplusreborn/LiquidbouncePlus-Reborn)
-
-As Of Latest Commit:\
-:green_circle: 100%\
-:yellow_circle: 50% - 99%\
-:orange_circle: 1% - 49%\
-:red_circle: 0%
-|      Thing       |   Completion    |
-|:----------------:|:---------------:|
-|      Total       | :orange_circle: |
-|      NoWeb       | :green_circle:  |
-|      NoFall      | :green_circle:  |
-|      Spider      | :green_circle:  |
-|    Criticals     | :yellow_circle: |
-|      NoSlow      | :yellow_circle: |
-|      Speed       | :orange_circle: |
-|       Fly        | :orange_circle: |
-|     Disabler     | :orange_circle: |
-|     Velocity     | :orange_circle: |
-|       Hud        |  :red_circle:   |
-|    Animations    |  :red_circle:   |
-|     LongJump     |  :red_circle:   |
-|      Jesus       |  :red_circle:   |
-|      Phase       |  :red_circle:   |
-|     ClickGUI     |  :red_circle:   |
-|    AutoBlock     |  :red_circle:   |
-|     Modules      |  :red_circle:   |
-|     Scaffold     |  :red_circle:   |
-|      Tower       |  :red_circle:   |
-|       Step       |  :red_circle:   |
-|     AntiVoid     |  :red_circle:   |
-|    FastClimb     |  :red_circle:   |
-| InventoryManager |  :red_circle:   |
-|     FastUse      |  :red_circle:   |
-| Everything Else  |  :red_circle:   |
 
 ## Issues
 If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/SkidBounce/SkidBounce/issues).
