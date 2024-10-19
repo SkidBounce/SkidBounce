@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventState.POST
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.EventTarget
@@ -15,28 +14,20 @@ import net.ccbluex.liquidbounce.event.events.SlowDownEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BlockingNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BowNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ConsumeNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.aac.AAC
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.aac.AAC2
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.NCP
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.NewNCP
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP.shouldSwap
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP2
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.*
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.watchdog.WatchDog
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.watchdog.WatchDog2
-import net.ccbluex.liquidbounce.utils.MovementUtils.hasMotion
-import net.ccbluex.liquidbounce.utils.NoSlowItem
-import net.ccbluex.liquidbounce.utils.NoSlowItem.*
+import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isSplashPotion
+import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverUsing
-import net.ccbluex.liquidbounce.value.BooleanValue
-import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.IntValue
-import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.*
 import net.minecraft.init.Blocks
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C0BPacketEntityAction
@@ -44,114 +35,28 @@ import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SNEA
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAKING
 
 object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
-    private val swordModes = arrayOf(
-        Vanilla,
-        SwitchItem,
-        OldIntave,
-        NCP,
-        NewNCP,
-        UNCP,
-        UNCP2,
-        AAC,
-        AAC2,
-        Place,
-        EmptyPlace,
-        WatchDog,
-        WatchDog2,
-        Medusa,
-        Drop,
-        Grim2365,
-    ).sortedBy { it.modeName }
-    private val consumeModes = arrayOf(
-        Vanilla,
-        SwitchItem,
-        OldIntave,
-        UNCP,
-        UNCP2,
-        Place,
-        EmptyPlace,
-        Medusa,
-        Drop,
-        Grim2365,
-    ).sortedBy { it.modeName }
-    private val bowModes = arrayOf(
-        Vanilla,
-        SwitchItem,
-        OldIntave,
-        UNCP,
-        UNCP2,
-        Place,
-        EmptyPlace,
-        Medusa,
-        Drop,
-        Grim2365,
-    ).sortedBy { it.modeName }
+    private val blocking by BooleanValue("Blocking", true)
+    private val consume by BooleanValue("Consume", true)
+    private val bow by BooleanValue("Bow", true)
 
-    private val noNoMoveCheck = setOf(
-        "Vanilla",
-        "Drop",
-    )
+    @JvmStatic val sneaking by BooleanValue("Sneak", true)
+    private val sneakMode by ListValue("Sneak-Mode", arrayOf("Vanilla", "Switch", "MineSecure"), "Vanilla") { sneaking }
+    private val onlyMoveSneak by BooleanValue("Sneak-OnlyMove", true) { sneaking && sneakMode != "Vanilla" }
+    @JvmStatic val sneakForwardMultiplier by FloatValue("Sneak-ForwardMultiplier", 0.3f, 0.3f..1.0F) { sneaking }
+    @JvmStatic val sneakStrafeMultiplier by FloatValue("Sneak-StrafeMultiplier", 0.3f, 0.3f..1f) { sneaking }
 
-    private val noAntiDesync = setOf(
-        "Drop",
-    )
+    @JvmStatic val soulsand by BooleanValue("SoulSand", true)
+    @JvmStatic val soulsandMultiplier by FloatValue("SoulSand-Multiplier", 1f, 0.4f..1f) { soulsand }
 
-    private val packetTiming = setOf(
-        "SwitchItem",
-        "Place",
-        "EmptyPlace",
-    )
+    @JvmStatic val slime by BooleanValue("Slime", true)
+    @JvmStatic val slimeYMultiplier by FloatValue("Slime-YMultiplier", 1f, 0.2f..1f) { slime }
+    @JvmStatic val slimeMultiplier by FloatValue("Slime-Multiplier", 1f, 0.4f..1f) { slime }
+    private val slimeFriction by FloatValue("Slime-Friction", 0.6f, 0.6f..0.8f) { slime }
 
     override fun onDisable() {
         shouldSwap = false
         Blocks.slime_block.slipperiness = 0.8f
     }
-
-    private val blocking by BooleanValue("Blocking", true)
-    private val blockingMode by ListValue("BlockingMode", swordModes.map { it.modeName }.toTypedArray(), "Vanilla") { blocking }
-    private val onlyMoveBlocking by BooleanValue("OnlyMoveBlocking", true) { blocking && blockingMode !in noNoMoveCheck }
-    private val blockingPacketTiming by ListValue("BlockingPacketTiming", arrayOf("Pre", "Post", "Any"), "Pre") { blocking && blockingMode in packetTiming }
-    private val blockingDropWaitForPacket by BooleanValue("Blocking-Drop-WaitForPacket", true) { blocking && blockingMode == "Drop" }
-    val blockingSwitchItemPackets by IntValue("Blocking-SwitchItem-Packets", 2, 1..9) { blocking && blockingMode == "SwitchItem" }
-    val blockingSwitchItemEveryTick by BooleanValue("Blocking-SwitchItem-EveryTick", true) { blocking && blockingMode == "SwitchItem" }
-    val ncpFunnyUsePacket by BooleanValue("NCP-FunnyUsePacket", false) { blocking && blockingMode == "NCP" }
-    val ncpFunnyReleasePacket by BooleanValue("NCP-FunnyReleasePacket", false) { blocking && blockingMode == "NCP" }
-    private val blockForwardMultiplier by FloatValue("BlockForwardMultiplier", 1f, 0.2f..1f) { blocking }
-    private val blockStrafeMultiplier by FloatValue("BlockStrafeMultiplier", 1f, 0.2f..1f) { blocking }
-
-    private val consuming by BooleanValue("Consuming", true)
-    private val consumeMode by ListValue("ConsumeMode", consumeModes.map { it.modeName }.toTypedArray(), "Vanilla") { consuming }
-    private val onlyMoveConsume by BooleanValue("OnlyMoveConsume", true) { consuming && consumeMode !in noNoMoveCheck }
-    private val consumePacketTiming by ListValue("ConsumePacketTiming", arrayOf("Pre", "Post", "Any"), "Pre") { consuming && consumeMode in packetTiming }
-    private val consumeDropWaitForPacket by BooleanValue("Consume-Drop-WaitForPacket", true) { consuming && consumeMode == "Drop" }
-    val consumeSwitchItemPackets by IntValue("Consume-SwitchItem-Packets", 2, 1..9) { consuming && consumeMode == "SwitchItem" }
-    val consumeSwitchItemEveryTick by BooleanValue("Consume-SwitchItem-EveryTick", true) { consuming && consumeMode == "SwitchItem" }
-    private val consumeForwardMultiplier by FloatValue("ConsumeForwardMultiplier", 1f, 0.2f..1f) { consuming }
-    private val consumeStrafeMultiplier by FloatValue("ConsumeStrafeMultiplier", 1f, 0.2f..1f) { consuming }
-
-    private val bows by BooleanValue("Bows", true)
-    private val bowMode by ListValue("BowMode", bowModes.map { it.modeName }.toTypedArray(), "Vanilla") { bows }
-    private val onlyMoveBow by BooleanValue("OnlyMoveBow", true) { bows && bowMode !in noNoMoveCheck }
-    private val bowPacketTiming by ListValue("BowPacketTiming", arrayOf("Pre", "Post", "Any"), "Pre") { bows && bowMode in packetTiming }
-    private val bowDropWaitForPacket by BooleanValue("Bow-Drop-WaitForPacket", true) { bows && bowMode == "Drop" }
-    val bowSwitchItemPackets by IntValue("Bow-SwitchItem-Packets", 2, 1..9) { bows && bowMode == "SwitchItem" }
-    val bowSwitchItemEveryTick by BooleanValue("Bow-SwitchItem-EveryTick", true) { bows && bowMode == "SwitchItem" }
-    private val bowForwardMultiplier by FloatValue("BowForwardMultiplier", 1f, 0.2f..1f) { bows }
-    private val bowStrafeMultiplier by FloatValue("BowStrafeMultiplier", 1f, 0.2f..1f) { bows }
-
-    @JvmStatic val sneaking by BooleanValue("Sneaking", true)
-    private val sneakMode by ListValue("SneakMode", arrayOf("Vanilla", "Switch", "MineSecure"), "Vanilla") { sneaking }
-    private val onlyMoveSneak by BooleanValue("OnlyMoveSneak", true) { sneaking && sneakMode != "Vanilla" }
-    @JvmStatic val sneakForwardMultiplier by FloatValue("SneakForwardMultiplier", 0.3f, 0.3f..1.0F) { sneaking }
-    @JvmStatic val sneakStrafeMultiplier by FloatValue("SneakStrafeMultiplier", 0.3f, 0.3f..1f) { sneaking }
-
-    @JvmStatic val soulsand by BooleanValue("SoulSand", true)
-    @JvmStatic val soulsandMultiplier by FloatValue("SoulSandMultiplier", 1f, 0.4f..1f) { soulsand }
-
-    @JvmStatic val slime by BooleanValue("Slime", true)
-    @JvmStatic val slimeYMultiplier by FloatValue("SlimeYMultiplier", 1f, 0.2f..1f) { slime }
-    @JvmStatic val slimeMultiplier by FloatValue("SlimeMultiplier", 1f, 0.4f..1f) { slime }
-    private val slimeFriction by FloatValue("SlimeFriction", 0.6f, 0.6f..0.8f) { slime }
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
@@ -159,7 +64,7 @@ object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
 
         Blocks.slime_block.slipperiness = if (slime) slimeFriction else 0.8f
 
-        if (mc.thePlayer.isSneaking && !(onlyMoveSneak && !hasMotion) && sneaking) {
+        if (mc.thePlayer.isSneaking && (!onlyMoveSneak || isMoving) && sneaking) {
             when (sneakMode) {
                 "Switch" -> when (event.eventState) {
                     PRE -> {
@@ -178,9 +83,8 @@ object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
                     else -> {}
                 }
 
-                "MineSecure" -> {
-                    if (event.eventState != PRE)
-                        sendPacket(C0BPacketEntityAction(mc.thePlayer, START_SNEAKING))
+                "MineSecure" -> if (event.eventState != PRE) {
+                    sendPacket(C0BPacketEntityAction(mc.thePlayer, START_SNEAKING))
                 }
             }
         }
@@ -200,107 +104,64 @@ object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (!noMoveCheck) usedMode.onPacket(event)
+        if (usedMode.handlePacketEventOnNoMove || !noMoveCheck) usedMode.onPacket(event)
     }
 
-    fun doNoSlow(noSlowItem: NoSlowItem = NoSlow.noSlowItem): Boolean {
-        if (noSlowItem == OTHER || !handleEvents())
-            return false
-
-        val mode = usedMode
-
-        if (mode is Drop && !mode.received && when (noSlowItem) {
-            CONSUMABLE -> consumeDropWaitForPacket
-            SWORD -> blockingDropWaitForPacket
-            else -> bowDropWaitForPacket
-        }) return false
-
-        if (mode is Grim2365 && mode.slow)
-            return false
-
-        return true
-    }
+    fun doNoSlow() = handleEvents() && usedNoSlow != null && usedMode.canNoSlow
 
     @EventTarget
     fun onSlowDown(event: SlowDownEvent) {
-        val item = noSlowItem
+        if (!doNoSlow()) return
 
-        if (!doNoSlow(item)) return
-
-        event.forward = when (item) {
-            CONSUMABLE -> consumeForwardMultiplier
-            SWORD -> blockForwardMultiplier
-            BOW -> bowForwardMultiplier
-            OTHER -> 0.2f
-        }
-        event.strafe = when (item) {
-            CONSUMABLE -> consumeStrafeMultiplier
-            SWORD -> blockStrafeMultiplier
-            BOW -> bowStrafeMultiplier
-            OTHER -> 0.2f
-        }
+        event.forward = usedNoSlow?.forwardMultiplier ?: 0.2f
+        event.strafe = usedNoSlow?.strafeMultiplier ?: 0.2f
     }
 
-    override val tag
-        get() = if (blocking) blockingMode
-        else if (consuming) consumeMode
-        else if (bows) bowMode
-        else if (sneaking) sneakMode
-        else ""
-
-    private val modeModuleBlocking
-        get() = swordModes.find { it.modeName == blockingMode }!!
-    private val modeModuleBow
-        get() = bowModes.find { it.modeName == bowMode }!!
-    private val modeModuleConsume
-        get() = consumeModes.find { it.modeName == consumeMode }!!
-
     private val noMoveCheck
-        get() = noSlowItem.run {
-            if (usedMode.modeName in noNoMoveCheck || (mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0))
-                return@run false
-
-            return@run when (this) {
-                SWORD -> onlyMoveBlocking
-                BOW -> onlyMoveBow
-                CONSUMABLE -> onlyMoveConsume
-                OTHER -> false
-            }
-        }
+        get() = usedNoSlow?.run { mode.allowNoMove && isMoving && onlyMove } ?: false
 
     private fun antiDesync() {
-        if (usedMode.modeName !in noAntiDesync && serverUsing && !isUsingItem)
+        if (usedMode.antiDesync && serverUsing && !isUsingItem)
             serverUsing = false
     }
 
-    fun packetTiming(eventState: EventState) =
-        when (noSlowItem) {
-            SWORD -> eventState.name == blockingPacketTiming.uppercase() || blockingPacketTiming == "Any"
-            BOW -> eventState.name == bowPacketTiming.uppercase() || bowPacketTiming == "Any"
-            CONSUMABLE -> eventState.name == consumePacketTiming.uppercase() || consumePacketTiming == "Any"
-            OTHER -> false
+    private val usedNoSlow
+        get() = mc.thePlayer?.heldItem?.run {
+            return@run when {
+                item is ItemSword && blocking -> BlockingNoSlow
+                item is ItemBow && bow -> BowNoSlow
+                (item is ItemPotion && !isSplashPotion || item is ItemFood || item is ItemBucketMilk) && consume -> ConsumeNoSlow
+                else -> null
+            }
         }
 
     val usedMode: NoSlowMode
-        get() = when (noSlowItem) {
-            SWORD -> modeModuleBlocking
-            BOW -> modeModuleBow
-            CONSUMABLE -> modeModuleConsume
-            OTHER -> Vanilla
-        }
+        get() = usedNoSlow?.mode ?: Vanilla
 
-    fun isUNCPBlocking() =
-        modeModuleBlocking is UNCP2 && mc.gameSettings.keyBindUseItem.isKeyDown && (mc.thePlayer.heldItem?.item is ItemSword)
+    fun isUNCPBlocking() = mc.gameSettings.keyBindUseItem.isKeyDown && usedNoSlow?.run { this == BlockingNoSlow && mode is UNCP2 } ?: false
 
     private val isUsingItem get() = mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
 
-    val noSlowItem: NoSlowItem
-        get() = mc.thePlayer?.heldItem?.run {
-            return@run when {
-                item is ItemSword && blocking -> SWORD
-                item is ItemBow && bows -> BOW
-                (item is ItemPotion && !isSplashPotion || item is ItemFood || item is ItemBucketMilk) && consuming -> CONSUMABLE
-                else -> OTHER
-            }
-        } ?: OTHER
+    init {
+        for (value in BlockingNoSlow.values) {
+            value.isSupported += { blocking }
+            value.name = "Blocking-${value.name}"
+        }
+
+        for (value in ConsumeNoSlow.values) {
+            value.isSupported += { consume }
+            value.name = "Consume-${value.name}"
+        }
+
+        for (value in BowNoSlow.values) {
+            value.isSupported += { bow }
+            value.name = "Bow-${value.name}"
+        }
+    }
+
+    override val values: List<Value<*>> = super.values.toMutableList().apply {
+        addAll(indexOfFirst { it.name == "Blocking" } + 1, BlockingNoSlow.values)
+        addAll(indexOfFirst { it.name == "Consume" } + 1, ConsumeNoSlow.values)
+        addAll(indexOfFirst { it.name == "Bow" } + 1, BowNoSlow.values)
+    }
 }

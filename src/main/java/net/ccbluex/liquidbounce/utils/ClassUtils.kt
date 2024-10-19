@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.value.Value
 import org.apache.logging.log4j.core.config.plugins.ResolverUtil
 
 object ClassUtils {
@@ -39,6 +40,7 @@ object ClassUtils {
         }
         return list.toTypedArray()
     }
+
     inline fun <reified T> getAllClassesIn(`package`: String): Array<Class<T>> {
         val resolver = ResolverUtil()
         resolver.classLoader = T::class.java.classLoader
@@ -49,6 +51,19 @@ object ClassUtils {
 
         return resolver.classes.filterIsInstance<Class<T>>().toTypedArray()
     }
+
     inline fun <reified T> Package.getAllClasses(): Array<Class<T>> = getAllClassesIn<T>(name)
     inline fun <reified T> Package.getAllObjects(): Array<T> = getAllClasses<T>().getAllObjects()
+
+    fun getRawValues(obj: Any?, clazz: Class<*>? = obj?.javaClass): List<Value<*>> {
+        obj ?: return emptyList()
+        clazz ?: return emptyList()
+        return clazz.declaredFields
+            .map {
+                it.isAccessible = true
+                it[obj]
+            }.filterIsInstance<Value<*>>()
+    }
+
+    fun getValues(obj: Any?): List<Value<*>> = getRawValues(obj).toMutableList().distinctBy { it.name }
 }

@@ -20,7 +20,7 @@ import net.minecraft.util.EnumFacing.DOWN
 /**
  * @author SkidderMC/FDPClient
  */
-object WatchDog : NoSlowMode("WatchDog") {
+object WatchDog : NoSlowMode("WatchDog", antiDesync = true) {
     val timer = MSTimer()
     override fun onMotion(event: MotionEvent) {
         if (!mc.thePlayer.onGround)

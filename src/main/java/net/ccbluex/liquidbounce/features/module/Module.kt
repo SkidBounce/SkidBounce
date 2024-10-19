@@ -14,6 +14,8 @@ import net.ccbluex.liquidbounce.lang.LanguageManager.getTranslation
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
+import net.ccbluex.liquidbounce.utils.ClassUtils.getRawValues
+import net.ccbluex.liquidbounce.utils.ClassUtils.getValues
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
@@ -160,11 +162,8 @@ open class Module(
      * Get all values of module with unique names
      */
     open val values
-        get() = javaClass.declaredFields
-            .map { field ->
-                field.isAccessible = true
-                field[this]
-            }.filterIsInstance<Value<*>>().toMutableList()
+        get() = getRawValues(this)
+            .toMutableList()
             .also {
                 if (gameDetecting)
                     it.add(onlyInGameValue)

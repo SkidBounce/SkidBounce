@@ -466,3 +466,9 @@ fun KeyBinding.update() { pressed = isActuallyPressed }
 val KeyBinding.isActuallyPressed get() = isKeyDown(this)
 fun GameSettings.updateKeys() = keyBindings.forEach { it.update() }
 fun GameSettings.updateKeys(vararg keys: KeyBinding) = keys.forEach { it.update() }
+
+operator fun (() -> Boolean)?.plus(other: (() -> Boolean)?): (() -> Boolean)? = when {
+    other == null -> this
+    this == null -> other
+    else -> { { this.invoke() && other.invoke() } }
+}

@@ -11,15 +11,17 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.canUse
 import net.ccbluex.liquidbounce.utils.extensions.isUse
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
+import net.ccbluex.liquidbounce.value.BooleanValue
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.DROP_ITEM
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.util.BlockPos.ORIGIN
 import net.minecraft.util.EnumFacing.DOWN
 
-object Drop : NoSlowMode("Drop") {
-    var received = false
-        private set
+class Drop : NoSlowMode("Drop", allowNoMove = false) {
+    private val waitForPacket by BooleanValue("WaitForPacket", true)
+
+    private var received = false
 
     override fun onPacket(event: PacketEvent) {
         if (event.isCancelled)
@@ -44,4 +46,7 @@ object Drop : NoSlowMode("Drop") {
             mc.thePlayer.inventory.mainInventory[serverSlot] = event.packet.func_149174_e()
         }
     }
+
+    override val canNoSlow: Boolean
+        get() = received || !waitForPacket
 }

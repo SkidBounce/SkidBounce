@@ -6,9 +6,9 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other
 
 import net.ccbluex.liquidbounce.event.events.MotionEvent
-import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow.packetTiming
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
 /**
@@ -16,9 +16,11 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
  * @author ManInMyVan
  * @author SkidderMC/FDPClient
  */
-object Place : NoSlowMode("Place") {
+class Place : NoSlowMode("Place") {
+    private val packetTiming by ListValue("PacketTiming", arrayOf("Pre", "Post", "Both"), "Pre")
+
     override fun onMotion(event: MotionEvent) {
-        if (packetTiming(event.eventState))
+        if (packetTiming.equals(event.eventState.name, true) || packetTiming == "Both")
             sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
     }
 }

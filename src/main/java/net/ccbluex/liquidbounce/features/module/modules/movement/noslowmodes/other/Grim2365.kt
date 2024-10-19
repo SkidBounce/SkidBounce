@@ -14,8 +14,7 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
 object Grim2365 : NoSlowMode("Grim2.3.65") {
-    var slow = false
-        private set
+    override var canNoSlow = true
 
     override fun onMotion(event: MotionEvent) {
         if (event.eventState != PRE) return
@@ -26,9 +25,9 @@ object Grim2365 : NoSlowMode("Grim2.3.65") {
             sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
             serverSlot = mc.thePlayer.inventory.currentItem
 
-            slow = false
+            canNoSlow = true
             return
         }
-        slow = true
+        canNoSlow = false
     }
 }

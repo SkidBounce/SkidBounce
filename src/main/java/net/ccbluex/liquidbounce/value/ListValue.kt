@@ -13,12 +13,14 @@ import com.google.gson.JsonPrimitive
  */
 open class ListValue(
     name: String,
-    val values: Array<String>,
+    values: Array<String>,
     override var value: String,
     subjective: Boolean = false,
     isSupported: (() -> Boolean)? = null
 ) : Value<String>(name, value, subjective, isSupported) {
     var openList = false
+    var values = values
+        protected set
 
     operator fun contains(string: String?) = values.any { it.equals(string, true) }
 
