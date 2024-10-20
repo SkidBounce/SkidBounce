@@ -111,7 +111,7 @@
         
         "module.bufferSpeed.description": "允许你在台阶和楼梯上走得更快。",
         
-        "module.bugUp.description": "坠落一定距离后自动拉回。(虚空回弹)",
+        "module.antiVoid.description": "坠落一定距离后自动拉回。(虚空回弹)",
         
         "module.cameraClip.description": "允许你在第三人称视角中透过墙壁看到另一边。",
         
