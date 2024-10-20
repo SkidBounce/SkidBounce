@@ -8,7 +8,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP2
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.watchdog.WatchDog
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.watchdog.WatchDog2
 
 object BlockingNoSlow : BaseNoSlow(
     arrayOf(
@@ -24,7 +23,6 @@ object BlockingNoSlow : BaseNoSlow(
         Place(),
         EmptyPlace(),
         WatchDog,
-        WatchDog2,
         Medusa,
         Drop(),
         Grim2365,
