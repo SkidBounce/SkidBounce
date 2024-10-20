@@ -118,7 +118,7 @@ object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
     }
 
     private val noMoveCheck
-        get() = usedNoSlow?.run { !mode.allowNoMove || !(isMoving || onlyMove) } ?: false
+        get() = usedNoSlow?.run { !isMoving && (onlyMove && mode.allowNoMove) } ?: false
 
     private fun antiDesync() {
         if (usedMode.antiDesync && serverUsing && !isUsingItem)
