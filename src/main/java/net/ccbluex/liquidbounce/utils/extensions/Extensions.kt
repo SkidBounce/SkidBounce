@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.utils.extensions
 
+import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_HEIGHT
@@ -459,7 +460,7 @@ fun Double.toPlainString(): String {
  */
 fun Timer.resetSpeed() { timerSpeed = 1f }
 
-fun KeyBinding.update() { pressed = isActuallyPressed }
+fun KeyBinding.update() { pressed = isActuallyPressed && (this !in InventoryMove.affectedBindings || InventoryMove.canMove) }
 /**
  * @see isKeyDown
  */

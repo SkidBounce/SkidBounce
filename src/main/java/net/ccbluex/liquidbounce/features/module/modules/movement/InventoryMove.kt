@@ -47,7 +47,7 @@ object InventoryMove : Module("InventoryMove", MOVEMENT, gameDetecting = false) 
     // Reopen closed inventory just before a click (could flag for clicking too fast after opening inventory)
     private val reopenOnClick by BooleanValue("ReopenOnClick", false) { silentlyCloseAndReopen && noMove && (noMoveAir || noMoveGround) && mode == "Normal" }
 
-    private val affectedBindings = arrayOf(
+    val affectedBindings = arrayOf(
         mc.gameSettings.keyBindForward,
         mc.gameSettings.keyBindBack,
         mc.gameSettings.keyBindRight,
@@ -58,19 +58,31 @@ object InventoryMove : Module("InventoryMove", MOVEMENT, gameDetecting = false) 
 
     private var clicking = false
 
+    val canMove: Boolean
+        get() {
+            val screen = mc.currentScreen
+
+            if (!handleEvents())
+                return screen == null
+
+            // Don't make player move when chat or ESC menu are open
+            if (screen is GuiChat || screen is GuiIngameMenu)
+                return false
+
+            if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui))
+                return false
+
+            if (notInChests && screen is GuiChest)
+                return false
+
+            return true
+        }
+
     @EventTarget(priority = 999)
     fun onUpdate(event: UpdateEvent) {
+        if (!canMove) return
+
         val screen = mc.currentScreen
-
-        // Don't make player move when chat or ESC menu are open
-        if (screen is GuiChat || screen is GuiIngameMenu)
-            return
-
-        if (undetectable && (screen != null && screen !is GuiHudDesigner && screen !is ClickGui))
-            return
-
-        if (notInChests && screen is GuiChest)
-            return
 
         if (silentlyCloseAndReopen && screen is GuiInventory && noMove && (noMoveAir || noMoveGround) && mode == "Normal") {
             if (canClickInventory(closeWhenViolating = true) && !reopenOnClick)

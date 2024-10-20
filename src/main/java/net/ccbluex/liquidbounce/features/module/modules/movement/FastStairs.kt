@@ -36,9 +36,10 @@ object FastStairs : Module("FastStairs", MOVEMENT) {
     fun onUpdate(event: UpdateEvent) {
         if (jumped) {
             mc.gameSettings.keyBindJump.update()
+            jumped = false
         }
 
-        if (mode == "Legit") {
+        if (mode == "Legit" && InventoryMove.canMove) {
             SimulatedPlayer.fromClientPlayer(
                 MovementInput()
                     .apply {
