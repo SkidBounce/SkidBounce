@@ -18,29 +18,28 @@ import kotlin.math.*
 
 object MovementUtils : MinecraftInstance(), Listenable {
     const val JUMP_HEIGHT = 0.41999998688697815
+
     val aboveVoid: Boolean
         get() {
-            mc.thePlayer ?: return false
             mc.theWorld ?: return false
-            var void = true
-            var i = -(mc.thePlayer.posY - 1.4857625).toInt()
+            val box = mc.thePlayer?.entityBoundingBox ?: return false
 
-            while (i <= 0) {
-                void = mc.theWorld.getCollisionBoxes(
-                    mc.thePlayer.entityBoundingBox.offset(
-                        mc.thePlayer.motionX * 0.5,
-                        i.toDouble(),
-                        mc.thePlayer.motionZ * 0.5
-                    )
-                ).isEmpty()
-                ++i
-                if (!void) break
+            val x = mc.thePlayer.motionX * 0.5
+            var y = -(mc.thePlayer.posY - 1.4857625).toInt().toDouble()
+            val z = mc.thePlayer.motionZ * 0.5
+
+            while (y++ <= 0) {
+                if (mc.theWorld.getCollisionBoxes(box.offset(x, y - 1, z)).isNotEmpty()) {
+                    return false
+                }
             }
 
-            return void
+            return true
         }
+
     val onIce
         get() = mc.theWorld.getBlockState(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ)).block in arrayOf(packed_ice, ice)
+
     var speed
         get() = mc.thePlayer?.run { sqrt(motionX * motionX + motionZ * motionZ).toFloat() } ?: .0f
         set(value) { strafe(value) }

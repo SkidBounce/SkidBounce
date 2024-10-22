@@ -67,7 +67,7 @@ object AntiVoid : Module("AntiVoid", MOVEMENT) {
     }
 
     @EventTarget
-    fun onUpdate(e: UpdateEvent) {
+    fun onUpdate(event: UpdateEvent) {
         detectedLocation = null
 
         val thePlayer = mc.thePlayer ?: return
@@ -189,4 +189,7 @@ object AntiVoid : Module("AntiVoid", MOVEMENT) {
 
     private val void
         get() = !onlyVoid || aboveVoid
+
+    override val tag
+        get() = mode
 }
