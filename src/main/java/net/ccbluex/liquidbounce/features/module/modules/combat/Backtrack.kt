@@ -495,6 +495,7 @@ object Backtrack : Module("Backtrack", COMBAT) {
 
     private fun isEnemy(entity: Entity?): Boolean {
         return when {
+            mc.netHandler == null -> false
             entity !is EntityLivingBase || entity == mc.thePlayer -> false
             entity !is EntityPlayer -> true
             entity.isSpectator || isBot(entity) -> false
