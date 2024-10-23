@@ -13,15 +13,16 @@ import net.ccbluex.liquidbounce.features.module.modules.exploit.Phase
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.fakeJump
 import net.ccbluex.liquidbounce.utils.extensions.jmp
+import net.ccbluex.liquidbounce.utils.extensions.resetSpeed
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -43,14 +44,13 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
             "LAAC",
             "AAC3.3.4",
             "Spartan",
-            "Rewinside"
+            "Rewinside",
+            "Verus",
         ).sortedArray(), "Vanilla"
     )
 
-    private val height by FloatValue("Height", 1F, 0.6F..10F)
-    { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4") }
-    private val jumpHeight by FloatValue("JumpHeight", 0.42F, 0.37F..0.42F)
-    { mode == "Jump" }
+    private val height by FloatValue("Height", 1F, 0.6F..10F) { mode !in arrayOf("Jump", "MotionNCP", "LAAC", "AAC3.3.4") }
+    private val jumpHeight by FloatValue("JumpHeight", 0.42F, 0.37F..0.42F) { mode == "Jump" }
 
     private val delay by IntValue("Delay", 0, 0..500)
 
@@ -58,6 +58,7 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
      * VALUES
      */
 
+    private var wasTimer = false
     private var isStep = false
     private var stepX = 0.0
     private var stepY = 0.0
@@ -79,6 +80,11 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
     @Suppress("UNUSED_PARAMETER")
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (wasTimer) {
+            mc.timer.resetSpeed()
+            wasTimer = false
+        }
+
         val mode = mode
         val thePlayer = mc.thePlayer ?: return
 
@@ -222,10 +228,8 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
                     mc.thePlayer.fakeJump()
 
                     // Half legit step (1 packet missing) [COULD TRIGGER TOO MANY PACKETS]
-                    sendPackets(
-                        C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
-                        C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false)
-                    )
+                    send(0.41999998688698, false)
+                    send(0.7531999805212, false)
                     timer.reset()
                 }
 
@@ -234,13 +238,11 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
 
                     if (spartanSwitch) {
                         // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
-                        sendPackets(
-                            C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
-                            C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false),
-                            C04PacketPlayerPosition(stepX, stepY + 1.001335979112147, stepZ, false)
-                        )
+                        send(0.41999998688698, false)
+                        send(0.7531999805212, false)
+                        send(1.001335979112147, false)
                     } else // Force step
-                        sendPacket(C04PacketPlayerPosition(stepX, stepY + 0.6, stepZ, false))
+                        send(0.6, false)
 
                     // Spartan allows one unlegit step so just swap between legit and unlegit
                     spartanSwitch = !spartanSwitch
@@ -253,14 +255,26 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
                     mc.thePlayer.fakeJump()
 
                     // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]
-                    sendPackets(
-                        C04PacketPlayerPosition(stepX, stepY + 0.41999998688698, stepZ, false),
-                        C04PacketPlayerPosition(stepX, stepY + 0.7531999805212, stepZ, false),
-                        C04PacketPlayerPosition(stepX, stepY + 1.001335979112147, stepZ, false)
-                    )
+                    send(0.41999998688698, false)
+                    send(0.7531999805212, false)
+                    send(1.001335979112147, false)
 
                     // Reset timer
                     timer.reset()
+                }
+
+                "Verus" -> {
+                    val stepHeight = mc.thePlayer.entityBoundingBox.minY - stepY
+
+                    mc.timer.timerSpeed = 1 / ceil(stepHeight * 2).toFloat()
+                    mc.thePlayer.fakeJump()
+                    wasTimer = true
+
+                    var height = 0.0
+                    repeat ((ceil(stepHeight * 2) - 1).toInt()) {
+                        height += 0.5
+                        send(height, true)
+                    }
                 }
             }
         }
@@ -292,4 +306,8 @@ object Step : Module("Step", MOVEMENT, gameDetecting = false) {
 
     override val tag
         get() = mode
+
+    private fun send(y: Double, ground: Boolean) {
+        sendPacket(C04PacketPlayerPosition(stepX, stepY + y, stepZ, ground))
+    }
 }
