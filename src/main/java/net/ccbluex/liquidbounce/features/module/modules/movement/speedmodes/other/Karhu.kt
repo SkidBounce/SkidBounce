@@ -9,12 +9,16 @@ import net.ccbluex.liquidbounce.utils.extensions.update
 import net.minecraft.init.Blocks.*
 
 object Karhu : SpeedMode("Karhu") {
+    private var wasSpeed = false
+
     override fun onUpdate() {
         mc.thePlayer.jumpMovementFactor = 0.0265f
         if (isMoving) {
             mc.gameSettings.keyBindJump.pressed = true
-        } else {
+            wasSpeed = true
+        } else if (wasSpeed) {
             mc.thePlayer.stopXZ()
+            wasSpeed = false
         }
     }
 
