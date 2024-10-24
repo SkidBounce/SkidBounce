@@ -127,6 +127,12 @@ object Speed : Module("Speed", MOVEMENT) {
         modeModule.onStrafe()
     }
 
+    @EventTarget
+    fun onJump(event: JumpEvent) {
+        updateJumping()
+        modeModule.onJump(event)
+    }
+
     override fun onToggle(state: Boolean) {
         mc.thePlayer ?: return
 
