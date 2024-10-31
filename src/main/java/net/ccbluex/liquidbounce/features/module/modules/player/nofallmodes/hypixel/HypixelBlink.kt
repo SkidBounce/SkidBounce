@@ -5,50 +5,40 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.hypixel
 
-import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.minecraft.network.Packet
+import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.minecraft.network.play.client.C03PacketPlayer
 
 /**
  * @author SkidderMC/FDPClient
  */
-object HypixelBlink : NoFallMode("HypixelBlink") {
-    private var enabled = false
+object HypixelBlink : NoFallMode("HypixelBlink"), IBlink {
     private var wasOnGround = false
-    private val packets = mutableListOf<Packet<*>>()
 
     override fun onEnable() {
-        enabled = false
+        blinkingClient = false
     }
 
     override fun onUpdate() {
         if (mc.thePlayer.onGround) wasOnGround = true
         else if (wasOnGround) {
             wasOnGround = false
-            if (mc.thePlayer.motionY < 0)
-                enabled = true
+            if (mc.thePlayer.motionY < 0) {
+                blinkingClient = true
+            }
         }
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-
-        if (!enabled || event.eventType != EventState.SEND)
+        if (!blinkingClient)
             return
 
-        packets += packet
-        event.cancelEvent()
-
-        if (packet is C03PacketPlayer)
-            packet.onGround = true
+        if (event.packet is C03PacketPlayer)
+            event.packet.onGround = true
 
         if (mc.thePlayer.onGround) {
-            enabled = false
-            sendPackets(*packets.toTypedArray())
-            packets.clear()
+            blinkingClient = false
         }
     }
 }
