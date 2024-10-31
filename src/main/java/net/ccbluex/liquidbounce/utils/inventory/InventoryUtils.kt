@@ -80,6 +80,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
 
     var isFirstInventoryClick = true
 
+    @get:JvmName("getClickTimer")
     val CLICK_TIMER = MSTimer()
 
     val BLOCK_BLACKLIST = listOf(

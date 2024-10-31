@@ -187,32 +187,32 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE))
     private void injectNoRotateSetPositionOnly(S08PacketPlayerPosLook p_handlePlayerPosLook_1_, CallbackInfo ci) {
-        NoRotate module = NoRotate.INSTANCE;
+        NoRotate noRotate = NoRotate.INSTANCE;
 
         // Save the server's requested rotation before it resets the rotations
-        module.setSavedRotation(ExtensionsKt.getRotation(Minecraft.getMinecraft().thePlayer));
+        noRotate.setSavedRotation(ExtensionsKt.getRotation(Minecraft.getMinecraft().thePlayer));
     }
 
     @Redirect(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetworkManager;sendPacket(Lnet/minecraft/network/Packet;)V"))
-    private void injectNoRotateSetAndAntiServerRotationOverride(NetworkManager instance, Packet p_sendPacket_1_) {
-        Blink module2 = Blink.INSTANCE;
-        boolean shouldTrigger = module2.blinkingSend();
-        PacketUtils.sendPacket(p_sendPacket_1_, shouldTrigger);
+    private void injectNoRotateSetAndAntiServerRotationOverride(NetworkManager instance, Packet packet) {
+        Blink blink = Blink.INSTANCE;
+        boolean shouldTrigger = blink.blinkingSend();
+        PacketUtils.sendPacket(packet, shouldTrigger);
 
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-        NoRotate module = NoRotate.INSTANCE;
+        NoRotate noRotate = NoRotate.INSTANCE;
 
-        if (player == null || !module.shouldModify(player)) {
+        if (player == null || !noRotate.shouldModify(player)) {
             return;
         }
 
         int sign = RandomUtils.INSTANCE.nextBoolean() ? 1 : -1;
 
-        Rotation rotation = player.ticksExisted == 0 ? RotationUtils.INSTANCE.getServerRotation() : module.getSavedRotation();
+        Rotation rotation = player.ticksExisted == 0 ? RotationUtils.INSTANCE.getServerRotation() : noRotate.getSavedRotation();
 
         Rotation currentRotation = RotationUtils.INSTANCE.getCurrentRotation();
 
-        if (currentRotation != null && module.getAffectServerRotation()) {
+        if (currentRotation != null && noRotate.getAffectServerRotation()) {
             RotationUtils.INSTANCE.setSetbackRotation(new MutableTriple<>(ExtensionsKt.getRotation(player), true, currentRotation));
         }
 

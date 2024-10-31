@@ -50,6 +50,6 @@ public class MixinPlayerControllerMP {
         }
 
         // Only reset click delay, if a click didn't get cancelled
-        InventoryUtils.INSTANCE.getCLICK_TIMER().reset();
+        InventoryUtils.INSTANCE.getClickTimer().reset();
     }
 }
