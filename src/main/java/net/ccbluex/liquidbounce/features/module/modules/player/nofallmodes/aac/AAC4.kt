@@ -10,51 +10,39 @@ import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.aboveVoid
+import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
 /**
  * @author SkidderMC/FDPClient
  */
-object AAC4 : NoFallMode("AAC4") {
-    private var blink = false
+object AAC4 : NoFallMode("AAC4"), IBlink {
     private var modify = false
-    private val packets = mutableListOf<C03PacketPlayer>()
     override fun onEnable() {
-        packets.clear()
         modify = false
-        blink = false
+        blinkingClient = false
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer && blink) {
-            event.cancelEvent()
-            if (modify) {
-                event.packet.onGround = true
-                modify = false
-            }
-            packets.add(event.packet)
+        if (event.packet is C03PacketPlayer && modify && blinkingClient) {
+            event.packet.onGround = true
+            modify = false
         }
     }
 
     override fun onMotion(event: MotionEvent) {
         if (event.eventState == EventState.PRE) {
-            if ((mc.thePlayer.onGround || aboveVoid) && blink) {
-                blink = false
-                if (packets.size > 0) {
-                    for (packet in packets) {
-                        mc.thePlayer.sendQueue.addToSendQueue(packet)
-                    }
-                    packets.clear()
-                }
+            if ((mc.thePlayer.onGround || aboveVoid) && blinkingClient) {
+                blinkingClient = false
                 return
             }
-            if (mc.thePlayer.fallDistance > 2.5 && blink) {
+            if (mc.thePlayer.fallDistance > 2.5 && blinkingClient) {
                 modify = true
                 mc.thePlayer.fallDistance = 0f
             }
             if (!inAir())
-                blink = true
+                blinkingClient = true
         }
     }
 

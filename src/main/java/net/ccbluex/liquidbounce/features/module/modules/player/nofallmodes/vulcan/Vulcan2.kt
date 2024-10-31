@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.vulcan2Motion
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
@@ -18,67 +19,43 @@ import net.minecraft.util.AxisAlignedBB
  * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
-object Vulcan2 : NoFallMode("Vulcan2") {
-    private var lag = false
+object Vulcan2 : NoFallMode("Vulcan2"), IBlink {
     private var modify = false
-    private val packets = mutableListOf<C03PacketPlayer>()
     override fun onEnable() {
-        packets.clear()
         modify = false
-        lag = false
+        blinkingClient = false
     }
 
     override fun onUpdate() {
-        if (mc.thePlayer.motionY <= 0.0 && mc.thePlayer.fallDistance <= 1f && lag)
+        if (mc.thePlayer.motionY <= 0.0 && mc.thePlayer.fallDistance <= 1f && blinkingClient)
             mc.thePlayer.motionY = -vulcan2Motion.toDouble()
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer && lag) {
-            event.cancelEvent()
-            if (modify) {
-                event.packet.onGround = true
-                modify = false
-            }
-            packets.add(event.packet)
+        if (event.packet is C03PacketPlayer && modify && blinkingClient) {
+            event.packet.onGround = true
+            modify = false
         }
     }
 
     override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE) {
-            if (MovementUtils.aboveVoid) {
-                if (lag) {
-                    lag = false
-                    if (packets.size > 0) {
-                        for (packet in packets) {
-                            mc.thePlayer.sendQueue.addToSendQueue(packet)
-                        }
-                        packets.clear()
-                    }
-                }
-                return
-            }
-            if (mc.thePlayer.onGround && lag) {
-                lag = false
-                if (packets.size > 0) {
-                    for (packet in packets) {
-                        mc.thePlayer.sendQueue.addToSendQueue(packet)
-                    }
-                    packets.clear()
-                }
-                return
-            }
-            if (mc.thePlayer.fallDistance > 2.5 && lag) {
-                modify = true
-                mc.thePlayer.fallDistance = 0f
-            }
-            if (inAir(4.0, 1.0)) {
-                return
-            }
-            if (!lag) {
-                lag = true
-            }
+        if (event.eventState != EventState.PRE) return
+
+        if ((mc.thePlayer.onGround || MovementUtils.aboveVoid) && blinkingClient) {
+            blinkingClient = false
+            return
         }
+
+        if (mc.thePlayer.fallDistance > 2.5 && blinkingClient) {
+            modify = true
+            mc.thePlayer.fallDistance = 0f
+        }
+
+        if (inAir(4.0, 1.0)) {
+            return
+        }
+
+        blinkingClient = true
     }
 
     private fun inAir(height: Double, plus: Double): Boolean {
