@@ -96,9 +96,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             jumpTicks = 10;
         }
 
-        final Jesus liquidWalk = Jesus.INSTANCE;
+        final Jesus jesus = Jesus.INSTANCE;
 
-        if (liquidWalk.handleEvents() && !isJumping && !isSneaking() && isInWater() && liquidWalk.getMode().equals("Swim")) {
+        if (jesus.handleEvents() && !isJumping && !isSneaking() && isInWater() && jesus.getMode().equals("Swim")) {
             updateAITick();
         }
     }
