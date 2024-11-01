@@ -7,17 +7,16 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.vani
 
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.events.MotionEvent
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.mlgRetrieveDelay
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.VecRotation
 import net.ccbluex.liquidbounce.utils.extensions.eyes
-import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
 import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
@@ -30,6 +29,8 @@ import kotlin.math.ceil
  * @author CCBlueX/LiquidBounce
  */
 object MLG : NoFallMode("MLG") {
+    private val minFallDistance by FloatValue("MLG-MinHeight", 5f, 2f..50f)
+    private val retrieveDelay by IntValue("MLG-RetrieveDelay", 100, 100..500)
 
     private val mlgTimer = TickTimer()
     private val retrieveTimer = MSTimer()
@@ -48,7 +49,7 @@ object MLG : NoFallMode("MLG") {
 
             if (!mlgTimer.hasTimePassed(10)) return
 
-            if (thePlayer.fallDistance > NoFall.mlgMinFallDistance) {
+            if (thePlayer.fallDistance > minFallDistance) {
                 val fallingPlayer = FallingPlayer(thePlayer)
 
                 val maxDist = mc.playerController.blockReachDistance + 1.5
@@ -77,7 +78,7 @@ object MLG : NoFallMode("MLG") {
 
                     currentMlgBlock = collision.pos
 
-                    InventoryUtils.serverSlot = index
+                    serverSlot = index
 
                     currentMlgRotation = RotationUtils.faceBlock(collision.pos)
                     currentMlgRotation?.rotation?.toPlayer(thePlayer)
@@ -97,7 +98,7 @@ object MLG : NoFallMode("MLG") {
             }
         }
 
-        if (retrieveTimer.hasTimePassed(mlgRetrieveDelay) && !mlgInProgress && bucketUsed) {
+        if (retrieveTimer.hasTimePassed(retrieveDelay) && !mlgInProgress && bucketUsed) {
             // Auto-retrieve water bucket.
             val stack = thePlayer?.inventory?.getStackInSlot(serverSlot)
 

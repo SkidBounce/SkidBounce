@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.other
 
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.verusMulti
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
+import net.ccbluex.liquidbounce.value.DoubleValue
 import net.minecraft.network.play.client.C03PacketPlayer
 
 /**
@@ -15,7 +15,9 @@ import net.minecraft.network.play.client.C03PacketPlayer
  * @author Aspw-w/NightX-Client
  */
 object Verus : NoFallMode("Verus") {
+    private val multi by DoubleValue("XZMulti", 0.6, 0.0..1.0)
     private var spoof = false
+
     override fun onEnable() {
         spoof = false
     }
@@ -31,8 +33,8 @@ object Verus : NoFallMode("Verus") {
         if (mc.thePlayer.fallDistance - mc.thePlayer.motionY > 3) {
             mc.thePlayer.motionY = 0.0
             mc.thePlayer.fallDistance = 0.0f
-            mc.thePlayer.motionX *= verusMulti
-            mc.thePlayer.motionZ *= verusMulti
+            mc.thePlayer.motionX *= multi
+            mc.thePlayer.motionZ *= multi
             spoof = true
         }
     }

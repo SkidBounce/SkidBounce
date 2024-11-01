@@ -37,12 +37,15 @@ object AAC4 : NoFallMode("AAC4"), IBlink {
                 blinkingClient = false
                 return
             }
+
             if (mc.thePlayer.fallDistance > 2.5 && blinkingClient) {
                 modify = true
                 mc.thePlayer.fallDistance = 0f
             }
-            if (!inAir())
+
+            if (!inAir()) {
                 blinkingClient = true
+            }
         }
     }
 
@@ -61,7 +64,7 @@ object AAC4 : NoFallMode("AAC4"), IBlink {
             if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty()) {
                 return true
             }
-            off += 1
+            off++
         }
         return false
     }

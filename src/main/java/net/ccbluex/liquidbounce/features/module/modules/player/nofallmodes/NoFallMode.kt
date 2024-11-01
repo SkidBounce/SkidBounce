@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes
 
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.utils.ClassUtils.getValues
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
 open class NoFallMode(val modeName: String) : MinecraftInstance() {
@@ -20,4 +21,8 @@ open class NoFallMode(val modeName: String) : MinecraftInstance() {
 
     open fun onEnable() {}
     open fun onDisable() {}
+    open fun onToggle() {}
+
+    val values
+        get() = getValues(this)
 }

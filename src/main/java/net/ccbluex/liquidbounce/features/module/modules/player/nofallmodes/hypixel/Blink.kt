@@ -8,11 +8,6 @@ package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.hypi
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.autoOff
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.checkFallDist
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.maxFallDist
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.minFallDist
-import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.simulateDebug
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.state
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
@@ -21,11 +16,26 @@ import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.FloatValue
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import java.awt.Color
 
 object Blink : NoFallMode("Blink"), IBlink {
+    // Using too many times of simulatePlayer could result timer flag. Hence, why this is disabled by default.
+    val checkFallDist by BooleanValue("CheckFallDistance", false)
+    val minFallDist by object : FloatValue("MinFallDistance", 2.5f, 0f..10f) {
+        override fun isSupported() = checkFallDist
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxFallDist)
+    }
+    val maxFallDist: Float by object : FloatValue("MaxFallDistance", 20f, 0f..100f) {
+        override fun isSupported() = checkFallDist
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minFallDist)
+    }
+    private val autoOff by BooleanValue("AutoOff", true)
+    private val simulateDebug by BooleanValue("SimulationDebug", false, subjective = true)
+
     private val tick = TickTimer()
 
     override fun onDisable() {
@@ -60,8 +70,8 @@ object Blink : NoFallMode("Blink"), IBlink {
         }
 
         if (event.packet is C03PacketPlayer) {
-            if (blinkingClient && thePlayer.fallDistance > minFallDist.get()) {
-                if (thePlayer.fallDistance < maxFallDist.get()) {
+            if (blinkingClient && thePlayer.fallDistance > minFallDist) {
+                if (thePlayer.fallDistance < maxFallDist) {
                     if (blinkingClient) {
                         event.packet.onGround = thePlayer.ticksExisted % 2 == 0
                     }
@@ -96,7 +106,7 @@ object Blink : NoFallMode("Blink"), IBlink {
 
         val fallingPlayer = FallingPlayer(thePlayer)
 
-        if ((checkFallDist && simPlayer.fallDistance > minFallDist.get()) ||
+        if ((checkFallDist && simPlayer.fallDistance > minFallDist) ||
             !checkFallDist && fallingPlayer.findCollision(60) != null && simPlayer.motionY < 0) {
             if (thePlayer.onGround && !blinkingClient) {
                 blinkingClient = true

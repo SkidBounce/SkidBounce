@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Not
 import net.ccbluex.liquidbounce.utils.ClassUtils.getRawValues
 import net.ccbluex.liquidbounce.utils.ClassUtils.getValues
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.timing.TickedActions.TickScheduler
@@ -162,15 +163,32 @@ open class Module(
      * Get all values of module with unique names
      */
     open val values
-        get() = getRawValues(this)
-            .toMutableList()
-            .also {
-                if (gameDetecting)
-                    it.add(onlyInGameValue)
+        get() = getValues0()
 
-                it.add(hideModuleValue)
-            }
-            .distinctBy { it.name }
+    private fun getValues0() = getRawValues(this)
+        .toMutableList()
+        .also {
+            if (gameDetecting) it.add(onlyInGameValue)
+            it.add(hideModuleValue)
+        }
+        .distinctBy { it.name }
+
+    protected fun <M> getValuesWithModes(modes: List<M>, getModeName: (M) -> String, getValues: (M) -> List<Value<*>>, isEnabled: (M) -> Boolean, after: String? = null): MutableList<Value<*>> {
+        val values = getValues0().toMutableList()
+
+        values.addAll(
+            after?.let { values.indexOfFirst { it.name == after } + 1 } ?: 0,
+            modes.map { mode ->
+            val modeName = getModeName(mode)
+                getValues(mode).onEach { value ->
+                    value.name = "$modeName-${value.name}"
+                    value.isSupported += { isEnabled(mode) }
+                }
+            }.flatten()
+        )
+
+        return values
+    }
 
     val isActive
         get() = !gameDetecting || !onlyInGameValue.get() || GameDetector.isInGame()

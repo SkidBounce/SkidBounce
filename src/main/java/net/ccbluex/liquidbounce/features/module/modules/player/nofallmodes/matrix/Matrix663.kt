@@ -16,11 +16,11 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
  * @author Aspw-w/NightX-Client
  */
 object Matrix663 : NoFallMode("Matrix6.6.3") {
-    private var packet = false
+    private var send = false
     private var timer = false
 
     override fun onEnable() {
-        packet = false
+        send = false
         timer = false
     }
 
@@ -30,17 +30,17 @@ object Matrix663 : NoFallMode("Matrix6.6.3") {
             timer = false
         }
 
-        if (mc.thePlayer.fallDistance - mc.thePlayer.motionY > 3F) {
-            mc.thePlayer.fallDistance = 0.0f
-            packet = true
+        if (mc.thePlayer.fallDistance - mc.thePlayer.motionY > 3f) {
+            mc.thePlayer.fallDistance = 0f
             mc.timer.timerSpeed = 0.5f
+            send = true
             timer = true
         }
     }
 
     override fun onPacket(event: PacketEvent) {
-        if (packet && event.packet is C03PacketPlayer) {
-            packet = false
+        if (event.packet is C03PacketPlayer && send) {
+            send = false
             event.cancelEvent()
             sendPacket(
                 C04PacketPlayerPosition(
@@ -48,8 +48,7 @@ object Matrix663 : NoFallMode("Matrix6.6.3") {
                     event.packet.y,
                     event.packet.z,
                     true
-                ),
-                false
+                )
             )
             sendPacket(
                 C04PacketPlayerPosition(
@@ -57,8 +56,7 @@ object Matrix663 : NoFallMode("Matrix6.6.3") {
                     event.packet.y,
                     event.packet.z,
                     false
-                ),
-                false
+                )
             )
         }
     }
