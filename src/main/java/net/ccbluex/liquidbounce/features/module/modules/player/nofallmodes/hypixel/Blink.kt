@@ -16,7 +16,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.simulateDe
 import net.ccbluex.liquidbounce.features.module.modules.player.NoFall.state
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.SimulatedPlayer
 import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.ccbluex.liquidbounce.utils.misc.FallingPlayer
@@ -51,7 +50,6 @@ object Blink : NoFallMode("Blink"), IBlink {
                 if (tick.hasTimePassed(100)) {
 //                    release(server = false)
                     blinkingClient = false
-                    displayClientMessage("Unblink")
 
                     if (autoOff) {
                         state = false
@@ -68,7 +66,6 @@ object Blink : NoFallMode("Blink"), IBlink {
                         event.packet.onGround = thePlayer.ticksExisted % 2 == 0
                     }
                 } else {
-                    displayClientMessage("rewriting ground")
 //                    release(server = false)
                     blinkingClient = false
                     event.packet.onGround = false
@@ -103,8 +100,6 @@ object Blink : NoFallMode("Blink"), IBlink {
             !checkFallDist && fallingPlayer.findCollision(60) != null && simPlayer.motionY < 0) {
             if (thePlayer.onGround && !blinkingClient) {
                 blinkingClient = true
-
-                displayClientMessage("Blinked")
             }
         }
     }
