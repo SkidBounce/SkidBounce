@@ -13,7 +13,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
  * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
-object Cardinal : NoFallMode("Cardinal") {
+object OldCardinalFlag : NoFallMode("OldCardinalFlag") {
     private var falling = false
 
     override fun onEnable() {
