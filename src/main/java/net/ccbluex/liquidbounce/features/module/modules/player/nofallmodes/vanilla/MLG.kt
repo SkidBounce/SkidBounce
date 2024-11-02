@@ -29,8 +29,8 @@ import kotlin.math.ceil
  * @author CCBlueX/LiquidBounce
  */
 object MLG : NoFallMode("MLG") {
-    private val minFallDistance by FloatValue("MLG-MinHeight", 5f, 2f..50f)
-    private val retrieveDelay by IntValue("MLG-RetrieveDelay", 100, 100..500)
+    private val minFallDistance by FloatValue("MinHeight", 5f, 2f..50f)
+    private val retrieveDelay by IntValue("RetrieveDelay", 100, 100..500)
 
     private val mlgTimer = TickTimer()
     private val retrieveTimer = MSTimer()
