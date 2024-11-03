@@ -28,7 +28,6 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.RotationUtils.getRotationDifference
 import net.ccbluex.liquidbounce.utils.RotationUtils.getVectorForRotation
-import net.ccbluex.liquidbounce.utils.RotationUtils.keepLength
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.toRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
@@ -265,14 +264,25 @@ object Scaffold : Module("Scaffold", WORLD) {
     private val minDist by FloatValue("MinDist", 0f, 0f..0.2f) { scaffoldMode !in arrayOf("GodBridge", "Telly") }
 
     // Turn Speed
-    private val maxTurnSpeedValue: FloatValue = object : FloatValue("MaxTurnSpeed", 180f, 1f..180f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minTurnSpeed)
+    private val maxHorizontalSpeedValue = object : FloatValue("MaxHorizontalSpeed", 180f, 1f..180f) {
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalSpeed)
         override fun isSupported() = rotationMode != "Off"
     }
-    private val maxTurnSpeed by maxTurnSpeedValue
-    private val minTurnSpeed by object : FloatValue("MinTurnSpeed", 180f, 1f..180f) {
-        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceIn(minimum, maxTurnSpeed)
-        override fun isSupported() = !maxTurnSpeedValue.isMinimal && rotationMode != "Off"
+    private val maxHorizontalSpeed by maxHorizontalSpeedValue
+
+    private val minHorizontalSpeed: Float by object : FloatValue("MinHorizontalSpeed", 180f, 1f..180f) {
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalSpeed)
+        override fun isSupported() = !maxHorizontalSpeedValue.isMinimal && rotationMode != "Off"
+    }
+
+    private val maxVerticalSpeedValue = object : FloatValue("MaxVerticalSpeed", 180f, 1f..180f) {
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minVerticalSpeed)
+    }
+    private val maxVerticalSpeed by maxVerticalSpeedValue
+
+    private val minVerticalSpeed: Float by object : FloatValue("MinVerticalSpeed", 180f, 1f..180f) {
+        override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxVerticalSpeed)
+        override fun isSupported() = !maxVerticalSpeedValue.isMinimal && rotationMode != "Off"
     }
 
     private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { rotationMode != "Off" && silentRotation }
@@ -544,37 +554,14 @@ object Scaffold : Module("Scaffold", WORLD) {
             update()
 
             if (rotationMode != "Off" && rotation != null) {
-                // Keep aiming at the target spot even if we have already placed
-                // Prevents rotation correcting itself after a bit of bridging
-                // Instead of doing it in the first place.
-                // Normally a rotation utils recode is needed to rotate regardless of placeRotation being null or not, but whatever.
-                val placeRotation = placeRotation?.rotation ?: rotation
-
-                val pitch = if (scaffoldMode == "GodBridge" && useStaticRotation) {
-                    if (placeRotation == this.placeRotation?.rotation) {
-                        if (isLookingDiagonally) 75.6f else 73.5f
-                    } else placeRotation.pitch
-                } else {
-                    placeRotation.pitch
-                }
-
-                val targetRotation = Rotation(placeRotation.yaw, pitch).fixedSensitivity()
-
-                val limitedRotation = RotationUtils.limitAngleChange(
-                    rotation,
-                    targetRotation,
-                    nextFloat(minTurnSpeed, maxTurnSpeed),
-                    smootherMode
-                )
-
                 val ticks = if (keepRotation) {
                     if (scaffoldMode == "Telly") 1 else keepTicks
                 } else {
-                    keepLength
+                    RotationUtils.resetTicks
                 }
 
-                if (keepLength != 0 || keepRotation) {
-                    setRotation(limitedRotation, ticks)
+                if (RotationUtils.resetTicks != 0 || keepRotation) {
+                    setRotation(rotation, ticks)
                 }
             }
         }
@@ -590,7 +577,7 @@ object Scaffold : Module("Scaffold", WORLD) {
             setTargetRotation(
                 lockRotation!!.fixedSensitivity(),
                 strafe =  strafe,
-                resetSpeed = minTurnSpeed to maxTurnSpeed,
+                turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
                 smootherMode = smootherMode
             )
         }
@@ -1002,7 +989,7 @@ object Scaffold : Module("Scaffold", WORLD) {
                 rotation,
                 ticks,
                 strafe,
-                resetSpeed = minTurnSpeed to maxTurnSpeed,
+                turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
                 angleThresholdForReset = angleThresholdUntilReset,
                 smootherMode = smootherMode
             )
@@ -1040,9 +1027,6 @@ object Scaffold : Module("Scaffold", WORLD) {
                 shouldPlaceHorizontally
             ))
         ) {
-            /*if (mode != "GodBridge" || wrapAngleTo180_float(currRotation.yaw.toInt().toFloat()) in arrayOf(-135f, -45f, 45f, 135f)) {
-                placeRotation = null
-            }*/
             return
         }
 
@@ -1434,14 +1418,7 @@ object Scaffold : Module("Scaffold", WORLD) {
                 }
             }
 
-            val limitedRotation = RotationUtils.limitAngleChange(
-                currRotation,
-                targetRotation,
-                nextFloat(minTurnSpeed, maxTurnSpeed),
-                smootherMode
-            )
-
-            setRotation(limitedRotation, if (scaffoldMode == "Telly") 1 else keepTicks)
+            setRotation(targetRotation, if (scaffoldMode == "Telly") 1 else keepTicks)
         }
         this.placeRotation = placeRotation
         return true
@@ -1712,6 +1689,10 @@ object Scaffold : Module("Scaffold", WORLD) {
                 blocksPlacedUntilJump++
 
             updatePlacedBlocksForTelly()
+
+            if (clickPos == placeRotation?.placeInfo?.blockPos) {
+                placeRotation = null
+            }
 
             if (stack.stackSize <= 0) {
                 thePlayer.inventory.mainInventory[serverSlot] = null

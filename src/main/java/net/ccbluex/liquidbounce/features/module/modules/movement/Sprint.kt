@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.SuperKnockback
 import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
-import net.ccbluex.liquidbounce.utils.RotationUtils.strict
+import net.ccbluex.liquidbounce.utils.RotationUtils.rotationData
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
@@ -121,7 +121,7 @@ object Sprint : Module("Sprint", MOVEMENT, gameDetecting = false) {
             return
 
         val modifiedForward =
-            if (currentRotation != null && strict) mc.thePlayer.movementInput.moveForward
+            if (currentRotation != null && rotationData?.strict == true) mc.thePlayer.movementInput.moveForward
             else movementInput.moveForward
 
         if (modifiedForward > 0f && !limitSpeedForwards)
@@ -164,7 +164,7 @@ object Sprint : Module("Sprint", MOVEMENT, gameDetecting = false) {
             else abs(mc.thePlayer.movementInput.moveForward) <= 0f
 
         val modifiedInputForward =
-            if (currentRotation != null && strict) mc.thePlayer.movementInput.moveForward
+            if (currentRotation != null && rotationData?.strict == true) mc.thePlayer.movementInput.moveForward
             else movementInput.moveForward
 
         val modifiedForward =

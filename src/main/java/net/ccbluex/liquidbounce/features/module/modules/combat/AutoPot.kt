@@ -87,7 +87,9 @@ object AutoPot : Module("AutoPot", COMBAT) {
                     sendPacket(C09PacketHeldItemChange(potion - 36))
 
                     if (thePlayer.rotationPitch <= 80F) {
-                        setTargetRotation(Rotation(thePlayer.rotationYaw, nextFloat(80F, 90F)).fixedSensitivity())
+                        setTargetRotation(Rotation(thePlayer.rotationYaw, nextFloat(80F, 90F)).fixedSensitivity(),
+                            immediate = true
+                        )
                     }
                     return
                 }

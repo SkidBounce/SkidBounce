@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory.COMBAT
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
-import net.ccbluex.liquidbounce.utils.RotationUtils.keepLength
+import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findItem
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
@@ -59,8 +59,7 @@ object Ignite : Module("Ignite", COMBAT) {
                     blockPos.getBlock() !is BlockAir
                 ) continue
 
-                // Probably used to prevent rotation changes while igniting
-                keepLength += 1
+                RotationUtils.resetTicks++
 
                 serverSlot = fireInHotbar - 36
 
