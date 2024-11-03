@@ -66,9 +66,9 @@ object AimBot : Module("AimBot", COMBAT) {
 
             Backtrack.runWithNearestTrackedDistance(it) {
                 result = isSelected(it, true)
-                        && thePlayer.canEntityBeSeen(it)
-                        && thePlayer.getDistanceToEntityBox(it) <= range
-                        && getRotationDifference(it) <= fov
+                    && thePlayer.canEntityBeSeen(it)
+                    && thePlayer.getDistanceToEntityBox(it) <= range
+                    && getRotationDifference(it) <= fov
             }
 
             result

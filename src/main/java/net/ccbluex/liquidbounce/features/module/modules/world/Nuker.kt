@@ -147,7 +147,11 @@ object Nuker : Module("Nuker", WORLD, gameDetecting = false) {
                 // Change head rotations to next block
                 if (rotations) {
                     val rotation = faceBlock(blockPos) ?: return // In case of a mistake. Prevent flag.
-                    setTargetRotation(rotation.rotation, strafe = strafe != "Off", strict = strafe == "Strict")
+                    setTargetRotation(rotation.rotation,
+                        strafe = strafe != "Off",
+                        strict = strafe == "Strict",
+                        immediate = true
+                    )
                 }
 
                 // Set next target block
