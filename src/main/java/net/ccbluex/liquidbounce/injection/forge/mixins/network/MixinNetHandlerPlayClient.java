@@ -209,9 +209,7 @@ public abstract class MixinNetHandlerPlayClient {
 
         Rotation rotation = player.ticksExisted == 0 ? RotationUtils.INSTANCE.getServerRotation() : noRotate.getSavedRotation();
 
-        Rotation currentRotation = RotationUtils.INSTANCE.getCurrentRotation();
-
-        if (currentRotation != null && noRotate.getAffectServerRotation()) {
+        if (noRotate.getAffectRotation()) {
             noRotate.rotateBackToPlayerRotation();
         }
 

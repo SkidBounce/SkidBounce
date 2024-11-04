@@ -226,15 +226,11 @@ object KillAura : Module("KillAura", COMBAT) {
     private val useHitDelay by BooleanValue("UseHitDelay", false)
     private val hitDelayTicks by IntValue("HitDelayTicks", 1, 1..5) { useHitDelay }
 
+    // Rotations
     private val keepRotationTicks by object : IntValue("KeepRotationTicks", 5, 1..20) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minimum)
     }
     private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f)
-    private val micronizedValue = BooleanValue("Micronized", true)
-    private val micronized by micronizedValue
-    private val micronizedStrength by FloatValue("MicronizedStrength", 0.8f, 0.2f..2f) { micronizedValue.isActive() }
-
-    // Rotations
     private val silentRotationValue = BooleanValue("SilentRotation", true)
     private val silentRotation by silentRotationValue
     private val rotationStrafe by ListValue(
@@ -825,7 +821,8 @@ object KillAura : Module("KillAura", COMBAT) {
             return false
         }
 
-        setTargetRotation(rotation,
+        setTargetRotation(
+            rotation,
             keepRotationTicks,
             !(!silentRotation || rotationStrafe == "Off"),
             rotationStrafe == "Strict",

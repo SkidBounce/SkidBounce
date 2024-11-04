@@ -594,6 +594,12 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         val playerRotation = player.rotation
 
+        val shouldUpdate = !InventoryUtils.serverOpenContainer && !InventoryUtils.serverOpenInventory
+
+        if (!shouldUpdate) {
+            return
+        }
+
         if (resetTicks == 0) {
             val distanceToPlayerRotation = getRotationDifference(currentRotation ?: serverRotation, playerRotation)
 
@@ -606,12 +612,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
                 playerRotation,
                 data
             ).fixedSensitivity()
-            return
-        }
-
-        val shouldUpdate = !InventoryUtils.serverOpenContainer
-
-        if (!shouldUpdate) {
             return
         }
 

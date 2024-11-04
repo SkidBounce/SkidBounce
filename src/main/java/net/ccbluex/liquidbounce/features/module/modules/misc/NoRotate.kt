@@ -20,34 +20,34 @@ object NoRotate : Module("NoRotate", MISC, gameDetecting = false) {
     var savedRotation = Rotation(0f, 0f)
 
     private val ignoreOnSpawn by BooleanValue("IgnoreOnSpawn", false)
-    val affectServerRotation by BooleanValue("AffectServerRotation", true)
+    val affectRotation by BooleanValue("AffectRotation", true)
 
-    private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { affectServerRotation }
-    private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { affectServerRotation }
+    private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { affectRotation }
+    private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { affectRotation }
 
     private val maxHorizontalSpeedValue = object : FloatValue("MaxHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalSpeed)
-        override fun isSupported() = affectServerRotation
+        override fun isSupported() = affectRotation
     }
     private val maxHorizontalSpeed by maxHorizontalSpeedValue
 
     private val minHorizontalSpeed: Float by object : FloatValue("MinHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalSpeed)
-        override fun isSupported() = !maxHorizontalSpeedValue.isMinimal && affectServerRotation
+        override fun isSupported() = !maxHorizontalSpeedValue.isMinimal && affectRotation
     }
 
     private val maxVerticalSpeedValue = object : FloatValue("MaxVerticalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minVerticalSpeed)
-        override fun isSupported() = affectServerRotation
+        override fun isSupported() = affectRotation
     }
     private val maxVerticalSpeed by maxVerticalSpeedValue
 
     private val minVerticalSpeed: Float by object : FloatValue("MinVerticalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxVerticalSpeed)
-        override fun isSupported() = !maxVerticalSpeedValue.isMinimal && affectServerRotation
+        override fun isSupported() = !maxVerticalSpeedValue.isMinimal && affectRotation
     }
 
-    private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { affectServerRotation }
+    private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { affectRotation }
 
     fun shouldModify(player: EntityPlayer) = handleEvents() && (!ignoreOnSpawn || player.ticksExisted != 0)
 
