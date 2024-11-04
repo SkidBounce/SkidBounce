@@ -37,7 +37,7 @@ object ModuleManager : Listenable {
             this
         }
 
-        // Register modules which have already been instanced (Kotlin objects)
+        // Register modules
         registerModules(*classes.getAllObjects())
 
         InventoryManager.startCoroutine()

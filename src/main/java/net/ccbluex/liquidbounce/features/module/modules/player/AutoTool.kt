@@ -15,15 +15,18 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.minecraft.util.BlockPos
 
 object AutoTool : Module("AutoTool", PLAYER, gameDetecting = false) {
-
     private val fakeItem by BooleanValue("FakeItem", false)
     private val switchBack by BooleanValue("SwitchBack", false)
-    var formerSlot = -1;
+    private val onlySneaking by BooleanValue("OnlySneaking", false)
+
+    private var formerSlot = -1
 
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
         switchSlot(event.clickedBlock ?: return)
     }
+
+
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
@@ -42,6 +45,8 @@ object AutoTool : Module("AutoTool", PLAYER, gameDetecting = false) {
         var bestSlot = -1
 
         val blockState = mc.theWorld.getBlockState(blockPos)
+
+        if (onlySneaking && !mc.thePlayer.isSneaking) return
 
         for (i in 0..8) {
             val item = mc.thePlayer.inventory.getStackInSlot(i) ?: continue

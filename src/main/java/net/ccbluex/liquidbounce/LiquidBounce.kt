@@ -48,14 +48,24 @@ import kotlin.concurrent.thread
 
 object LiquidBounce {
 
-    // Client information
+    /**
+     * Client Information
+     *
+     * This has all of the basic information.
+     */
     const val CLIENT_NAME = "SkidBounce"
+    const val CLIENT_AUTHOR = "CCBlueX"
+    const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
+    const val CLIENT_WEBSITE = "liquidbounce.net"
+
     val clientVersionText = gitInfo["git.build.version"]?.toString() ?: "unknown"
     val clientCommit = gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown"
+
+    /**
+     * Defines if the client is in development mode.
+     * This will enable update checking on commit time instead of regular legacy versioning.
+     */
     const val IN_DEV = true
-    const val CLIENT_CREATOR = "CCBlueX"
-    const val CLIENT_WEBSITE = "liquidbounce.net"
-    const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
 
     val clientTitle = "$CLIENT_NAME $clientVersionText ${if (IN_DEV) clientCommit else ""}"
 
