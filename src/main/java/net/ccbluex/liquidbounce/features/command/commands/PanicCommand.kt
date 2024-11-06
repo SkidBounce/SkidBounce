@@ -8,7 +8,6 @@ package net.ccbluex.liquidbounce.features.command.commands
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.command.Command
 import net.ccbluex.liquidbounce.features.module.Category
-import net.ccbluex.liquidbounce.features.module.Category.*
 
 object PanicCommand : Command("panic") {
     /**
@@ -23,20 +22,20 @@ object PanicCommand : Command("panic") {
                 "all" -> msg = "all"
 
                 "nonrender" -> {
-                    modules = modules.filter { it.category !in listOf(RENDER, CLIENT, TARGETS) }
+                    modules = modules.filter { it.category !in listOf(Category.RENDER, Category.CLIENT, Category.TARGETS) }
                     msg = "all non-render"
                 }
 
                 else -> {
                     val categories = Category.entries.filter { it.displayName.equals(args[1], true) }
 
-                    if (categories.isEmpty() || categories.all { it == TARGETS }) {
+                    if (categories.isEmpty() || categories.all { it == Category.TARGETS }) {
                         chat("Category ${args[1]} not found")
                         return
                     }
 
                     val category = categories[0]
-                    modules = modules.filter { it.category == category && it.category != TARGETS }
+                    modules = modules.filter { it.category == category && it.category != Category.TARGETS }
                     msg = "all ${category.displayName}"
                 }
             }
