@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Not
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import java.awt.Desktop
 import java.io.File
+import java.io.FileFilter
 import java.io.IOException
 
 object ThemeCommand : Command("themes", "theme") {
@@ -36,7 +37,7 @@ object ThemeCommand : Command("themes", "theme") {
                     return
                 }
 
-                val themeFile = File(themesDir, args[2])
+                val themeFile = File(themesDir, args[2] + ".json")
                 val hudFile = File(dir, "hud.json")
 
                 if (!themeFile.exists()) {
@@ -62,7 +63,7 @@ object ThemeCommand : Command("themes", "theme") {
                     return
                 }
 
-                val themeFile = File(themesDir, args[2])
+                val themeFile = File(themesDir, args[2] + ".json")
 
                 try {
                     if (themeFile.exists())
@@ -88,7 +89,7 @@ object ThemeCommand : Command("themes", "theme") {
                     return
                 }
 
-                val themeFile = File(themesDir, args[2])
+                val themeFile = File(themesDir, args[2] + ".json")
 
                 if (!themeFile.exists()) {
                     chat("§cTheme file does not exist!")
@@ -105,7 +106,9 @@ object ThemeCommand : Command("themes", "theme") {
                 val themes = getLocalThemes() ?: return
 
                 for (file in themes) {
-                    chat("> " + file.name)
+                    val fileName = file.name.removeSuffix(".json")
+
+                    chat("> $fileName")
                 }
             }
 
@@ -127,7 +130,7 @@ object ThemeCommand : Command("themes", "theme") {
                         val themes = getLocalThemes() ?: return emptyList()
 
                         themes
-                            .map { it.name }
+                            .map { it.name.replace(".json", "") }
                             .filter { it.startsWith(args[1], true) }
                     }
 
@@ -138,5 +141,5 @@ object ThemeCommand : Command("themes", "theme") {
         }
     }
 
-    private fun getLocalThemes() = themesDir.listFiles()
+    private fun getLocalThemes() = themesDir.listFiles(FileFilter { it.extension == "json" })
 }
