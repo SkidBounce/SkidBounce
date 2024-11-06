@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render2DEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
@@ -17,12 +17,12 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.shader.shaders.GlowShader
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
 import net.ccbluex.liquidbounce.value.IntValue
+import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.item.EntityItem
 import java.awt.Color
 
-object ItemESP : Module("ItemESP", RENDER) {
+object ItemESP : Module("ItemESP", Category.RENDER) {
     private val mode by ListValue("Mode", arrayOf("Box", "OtherBox", "Glow"), "Box")
 
     private val glowRenderScale by FloatValue("Glow-Renderscale", 1f, 0.5f..2f) { mode == "Glow" }

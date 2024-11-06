@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.timing.TimeUtils.randomClickDelay
@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.client.settings.KeyBinding
 
-object TriggerBot : Module("TriggerBot", COMBAT) {
+object TriggerBot : Module("TriggerBot", Category.COMBAT) {
 
     private val simulateDoubleClicking by BooleanValue("SimulateDoubleClicking", false)
 

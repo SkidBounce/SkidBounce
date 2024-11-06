@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.TickEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
@@ -22,7 +22,7 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C0EPacketClickWindow
 
-object Refill : Module("Refill", PLAYER) {
+object Refill : Module("Refill", Category.PLAYER) {
     private val delay by IntValue("Delay", 400, 10..1000)
 
     private val minItemAge by IntValue("MinItemAge", 400, 0..1000)

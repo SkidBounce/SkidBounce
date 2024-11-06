@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.features.module.ModuleManager.modules
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
@@ -23,7 +23,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
  * @see net.ccbluex.liquidbounce.features.module.AutoDisable
  * @see net.ccbluex.liquidbounce.file.configs.ModulesConfig
  */
-object AutoDisable : Module("AutoDisable", CLIENT, canBeEnabled = false) {
+object AutoDisable : Module("AutoDisable", Category.CLIENT, canBeEnabled = false) {
     private val chat by BooleanValue("Chat", true)
     private val notification by BooleanValue("Notification", false)
 

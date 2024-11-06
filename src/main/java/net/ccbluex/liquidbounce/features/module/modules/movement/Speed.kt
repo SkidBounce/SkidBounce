@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac.AACGround
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac.AACGround2
@@ -28,7 +28,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 
-object Speed : Module("Speed", MOVEMENT) {
+object Speed : Module("Speed", Category.MOVEMENT) {
     private val speedModes = javaClass.`package`.getAllObjects<SpeedMode>().sortedBy { it.modeName }
 
     private val moduleModes = speedModes.map { it.modeName }.toTypedArray()

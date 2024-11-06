@@ -5,16 +5,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.ClickBlockEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
-import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.utils.render.FakeItemRender
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.minecraft.util.BlockPos
 
-object AutoTool : Module("AutoTool", PLAYER, gameDetecting = false) {
+object AutoTool : Module("AutoTool", Category.PLAYER, gameDetecting = false) {
     private val fakeItem by BooleanValue("FakeItem", false)
     private val switchBack by BooleanValue("SwitchBack", false)
     private val onlySneaking by BooleanValue("OnlySneaking", false)

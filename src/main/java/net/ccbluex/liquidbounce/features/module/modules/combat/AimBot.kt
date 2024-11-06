@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RotationUtils.getRotationDifference
@@ -27,7 +27,7 @@ import net.minecraft.entity.Entity
 import java.util.*
 import kotlin.math.atan
 
-object AimBot : Module("AimBot", COMBAT) {
+object AimBot : Module("AimBot", Category.COMBAT) {
     private val horizontalAim by BooleanValue("HorizontalAim", true)
     private val verticalAim by BooleanValue("VerticalAim", true)
     private val range by FloatValue("Range", 4.4F, 1F..8F)

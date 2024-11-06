@@ -7,12 +7,12 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.minecraft.init.Blocks.air
 
-object AutoBreak : Module("AutoBreak", WORLD, gameDetecting = false) {
+object AutoBreak : Module("AutoBreak", Category.WORLD, gameDetecting = false) {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {

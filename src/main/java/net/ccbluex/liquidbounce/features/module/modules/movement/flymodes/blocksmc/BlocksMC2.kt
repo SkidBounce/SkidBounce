@@ -27,8 +27,8 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.Packet
+import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S40PacketDisconnect
 import net.minecraft.network.status.client.C00PacketServerQuery

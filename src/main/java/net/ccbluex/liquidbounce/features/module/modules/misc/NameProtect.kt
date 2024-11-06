@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.translateAlternateColorCodes
 import net.ccbluex.liquidbounce.value.BooleanValue
@@ -20,7 +20,7 @@ import net.minecraft.network.play.server.S40PacketDisconnect
 import java.util.*
 import kotlin.random.Random
 
-object NameProtect : Module("NameProtect", MISC, subjective = true, gameDetecting = false) {
+object NameProtect : Module("NameProtect", Category.MISC, subjective = true, gameDetecting = false) {
 
     val allPlayers by BooleanValue("AllPlayers", false)
 

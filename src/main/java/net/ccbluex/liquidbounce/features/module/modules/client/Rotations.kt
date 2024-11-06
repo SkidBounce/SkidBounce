@@ -7,14 +7,14 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.features.module.modules.misc.Derp
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.serverRotation
 import net.ccbluex.liquidbounce.value.BooleanValue
 
-object Rotations : Module("Rotations", CLIENT, gameDetecting = false, defaultInArray = false, subjective = true) {
+object Rotations : Module("Rotations", Category.CLIENT, gameDetecting = false, defaultInArray = false, subjective = true) {
 
     private val realistic by BooleanValue("Realistic", true)
     private val body by BooleanValue("Body", true) { !realistic }

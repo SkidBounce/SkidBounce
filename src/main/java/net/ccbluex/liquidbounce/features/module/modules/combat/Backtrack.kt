@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.EventState.RECEIVE
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.targets.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.targets.Friends
@@ -41,7 +41,7 @@ import java.awt.Color
 import java.util.*
 import java.util.concurrent.*
 
-object Backtrack : Module("Backtrack", COMBAT) {
+object Backtrack : Module("Backtrack", Category.COMBAT) {
     private val delay by object : IntValue("Delay", 80, 0..700) {
         override fun onChange(oldValue: Int, newValue: Int): Int {
             if (mode == "Modern")

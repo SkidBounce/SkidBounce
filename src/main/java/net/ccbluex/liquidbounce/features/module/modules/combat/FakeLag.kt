@@ -3,15 +3,17 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge, Forked from LiquidBounce.
  * https://github.com/SkidBounce/SkidBounce/
  */
-package net.ccbluex.liquidbounce.features.module.modules.player
+package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.GameLoopEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
+import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.render.Breadcrumbs
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -37,7 +39,7 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-object FakeLag : Module("FakeLag", COMBAT, gameDetecting = false) {
+object FakeLag : Module("FakeLag", Category.COMBAT, gameDetecting = false) {
 
     private val delay by IntValue("Delay", 550, 0..1000)
     private val recoilTime by IntValue("RecoilTime", 750, 0..2000)

@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.EventState.POST
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton.RIGHT
@@ -71,7 +71,7 @@ import java.lang.System.currentTimeMillis
 import javax.vecmath.Color3f
 import kotlin.math.*
 
-object Scaffold : Module("Scaffold", WORLD) {
+object Scaffold : Module("Scaffold", Category.WORLD) {
 
     /**
      * TOWER MODES & SETTINGS

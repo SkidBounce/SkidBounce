@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getMaterial
@@ -18,7 +18,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 import org.apache.commons.lang3.BooleanUtils.xor
 
-object IceSpeed : Module("IceSpeed", MOVEMENT) {
+object IceSpeed : Module("IceSpeed", Category.MOVEMENT) {
     private val mode by ListValue("Mode", arrayOf("Friction", "AAC", "Spartan", "TakaAC").sortedArray(), "Friction")
     private val iceFriction by FloatValue("IceFriction", 0.39f, 0.1f..0.98f) { mode == "Friction" }
     private val strafeIceFriction by FloatValue("StrafeIceFriction", 0.39f, 0.1f..0.98f) { mode == "Friction" }

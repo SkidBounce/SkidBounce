@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.targets.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.targets.Teams
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
@@ -18,8 +18,8 @@ import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
-import net.ccbluex.liquidbounce.value.ListValue
 import net.ccbluex.liquidbounce.value.IntValue
+import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -27,7 +27,7 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-object Tracers : Module("Tracers", RENDER) {
+object Tracers : Module("Tracers", Category.RENDER) {
 
     private val colorMode by ListValue("Color", arrayOf("Custom", "DistanceColor", "Rainbow"), "Custom")
     private val colorRed by IntValue(

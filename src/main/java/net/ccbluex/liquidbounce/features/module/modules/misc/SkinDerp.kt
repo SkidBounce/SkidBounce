@@ -7,15 +7,15 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.entity.player.EnumPlayerModelParts
 import kotlin.random.Random.Default.nextBoolean
 
-object SkinDerp : Module("SkinDerp", MISC) {
+object SkinDerp : Module("SkinDerp", Category.MISC) {
 
     private val delay by IntValue("Delay", 0, 0..1000)
     private val hat by BooleanValue("Hat", true)

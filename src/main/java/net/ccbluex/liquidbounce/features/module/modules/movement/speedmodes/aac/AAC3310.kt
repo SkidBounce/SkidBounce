@@ -8,10 +8,10 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.aac
 import net.ccbluex.liquidbounce.event.events.MoveEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
-import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.baseMoveSpeed
 import net.ccbluex.liquidbounce.utils.MovementUtils.getJumpBoostModifier
+import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
+import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.minecraft.client.settings.GameSettings.isKeyDown
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 

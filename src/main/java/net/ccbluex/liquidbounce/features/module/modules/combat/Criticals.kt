@@ -5,11 +5,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticalsmodes.CriticalsMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.EntityLivingBase
 
-object Criticals : Module("Criticals", COMBAT) {
+object Criticals : Module("Criticals", Category.COMBAT) {
     private val criticalsModes = javaClass.`package`.getAllObjects<CriticalsMode>().sortedBy { it.modeName }
     private val modeModule get() = criticalsModes.find { it.modeName == mode }!!
 

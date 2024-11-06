@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.targets
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.TARGETS
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.minecraft.entity.EntityLivingBase
 
-object Teams : Module("Teams", TARGETS, gameDetecting = false) {
+object Teams : Module("Teams", Category.TARGETS, gameDetecting = false) {
 
     private val scoreboard by BooleanValue("ScoreboardTeam", true)
     private val color by BooleanValue("Color", true)

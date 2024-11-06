@@ -9,8 +9,8 @@ import kotlinx.coroutines.delay
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.Render2DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeSortedTo
@@ -40,7 +40,7 @@ import net.minecraft.network.play.server.S2EPacketCloseWindow
 import net.minecraft.network.play.server.S30PacketWindowItems
 import java.awt.Color
 
-object ChestStealer : Module("ChestStealer", WORLD) {
+object ChestStealer : Module("ChestStealer", Category.WORLD) {
 
     private val maxDelay: Int by object : IntValue("MaxDelay", 50, 0..500) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)

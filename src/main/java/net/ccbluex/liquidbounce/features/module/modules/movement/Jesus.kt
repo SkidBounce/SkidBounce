@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.movement.jesusmodes.JesusMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlock
@@ -25,7 +25,7 @@ import net.minecraft.block.material.Material.air
 import net.minecraft.util.AxisAlignedBB.fromBounds
 import net.minecraft.util.BlockPos
 
-object Jesus : Module("Jesus", MOVEMENT) {
+object Jesus : Module("Jesus", Category.MOVEMENT) {
     private val jesusModes = javaClass.`package`.getAllObjects<JesusMode>().sortedBy { it.modeName }
 
     val mode by ListValue("Mode", jesusModes.map { it.modeName }.toTypedArray(), "Vanilla")

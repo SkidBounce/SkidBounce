@@ -6,15 +6,15 @@
 package net.ccbluex.liquidbounce.features.module.modules.player
 
 import kotlinx.coroutines.delay
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoArmor
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isFullBlock
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInLastLoop
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
@@ -35,7 +35,7 @@ import net.minecraft.init.Items
 import net.minecraft.item.*
 import net.minecraft.potion.Potion
 
-object InventoryCleaner : Module("InventoryCleaner", PLAYER) {
+object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
     private val drop by BooleanValue("Drop", true)
     val sort by BooleanValue("Sort", true)
 

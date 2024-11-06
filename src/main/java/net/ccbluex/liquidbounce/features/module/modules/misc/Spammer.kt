@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_NAME
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.randomString
@@ -19,7 +19,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.TextValue
 
-object Spammer : Module("Spammer", MISC) {
+object Spammer : Module("Spammer", Category.MISC) {
     private val maxDelayValue: IntValue = object : IntValue("MaxDelay", 1000, 0..5000) {
         override fun onChange(oldValue: Int, newValue: Int) = newValue.coerceAtLeast(minDelay)
 

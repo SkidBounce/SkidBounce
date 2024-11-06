@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.JumpEvent
 import net.ccbluex.liquidbounce.event.events.MoveEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.movement.longjumpmodes.LongJumpMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 
-object LongJump : Module("LongJump", MOVEMENT) {
+object LongJump : Module("LongJump", Category.MOVEMENT) {
     private val longJumpModes = javaClass.`package`.getAllObjects<LongJumpMode>().sortedBy { it.modeName }
 
     private val modes = longJumpModes.map { it.modeName }.toTypedArray()

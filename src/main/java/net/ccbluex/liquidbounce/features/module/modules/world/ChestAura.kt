@@ -5,13 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TickEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
@@ -46,7 +47,7 @@ import java.util.*
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-object ChestAura : Module("ChestAura", WORLD) {
+object ChestAura : Module("ChestAura", Category.WORLD) {
 
     private val chest by BooleanValue("Chest", true)
     private val enderChest by BooleanValue("EnderChest", false)

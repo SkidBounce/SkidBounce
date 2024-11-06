@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.PacketType.SERVER
 import net.ccbluex.liquidbounce.utils.PacketUtils.type
@@ -36,7 +36,7 @@ import net.minecraft.network.status.server.S01PacketPong
 import net.minecraft.util.Vec3
 import net.minecraft.util.Vec3i
 
-object PacketDebugger : Module("PacketDebugger", CLIENT, gameDetecting = false) {
+object PacketDebugger : Module("PacketDebugger", Category.CLIENT, gameDetecting = false) {
     private val fieldsValue = BooleanValue("ShowFields", true)
     private val fields by fieldsValue
     private val rawFieldNamesValue = BooleanValue("RawFieldNames", false) { fields }

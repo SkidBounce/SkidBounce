@@ -12,9 +12,9 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2Delay
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2GroundSpoof
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2GroundSpoofOnlyClip
-import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2Timer
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2H
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2Max
+import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2Timer
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly.clip2Y
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
 import net.ccbluex.liquidbounce.utils.extensions.*

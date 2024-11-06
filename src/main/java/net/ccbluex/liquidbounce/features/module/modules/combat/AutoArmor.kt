@@ -6,8 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import kotlinx.coroutines.delay
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.InventoryCleaner.canBeRepairedWithOther
 import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
@@ -29,7 +29,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 
-object AutoArmor : Module("AutoArmor", COMBAT) {
+object AutoArmor : Module("AutoArmor", Category.COMBAT) {
     private val maxDelay: Int by object : IntValue(
         "MaxDelay",
         50,

@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.targets
 
-import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.TARGETS
 import net.ccbluex.liquidbounce.utils.extensions.getFullName
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.ccbluex.liquidbounce.value.BooleanValue
@@ -20,13 +20,9 @@ import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.network.play.server.S0BPacketAnimation
-import net.minecraft.network.play.server.S13PacketDestroyEntities
-import net.minecraft.network.play.server.S14PacketEntity
-import net.minecraft.network.play.server.S1CPacketEntityMetadata
-import net.minecraft.network.play.server.S20PacketEntityProperties
+import net.minecraft.network.play.server.*
 
-object AntiBot : Module("AntiBot", TARGETS) {
+object AntiBot : Module("AntiBot", Category.TARGETS) {
 
     private val tab by BooleanValue("Tab", true)
     private val tabMode by ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains") { tab }

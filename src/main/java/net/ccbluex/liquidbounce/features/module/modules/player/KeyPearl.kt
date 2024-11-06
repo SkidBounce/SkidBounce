@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.TickEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils
@@ -22,7 +22,7 @@ import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 
-object KeyPearl : Module("KeyPearl", PLAYER, gameDetecting = false) {
+object KeyPearl : Module("KeyPearl", Category.PLAYER, gameDetecting = false) {
 
     private val delayedSlotSwitch by BooleanValue("DelayedSlotSwitch", true)
     private val mouse by BooleanValue("Mouse", false, subjective = true)

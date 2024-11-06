@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.AttackEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.attackDamage
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
@@ -21,7 +21,7 @@ import net.minecraft.item.ItemTool
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK
 
-object AutoWeapon : Module("AutoWeapon", COMBAT) {
+object AutoWeapon : Module("AutoWeapon", Category.COMBAT) {
 
     private val onlySword by BooleanValue("OnlySword", false)
 

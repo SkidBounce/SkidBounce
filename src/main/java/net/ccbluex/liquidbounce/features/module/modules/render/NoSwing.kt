@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.value.BooleanValue
 
-object NoSwing : Module("NoSwing", RENDER) {
+object NoSwing : Module("NoSwing", Category.RENDER) {
     val serverSide by BooleanValue("ServerSide", true)
 }

@@ -13,8 +13,8 @@ import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.minecraft.network.play.client.C0BPacketEntityAction
-import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SPRINTING
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SPRINTING
+import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SPRINTING
 
 /**
  * @author CCBlueX/LiquidBounce

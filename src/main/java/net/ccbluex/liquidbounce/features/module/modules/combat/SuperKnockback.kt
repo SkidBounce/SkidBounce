@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
@@ -25,7 +25,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.*
 import kotlin.math.abs
 
-object SuperKnockback : Module("SuperKnockback", COMBAT) {
+object SuperKnockback : Module("SuperKnockback", Category.COMBAT) {
 
     private val delay by IntValue("Delay", 0, 0..500)
     private val hurtTime by IntValue("HurtTime", 10, 0..10)

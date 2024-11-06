@@ -8,15 +8,15 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 
-object Timer : Module("Timer", WORLD, gameDetecting = false) {
+object Timer : Module("Timer", Category.WORLD, gameDetecting = false) {
 
     private val mode by ListValue("Mode", arrayOf("OnMove", "NoMove", "Always"), "OnMove")
     private val random by BooleanValue("Random", false)

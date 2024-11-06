@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.value.BooleanValue
@@ -18,7 +18,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.util.*
 
-object Breadcrumbs : Module("Breadcrumbs", RENDER) {
+object Breadcrumbs : Module("Breadcrumbs", Category.RENDER) {
     val colorRainbow by BooleanValue("Rainbow", false)
     val colorRed by IntValue("R", 255, 0..255) { !colorRainbow }
     val colorGreen by IntValue("G", 179, 0..255) { !colorRainbow }

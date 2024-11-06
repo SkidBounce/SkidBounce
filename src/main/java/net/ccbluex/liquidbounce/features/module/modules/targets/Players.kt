@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.targets
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.TARGETS
 
-object Players : Module("Players", TARGETS, gameDetecting = false, defaultInArray = false, defaultEnabled = true)
+object Players : Module("Players", Category.TARGETS, gameDetecting = false, defaultInArray = false, defaultEnabled = true)

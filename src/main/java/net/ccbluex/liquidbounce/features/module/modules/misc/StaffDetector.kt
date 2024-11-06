@@ -5,15 +5,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import net.ccbluex.liquidbounce.LiquidBounce.hud
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
+import net.ccbluex.liquidbounce.LiquidBounce.hud
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
-import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage

@@ -10,8 +10,8 @@ import net.ccbluex.liquidbounce.event.events.BlockBBEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.utils.MovementUtils.aboveVoid
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -40,7 +40,7 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
 
-object AntiVoid : Module("AntiVoid", MOVEMENT) {
+object AntiVoid : Module("AntiVoid", Category.MOVEMENT) {
     private val mode by ListValue(
         "Mode",
         arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "MotionTeleport-Flag", "GhostBlock").sortedArray(),

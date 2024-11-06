@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.SlowDownEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BlockingNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BowNoSlow
@@ -20,21 +20,24 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.Con
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP.shouldSwap
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP2
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.*
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.Vanilla
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.isSplashPotion
 import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverUsing
-import net.ccbluex.liquidbounce.value.*
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.FloatValue
+import net.ccbluex.liquidbounce.value.ListValue
+import net.ccbluex.liquidbounce.value.Value
 import net.minecraft.init.Blocks
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SNEAKING
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAKING
 
-object NoSlow : Module("NoSlow", MOVEMENT, gameDetecting = false) {
+object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     private val blocking by BooleanValue("Blocking", true)
     private val consume by BooleanValue("Consume", true)
     private val bow by BooleanValue("Bow", true)

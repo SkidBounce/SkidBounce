@@ -11,8 +11,8 @@ import net.ccbluex.liquidbounce.chat.packet.packets.*
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayChatMessage
 import net.ccbluex.liquidbounce.utils.login.UserUtils
@@ -28,7 +28,7 @@ import java.net.URISyntaxException
 import java.util.regex.*
 import kotlin.concurrent.thread
 
-object LiquidChat : Module("LiquidChat", CLIENT, subjective = true, gameDetecting = false, defaultInArray = false) {
+object LiquidChat : Module("LiquidChat", Category.CLIENT, subjective = true, gameDetecting = false, defaultInArray = false) {
     var jwt by object : BooleanValue("JWT", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
             if (state) {

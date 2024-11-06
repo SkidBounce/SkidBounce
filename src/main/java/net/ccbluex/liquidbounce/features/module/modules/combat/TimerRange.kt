@@ -6,11 +6,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.LiquidBounce.hud
-import net.ccbluex.liquidbounce.event.EventState.*
+import net.ccbluex.liquidbounce.event.EventState.POST
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
@@ -28,11 +28,16 @@ import net.ccbluex.liquidbounce.value.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
-import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.*
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C12PacketUpdateSign
+import net.minecraft.network.play.client.C19PacketResourcePackStatus
+import net.minecraft.network.play.server.S06PacketUpdateHealth
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S27PacketExplosion
 import java.awt.Color
 
-object TimerRange : Module("TimerRange", COMBAT), IBlink {
+object TimerRange : Module("TimerRange", Category.COMBAT), IBlink {
 
     private var playerTicks = 0
     private var smartTick = 0

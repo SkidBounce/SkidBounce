@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitymodes.VelocityMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.value.*
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
 
-object Velocity : Module("Velocity", COMBAT) {
+object Velocity : Module("Velocity", Category.COMBAT) {
     private val velocityModes = javaClass.`package`.getAllObjects<VelocityMode>().sortedBy { it.modeName }
 
     val doAttackReduceLegit

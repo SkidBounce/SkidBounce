@@ -5,10 +5,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.utils.MovementUtils.direction
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.collideBlockIntersects
@@ -25,7 +26,7 @@ import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
 
-object Spider : Module("Spider", MOVEMENT) {
+object Spider : Module("Spider", Category.MOVEMENT) {
     private val mode by ListValue(
         "Mode",
         arrayOf(

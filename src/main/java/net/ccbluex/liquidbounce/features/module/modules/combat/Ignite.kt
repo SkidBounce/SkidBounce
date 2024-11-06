@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
@@ -30,7 +30,7 @@ import net.minecraft.util.Vec3
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-object Ignite : Module("Ignite", COMBAT) {
+object Ignite : Module("Ignite", Category.COMBAT) {
     private val lighter by BooleanValue("Lighter", true)
     private val lavaBucket by BooleanValue("Lava", true)
 

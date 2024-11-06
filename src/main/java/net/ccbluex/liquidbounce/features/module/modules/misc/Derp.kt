@@ -5,14 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 
-object Derp : Module("Derp", MISC) {
+object Derp : Module("Derp", Category.MISC) {
 
     private val headless by BooleanValue("Headless", false)
     private val spinny by BooleanValue("Spinny", false)

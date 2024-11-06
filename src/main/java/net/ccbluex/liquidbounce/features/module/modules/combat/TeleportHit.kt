@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PathUtils.findPath
@@ -22,7 +22,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
-object TeleportHit : Module("TeleportHit", COMBAT) {
+object TeleportHit : Module("TeleportHit", Category.COMBAT) {
     private var targetEntity: EntityLivingBase? = null
     private var shouldHit = false
 

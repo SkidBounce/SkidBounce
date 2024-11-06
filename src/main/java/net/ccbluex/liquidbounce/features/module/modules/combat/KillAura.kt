@@ -5,12 +5,12 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.EventState.POST
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
 import net.ccbluex.liquidbounce.features.module.modules.targets.*
 import net.ccbluex.liquidbounce.features.module.modules.targets.AntiBot.isBot
@@ -71,7 +71,7 @@ import net.minecraft.world.WorldSettings
 import java.awt.Color
 import kotlin.math.max
 
-object KillAura : Module("KillAura", COMBAT) {
+object KillAura : Module("KillAura", Category.COMBAT) {
     /**
      * OPTIONS
      */

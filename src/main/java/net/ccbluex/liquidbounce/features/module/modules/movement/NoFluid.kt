@@ -9,8 +9,8 @@ import net.minecraft.init.Blocks.lava as stationary_lava
 import net.minecraft.init.Blocks.water as stationary_water
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.BlockCollideEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.ListValue
@@ -21,7 +21,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.START_DES
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK
 import net.minecraft.util.EnumFacing.DOWN
 
-object NoFluid : Module("NoFluid", MOVEMENT) {
+object NoFluid : Module("NoFluid", Category.MOVEMENT) {
     val water by BooleanValue("Water", true)
     val lava by BooleanValue("Lava", true)
     private val mode by ListValue("Mode", arrayOf("Grim", "Vanilla"), "Vanilla")

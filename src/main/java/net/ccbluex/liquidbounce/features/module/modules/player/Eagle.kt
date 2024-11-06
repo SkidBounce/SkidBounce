@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.isActuallyPressed
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.init.Blocks.air
 import net.minecraft.util.BlockPos
 
-object Eagle : Module("Eagle", PLAYER) {
+object Eagle : Module("Eagle", Category.PLAYER) {
 
     private val sneakDelay by IntValue("SneakDelay", 0, 0..100)
     private val onlyWhenLookingDown by BooleanValue("OnlyWhenLookingDown", false)

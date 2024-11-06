@@ -12,8 +12,8 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.event.events.StartupEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
 import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
@@ -32,7 +32,7 @@ import net.minecraft.util.Session
 import java.util.*
 import kotlin.concurrent.schedule
 
-object AutoAccount : Module("AutoAccount", MISC, gameDetecting = false) {
+object AutoAccount : Module("AutoAccount", Category.MISC, gameDetecting = false) {
 
     private val register by BooleanValue("AutoRegister", true)
     private val login by BooleanValue("AutoLogin", true)

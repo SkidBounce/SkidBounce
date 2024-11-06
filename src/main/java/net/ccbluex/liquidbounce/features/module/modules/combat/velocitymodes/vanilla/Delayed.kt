@@ -14,7 +14,6 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.queuedPackets
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
-import java.util.LinkedHashMap
 
 object Delayed : VelocityMode("Delayed") {
     private val packets = LinkedHashMap<Packet<*>, Long>()

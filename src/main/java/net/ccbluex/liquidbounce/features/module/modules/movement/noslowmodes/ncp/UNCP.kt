@@ -8,7 +8,6 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.nc
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow.usedMode
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket

@@ -9,8 +9,8 @@ import co.uk.hexeption.utils.OutlineUtils
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render2DEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.world.ChestAura.clickedTileEntities
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.disableFastRender
@@ -30,7 +30,7 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.pow
 
-object StorageESP : Module("StorageESP", RENDER) {
+object StorageESP : Module("StorageESP", Category.RENDER) {
     private val mode by
     ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Glow", "2D", "WireFrame"), "Outline")
 

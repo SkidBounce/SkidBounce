@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.movement.flymodes.FlyMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
@@ -22,7 +22,7 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.util.AxisAlignedBB
 import java.awt.Color
 
-object Fly : Module("Fly", MOVEMENT) {
+object Fly : Module("Fly", Category.MOVEMENT) {
     private val flyModes = javaClass.`package`.getAllObjects<FlyMode>().sortedBy { it.modeName }
 
     private val modes = flyModes.map { it.modeName }.toTypedArray()

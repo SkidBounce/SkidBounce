@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.utils.misc.StringUtils.contains
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.IntValue
@@ -20,7 +20,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.potion.Potion
 
-object GameDetector : Module("GameDetector", CLIENT, gameDetecting = false) {
+object GameDetector : Module("GameDetector", Category.CLIENT, gameDetecting = false) {
     // Check if player's gamemode is Survival or Adventure
     private val gameMode by BooleanValue("GameModeCheck", true)
 

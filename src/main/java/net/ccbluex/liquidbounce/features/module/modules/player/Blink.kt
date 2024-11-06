@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.EventState.POST
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.utils.blink.BlinkHandler
 import net.ccbluex.liquidbounce.utils.blink.IBlink
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 
-object Blink : Module("Blink", PLAYER, gameDetecting = false), IBlink {
+object Blink : Module("Blink", Category.PLAYER, gameDetecting = false), IBlink {
 
     private val mode by ListValue("Mode", arrayOf("Sent", "Received", "Both"), "Sent")
 

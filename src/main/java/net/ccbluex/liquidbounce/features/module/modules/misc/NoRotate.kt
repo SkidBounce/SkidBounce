@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
@@ -16,7 +16,7 @@ import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.entity.player.EntityPlayer
 
-object NoRotate : Module("NoRotate", MISC, gameDetecting = false) {
+object NoRotate : Module("NoRotate", Category.MISC, gameDetecting = false) {
     var savedRotation = Rotation(0f, 0f)
 
     private val ignoreOnSpawn by BooleanValue("IgnoreOnSpawn", false)

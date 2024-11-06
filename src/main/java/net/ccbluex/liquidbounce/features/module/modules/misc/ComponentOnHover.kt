@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 
-object ComponentOnHover : Module("ComponentOnHover", MISC, subjective = true, gameDetecting = false)
+object ComponentOnHover : Module("ComponentOnHover", Category.MISC, subjective = true, gameDetecting = false)

@@ -5,13 +5,14 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventState
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.ClickBlockEvent
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.event.events.TickEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationUtils.faceBlock
 import net.ccbluex.liquidbounce.utils.RotationUtils.setTargetRotation
@@ -31,7 +32,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.awt.Color
 
-object CivBreak : Module("CivBreak", WORLD) {
+object CivBreak : Module("CivBreak", Category.WORLD) {
 
     private val range by FloatValue("Range", 5F, 1F..6F)
     private val swing by SwingValue()

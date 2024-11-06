@@ -8,15 +8,15 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 import net.minecraft.network.play.server.S2BPacketChangeGameState
 
-object Ambience : Module("Ambience", RENDER, gameDetecting = false) {
+object Ambience : Module("Ambience", Category.RENDER, gameDetecting = false) {
 
     private val timeMode by ListValue("Mode", arrayOf("None", "Normal", "Custom"), "Custom")
     private val customWorldTime by IntValue("Time", 19000, 0..24000) { timeMode == "Custom" }

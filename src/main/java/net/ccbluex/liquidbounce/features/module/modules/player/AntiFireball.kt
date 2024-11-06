@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.TickEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.isRotationFaced
@@ -26,7 +26,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.world.WorldSettings
 
-object AntiFireball : Module("AntiFireball", PLAYER) {
+object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     private val range by FloatValue("Range", 4.5f, 3f..8f)
     private val swing by ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
 

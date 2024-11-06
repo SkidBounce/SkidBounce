@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.EventState.POST
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.MotionEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.Rotation
@@ -33,7 +33,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.potion.Potion
 
-object AutoPot : Module("AutoPot", COMBAT) {
+object AutoPot : Module("AutoPot", Category.COMBAT) {
 
     private val health by FloatValue("Health", 15F, 1F..20F) { healPotion || regenerationPotion }
     private val delay by IntValue("Delay", 500, 500..1000)

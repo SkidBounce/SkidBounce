@@ -7,13 +7,16 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.COMBAT
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timing.MSTimer
-import net.ccbluex.liquidbounce.value.*
+import net.ccbluex.liquidbounce.value.BooleanValue
+import net.ccbluex.liquidbounce.value.DoubleValue
+import net.ccbluex.liquidbounce.value.IntValue
+import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.init.Items.egg
 import net.minecraft.init.Items.snowball
 
@@ -21,7 +24,7 @@ import net.minecraft.init.Items.snowball
  * @author EclipsesDev
  * @author CCBlueX/LiquidBounce
  */
-object AutoProjectile : Module("AutoProjectile", COMBAT) {
+object AutoProjectile : Module("AutoProjectile", Category.COMBAT) {
     private val facingEnemy by BooleanValue("FacingEnemy", true)
 
     private val mode by ListValue("Mode", arrayOf("Normal", "Smart"), "Normal")

@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.combat.SuperKnockback
 import net.ccbluex.liquidbounce.features.module.modules.world.Scaffold
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
@@ -19,7 +19,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.MovementInput
 import kotlin.math.abs
 
-object Sprint : Module("Sprint", MOVEMENT, gameDetecting = false) {
+object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
     val onlyOnSprintPress by BooleanValue("OnlyOnSprintPress", false)
     private val alwaysCorrect by BooleanValue("AlwaysCorrectSprint", false)
     val jumpDirections by BooleanValue("JumpDirections", false)

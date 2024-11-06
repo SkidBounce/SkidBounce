@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.movement.glidemodes.GlideMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.extensions.resetSpeed
@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.value.IntValue
 import net.ccbluex.liquidbounce.value.ListValue
 import java.awt.Color
 
-object Glide : Module("Glide", MOVEMENT) {
+object Glide : Module("Glide", Category.MOVEMENT) {
     private val glideModes = javaClass.`package`.getAllObjects<GlideMode>().sortedBy { it.modeName }
 
     private val modes = glideModes.map { it.modeName }.toTypedArray()

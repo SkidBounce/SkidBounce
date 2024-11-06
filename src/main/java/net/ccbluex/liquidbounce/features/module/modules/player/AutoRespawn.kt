@@ -7,13 +7,13 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.features.module.modules.exploit.Ghost
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.minecraft.client.gui.GuiGameOver
 
-object AutoRespawn : Module("AutoRespawn", PLAYER, gameDetecting = false) {
+object AutoRespawn : Module("AutoRespawn", Category.PLAYER, gameDetecting = false) {
 
     private val instant by BooleanValue("Instant", true)
 

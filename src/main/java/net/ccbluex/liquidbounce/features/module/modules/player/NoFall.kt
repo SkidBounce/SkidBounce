@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.PLAYER
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
 import net.ccbluex.liquidbounce.features.module.modules.render.FreeCam
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
@@ -20,7 +20,7 @@ import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB.fromBounds
 
-object NoFall : Module("NoFall", PLAYER) {
+object NoFall : Module("NoFall", Category.PLAYER) {
     private val noFallModes = javaClass.`package`.getAllObjects<NoFallMode>().sortedBy { it.modeName }
 
     val mode by ListValue("Mode", noFallModes.map { it.modeName }.toTypedArray(), "SpoofGround")

@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.utils.RotationUtils.currentRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
 import net.ccbluex.liquidbounce.utils.extensions.isSplashPotion
@@ -40,7 +40,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-object Projectiles : Module("Projectiles", RENDER, gameDetecting = false) {
+object Projectiles : Module("Projectiles", Category.RENDER, gameDetecting = false) {
     private val colorMode by ListValue("Color", arrayOf("Custom", "BowPower", "Rainbow"), "Custom")
     private val colorRed by IntValue("R", 0, 0..255) { colorMode == "Custom" }
     private val colorGreen by IntValue("G", 160, 0..255) { colorMode == "Custom" }

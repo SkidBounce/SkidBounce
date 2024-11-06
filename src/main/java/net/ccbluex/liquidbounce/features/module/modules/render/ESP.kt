@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.Render2DEvent
 import net.ccbluex.liquidbounce.event.events.Render3DEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.targets.AntiBot.isBot
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
@@ -40,7 +40,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-object ESP : Module("ESP", RENDER) {
+object ESP : Module("ESP", Category.RENDER) {
 
     val mode by ListValue(
         "Mode",

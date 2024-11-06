@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.RENDER
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.animations
 import net.ccbluex.liquidbounce.features.module.modules.render.Animations.defaultAnimation
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -37,7 +37,7 @@ import org.lwjgl.opengl.GL11.glTranslatef
  *
  * @author CCBlueX
  */
-object Animations : Module("Animations", RENDER, gameDetecting = false) {
+object Animations : Module("Animations", Category.RENDER, gameDetecting = false) {
 
     // Default animation
     val defaultAnimation = OneSevenAnimation()

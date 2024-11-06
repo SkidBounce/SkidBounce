@@ -5,7 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MISC
 
-object No003 : Module("No0.03", MISC)
+object No003 : Module("No0.03", Category.MISC)

@@ -5,15 +5,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
-import net.ccbluex.liquidbounce.event.events.BlockBBEvent
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.events.BlockBBEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.minecraft.init.Blocks
 import net.minecraft.util.AxisAlignedBB
 
-object AvoidHazards : Module("AvoidHazards", WORLD) {
+object AvoidHazards : Module("AvoidHazards", Category.WORLD) {
     private val fire by BooleanValue("Fire", true)
     private val cobweb by BooleanValue("Cobweb", true)
     private val cactus by BooleanValue("Cactus", true)

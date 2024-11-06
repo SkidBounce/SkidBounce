@@ -5,8 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.injection.forge.mixins.block.MixinBlockLiquid
 
 /**
@@ -15,4 +15,4 @@ import net.ccbluex.liquidbounce.injection.forge.mixins.block.MixinBlockLiquid
  * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
-object NoLiquidPush : Module("NoLiquidPush", MOVEMENT)
+object NoLiquidPush : Module("NoLiquidPush", Category.MOVEMENT)

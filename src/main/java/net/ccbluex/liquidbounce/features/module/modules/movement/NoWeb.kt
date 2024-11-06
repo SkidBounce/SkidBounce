@@ -8,8 +8,8 @@ package net.ccbluex.liquidbounce.features.module.modules.movement
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.BlockCollideEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.Category.MOVEMENT
 import net.ccbluex.liquidbounce.features.module.modules.movement.nowebmodes.NoWebMode
 import net.ccbluex.liquidbounce.utils.ClassUtils.getAllObjects
 import net.ccbluex.liquidbounce.utils.extensions.resetSpeed
@@ -17,7 +17,7 @@ import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.ListValue
 
-object NoWeb : Module("NoWeb", MOVEMENT) {
+object NoWeb : Module("NoWeb", Category.MOVEMENT) {
     private val noWebModes = javaClass.`package`.getAllObjects<NoWebMode>().sortedBy { it.modeName }
 
     private val modes = noWebModes.map { it.modeName }.toTypedArray()
