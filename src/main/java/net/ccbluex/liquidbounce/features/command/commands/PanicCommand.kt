@@ -17,31 +17,26 @@ object PanicCommand : Command("panic") {
         var modules = moduleManager.modules.filter { it.state }
         val msg: String
 
-        if (args.size > 1 && args[1].isNotEmpty()) {
-            when (args[1].lowercase()) {
-                "all" -> msg = "all"
+        when (args.getOrNull(1)?.lowercase()) {
+            "all" -> msg = "all"
 
-                "nonrender" -> {
-                    modules = modules.filter { it.category !in listOf(Category.RENDER, Category.CLIENT, Category.TARGETS) }
-                    msg = "all non-render"
-                }
-
-                else -> {
-                    val categories = Category.entries.filter { it.displayName.equals(args[1], true) }
-
-                    if (categories.isEmpty() || categories.all { it == Category.TARGETS }) {
-                        chat("Category ${args[1]} not found")
-                        return
-                    }
-
-                    val category = categories[0]
-                    modules = modules.filter { it.category == category && it.category != Category.TARGETS }
-                    msg = "all ${category.displayName}"
-                }
+            "nonrender", null -> {
+                modules = modules.filter { it.category !in listOf(Category.RENDER, Category.CLIENT, Category.TARGETS) }
+                msg = "all non-render"
             }
-        } else {
-            chatSyntax("panic <all/nonrender/combat/player/movement/render/world/misc/exploit/fun/client>")
-            return
+
+            else -> {
+                val categories = Category.entries.filter { it.displayName.equals(args[1], true) }
+
+                if (categories.isEmpty() || categories.all { it == Category.TARGETS }) {
+                    chat("Category ${args[1]} not found")
+                    return
+                }
+
+                val category = categories[0]
+                modules = modules.filter { it.category == category && it.category != Category.TARGETS }
+                msg = "all ${category.displayName}"
+            }
         }
 
         for (module in modules)
