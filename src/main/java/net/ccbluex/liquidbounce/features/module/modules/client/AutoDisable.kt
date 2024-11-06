@@ -11,7 +11,7 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.UpdateEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.CLIENT
+import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.features.module.ModuleManager.modules
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage

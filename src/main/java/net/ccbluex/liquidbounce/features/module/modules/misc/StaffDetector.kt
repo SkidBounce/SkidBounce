@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.ClientUtils.LOGGER
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
@@ -26,7 +26,7 @@ import net.minecraft.init.Items
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.*
 
-object StaffDetector : Module("StaffDetector", ModuleCategory.MISC, gameDetecting = false) {
+object StaffDetector : Module("StaffDetector", Category.MISC, gameDetecting = false) {
 
     // TODO: Add more Staff Mode
     private val staffmode by ListValue("StaffMode", arrayOf("BlocksMC"), "BlocksMC")

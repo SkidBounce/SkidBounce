@@ -15,7 +15,6 @@ import net.ccbluex.liquidbounce.ui.client.hud.HUD.addNotification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Arraylist
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Notification
 import net.ccbluex.liquidbounce.utils.ClassUtils.getRawValues
-import net.ccbluex.liquidbounce.utils.ClassUtils.getValues
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.extensions.plus
 import net.ccbluex.liquidbounce.utils.extensions.toLowerCamelCase
@@ -29,14 +28,14 @@ import org.lwjgl.input.Keyboard
 
 open class Module(
     val name: String,
-    val category: ModuleCategory,
+    val category: Category,
     defaultKeyBind: Int = Keyboard.KEY_NONE,
     val defaultInArray: Boolean = true, // Used in HideCommand to reset modules visibility.
     private val canBeEnabled: Boolean = true,
     private val forcedDescription: String? = null,
     // Adds spaces between lowercase and uppercase letters (KillAura -> Kill Aura)
     val spacedName: String = name.split("(?<=[a-z])(?=[A-Z])".toRegex()).joinToString(separator = " "),
-    val subjective: Boolean = category == ModuleCategory.RENDER,
+    val subjective: Boolean = category == Category.RENDER,
     val gameDetecting: Boolean = canBeEnabled,
     defaultEnabled: Boolean = false,
 ) : MinecraftInstance(), Listenable {

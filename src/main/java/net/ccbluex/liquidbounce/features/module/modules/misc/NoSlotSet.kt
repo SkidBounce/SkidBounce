@@ -6,6 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.MISC
+import net.ccbluex.liquidbounce.features.module.Category.MISC
 
 object NoSlotSet : Module("NoSlotSet", MISC, gameDetecting = false)

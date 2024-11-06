@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.*
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.WORLD
+import net.ccbluex.liquidbounce.features.module.Category.WORLD
 import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton.RIGHT
@@ -39,7 +39,6 @@ import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.BLOCK_BLACKLIST
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findBlockInHotbar
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.findLargestBlockStackInHotbar
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextFloat
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
 import net.ccbluex.liquidbounce.utils.timing.DelayTimer

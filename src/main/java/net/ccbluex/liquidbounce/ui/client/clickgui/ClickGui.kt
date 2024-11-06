@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.ui.client.clickgui
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI
 import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.scale
 import net.ccbluex.liquidbounce.features.module.modules.client.ClickGUI.scrolls
@@ -56,7 +56,7 @@ object ClickGui : GuiScreen() {
         val height = 18
         var yPos = 5
 
-        for (category in ModuleCategory.values()) {
+        for (category in Category.values()) {
             panels += object : Panel(category.displayName, 100, yPos, width, height, false) {
                 override val elements =
                     moduleManager.modules.filter { it.category == category }.map { ModuleElement(it) }

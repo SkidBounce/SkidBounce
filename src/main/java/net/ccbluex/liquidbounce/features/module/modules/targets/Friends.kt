@@ -6,6 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.targets
 
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.TARGETS
+import net.ccbluex.liquidbounce.features.module.Category.TARGETS
 
 object Friends : Module("Friends", TARGETS, gameDetecting = false, defaultInArray = false)

@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.features.command.commands
 
 import net.ccbluex.liquidbounce.LiquidBounce.moduleManager
 import net.ccbluex.liquidbounce.features.command.Command
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.*
+import net.ccbluex.liquidbounce.features.module.Category
+import net.ccbluex.liquidbounce.features.module.Category.*
 
 object PanicCommand : Command("panic") {
     /**
@@ -28,7 +28,7 @@ object PanicCommand : Command("panic") {
                 }
 
                 else -> {
-                    val categories = ModuleCategory.entries.filter { it.displayName.equals(args[1], true) }
+                    val categories = Category.entries.filter { it.displayName.equals(args[1], true) }
 
                     if (categories.isEmpty() || categories.all { it == TARGETS }) {
                         chat("Category ${args[1]} not found")

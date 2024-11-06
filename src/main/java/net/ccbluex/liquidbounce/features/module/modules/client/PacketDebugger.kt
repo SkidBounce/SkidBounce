@@ -8,11 +8,9 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory.CLIENT
+import net.ccbluex.liquidbounce.features.module.Category.CLIENT
 import net.ccbluex.liquidbounce.utils.ClientUtils
-import net.ccbluex.liquidbounce.utils.PacketType
 import net.ccbluex.liquidbounce.utils.PacketType.SERVER
-import net.ccbluex.liquidbounce.utils.PacketUtils.PacketBuffer
 import net.ccbluex.liquidbounce.utils.PacketUtils.type
 import net.ccbluex.liquidbounce.utils.extensions.actual
 import net.ccbluex.liquidbounce.utils.extensions.hasPosition
