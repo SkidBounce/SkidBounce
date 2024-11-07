@@ -36,7 +36,7 @@ import net.minecraft.util.EnumFacing.DOWN
  * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
-object Grim : VelocityMode("Grim") {
+object Grim2362 : VelocityMode("Grim2.3.62") {
     private var gotVelo = false
     private var flagTimer = MSTimer()
     private var timerTicks = 0
