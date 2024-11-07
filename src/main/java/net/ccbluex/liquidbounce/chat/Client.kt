@@ -145,11 +145,11 @@ abstract class Client : ClientListener, MinecraftInstance() {
             try {
                 val sessionHash = packet.sessionHash
 
-                mc.sessionService.joinServer(session.profile, session.token, sessionHash)
-                username = session.username
+                mc.sessionService.joinServer(mc.session.profile, mc.session.token, sessionHash)
+                username = mc.session.username
                 jwt = false
 
-                sendPacket(ServerLoginMojangPacket(session.username, session.profile.id, allowMessages = true))
+                sendPacket(ServerLoginMojangPacket(mc.session.username, mc.session.profile.id, allowMessages = true))
             } catch (throwable: Throwable) {
                 onError(throwable)
             }
