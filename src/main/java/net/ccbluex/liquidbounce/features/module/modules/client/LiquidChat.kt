@@ -38,21 +38,9 @@ object LiquidChat : Module("LiquidChat", Category.CLIENT, subjective = true, gam
         }
     }
 
-    private val useOriginalSession by object : BooleanValue("UseOriginalSession", true) {
-        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (state) {
-                state = false
-                state = true
-            }
-        }
-    }
-
     var jwtToken = ""
 
     private val prefix = "§8[§9LiquidChat§8]"
-
-    val session: Session
-        get() = if (useOriginalSession) originalSession else mc.session
 
     val client = object : Client() {
 
