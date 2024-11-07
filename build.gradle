@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id "java"
     id "idea"
@@ -22,11 +24,7 @@ group = project.maven_group
 sourceCompatibility = targetCompatibility = 1.8
 compileJava.options.encoding = "UTF-8"
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
+compileKotlin.compilerOptions.jvmTarget = JvmTarget.JVM_1_8
 
 minecraft {
     version = "1.8.9-11.15.1.2318-1.8.9"
