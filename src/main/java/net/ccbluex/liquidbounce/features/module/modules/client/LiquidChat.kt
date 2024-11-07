@@ -182,7 +182,7 @@ object LiquidChat : Module("LiquidChat", Category.CLIENT, subjective = true, gam
 
                 if (jwt)
                     client.loginJWT(jwtToken)
-                else if (UserUtils.isValidTokenOffline(session.token)) {
+                else if (UserUtils.isValidTokenOffline(mc.session.token)) {
                     client.loginMojang()
                 }
             } catch (cause: Exception) {
