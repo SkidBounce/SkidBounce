@@ -14,9 +14,19 @@ import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isFullBlock
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.autoCloseValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.closeDelayValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInLastLoop
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.invOpen
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.invOpenValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveAirValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveGroundValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.simulateInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.simulateInventoryValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.startDelay
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.startDelayValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.toHotbarIndex
@@ -58,16 +68,7 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
 
     private val repairEquipment by BooleanValue("RepairEquipment", true)
 
-    private val invOpen by InventoryManager.invOpenValue
-    private val simulateInventory by InventoryManager.simulateInventoryValue
-
-    private val autoClose by InventoryManager.autoCloseValue
-    private val startDelay by InventoryManager.startDelayValue
-    private val closeDelay by InventoryManager.closeDelayValue
-
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    // InventoryMove values are inserted here
 
     private val randomSlot by BooleanValue("RandomSlot", false)
     private val ignoreVehicles by BooleanValue("IgnoreVehicles", false)
@@ -964,6 +965,21 @@ object InventoryCleaner : Module("InventoryCleaner", Category.PLAYER) {
                     displayChatMessage("§8[§9§lInventoryCleaner§8] §3Value §a${value.name}§3 was changed to §a$oldValue§3 to prevent conflicts.")
                 }
             }
+    }
+
+    override val values = super.values.toMutableList().apply {
+        addAll(indexOfFirst { it.name == "RandomSlot" },
+               listOf(
+                   invOpenValue,
+                   simulateInventoryValue,
+                   autoCloseValue,
+                   startDelayValue,
+                   closeDelayValue,
+                   noMoveValue,
+                   noMoveAirValue,
+                   noMoveGroundValue,
+               )
+        )
     }
 }
 

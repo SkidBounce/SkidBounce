@@ -22,16 +22,27 @@ object InventoryManager: MinecraftInstance() {
 
 	// Shared no move click values
 	val noMoveValue = BooleanValue("NoMoveClicks", false)
-	val noMoveAirValue = BooleanValue("NoClicksInAir", false) { noMoveValue.get() }
-	val noMoveGroundValue = BooleanValue("NoClicksOnGround", true) { noMoveValue.get() }
+	val noMoveAirValue = BooleanValue("NoClicksInAir", false) { noMove }
+	val noMoveGroundValue = BooleanValue("NoClicksOnGround", true) { noMove }
 
 	// Shared values between AutoArmor and InventoryCleaner
 	val invOpenValue = BooleanValue("InvOpen", false)
-	val simulateInventoryValue = BooleanValue("SimulateInventory", true) { !invOpenValue.get() }
-	val autoCloseValue = BooleanValue("AutoClose", false) { invOpenValue.get() }
+	val simulateInventoryValue = BooleanValue("SimulateInventory", true) { !invOpen }
+	val autoCloseValue = BooleanValue("AutoClose", false) { invOpen }
 
-	val startDelayValue = IntValue("StartDelay", 0, 0..500) { invOpenValue.get() || simulateInventoryValue.get() }
-	val closeDelayValue = IntValue("CloseDelay", 0, 0..500) { if (invOpenValue.get()) autoCloseValue.get() else simulateInventoryValue.get() }
+	val startDelayValue = IntValue("StartDelay", 0, 0..500) { invOpen || simulateInventory }
+	val closeDelayValue = IntValue("CloseDelay", 0, 0..500) { if (invOpen) autoClose else simulateInventory }
+
+	val noMove by noMoveValue
+	val noMoveAir by noMoveAirValue
+	val noMoveGround by noMoveGroundValue
+
+	val invOpen by invOpenValue
+	val simulateInventory by simulateInventoryValue
+	val autoClose by autoCloseValue
+
+	val startDelay by startDelayValue
+	val closeDelay by closeDelayValue
 
 	private lateinit var inventoryWorker: Job
 
@@ -63,7 +74,7 @@ object InventoryManager: MinecraftInstance() {
 
 		// TODO: This could be at start of each action?
 		// Don't wait for NoMove not to be violated, check if there is anything to equip from hotbar and such by looping again
-		if (!canClickInventory() || (invOpenValue.get() && mc.currentScreen !is GuiInventory))
+		if (!canClickInventory() || (invOpen && mc.currentScreen !is GuiInventory))
 			return
 
 		canCloseInventory = false
@@ -94,7 +105,7 @@ object InventoryManager: MinecraftInstance() {
 			closingAction ?: return
 
 			// Prepare for closing the inventory
-			delay(closeDelayValue.get().toLong())
+			delay(closeDelay.toLong())
 
 			// Try to search through inventory one more time, only close when no actions were scheduled in current iteration
 			if (!hasScheduledInLastLoop) {
@@ -113,18 +124,18 @@ object InventoryManager: MinecraftInstance() {
 			mc.thePlayer?.openContainer?.windowId != 0 -> null
 
 			// Check if open inventory should be closed
-			mc.currentScreen is GuiInventory && invOpenValue.get() && autoCloseValue.get() ->
+			mc.currentScreen is GuiInventory && invOpen && autoClose ->
 				({ mc.thePlayer?.closeScreen() })
 
 			// Check if simulated inventory should be closed
-			mc.currentScreen !is GuiInventory && simulateInventoryValue.get() && serverOpenInventory ->
+			mc.currentScreen !is GuiInventory && simulateInventory && serverOpenInventory ->
 				({ serverOpenInventory = false })
 
 			else -> null
 		}
 
 	fun canClickInventory(closeWhenViolating: Boolean = false) =
-		if (noMoveValue.get() && isMoving && if (serverOnGround) noMoveGroundValue.get() else noMoveAirValue.get()) {
+		if (noMove && isMoving && if (serverOnGround) noMoveGround else noMoveAir) {
 
 			// NoMove check is violated, close simulated inventory
 			if (closeWhenViolating)

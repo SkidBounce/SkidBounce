@@ -13,9 +13,19 @@ import net.ccbluex.liquidbounce.utils.CoroutineUtils.waitUntil
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.hasItemAgePassed
 import net.ccbluex.liquidbounce.utils.inventory.ArmorComparator.getBestArmorSet
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.autoCloseValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.closeDelayValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.hasScheduledInLastLoop
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.invOpen
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.invOpenValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveAirValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveGroundValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.simulateInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.simulateInventoryValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.startDelay
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.startDelayValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.isFirstInventoryClick
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
@@ -44,20 +54,11 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
     }
     private val minItemAge by IntValue("MinItemAge", 0, 0..2000)
 
-    private val invOpen by InventoryManager.invOpenValue
-    private val simulateInventory by InventoryManager.simulateInventoryValue
-
-    private val autoClose by InventoryManager.autoCloseValue
-    private val startDelay by InventoryManager.startDelayValue
-    private val closeDelay by InventoryManager.closeDelayValue
+    // InventoryMove values are inserted here
 
     // When swapping armor pieces, it grabs the better one, drags and swaps it with equipped one and drops the equipped one (no time of having no armor piece equipped)
     // Has to make more clicks, works slower
     val smartSwap by BooleanValue("SmartSwap", true)
-
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
 
     private val hotbar by BooleanValue("Hotbar", true)
 
@@ -262,5 +263,20 @@ object AutoArmor : Module("AutoArmor", Category.COMBAT) {
         hasScheduledInLastLoop = true
 
         delay(randomDelay(minDelay, maxDelay).toLong())
+    }
+
+    override val values = super.values.toMutableList().apply {
+        addAll(indexOfFirst { it.name == "SmartSwap" },
+               listOf(
+                   invOpenValue,
+                   simulateInventoryValue,
+                   autoCloseValue,
+                   startDelayValue,
+                   closeDelayValue,
+                   noMoveValue,
+                   noMoveAirValue,
+                   noMoveGroundValue,
+               )
+        )
     }
 }

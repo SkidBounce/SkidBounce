@@ -13,8 +13,13 @@ import net.ccbluex.liquidbounce.ui.client.clickgui.ClickGui
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
 import net.ccbluex.liquidbounce.utils.extensions.updateKeys
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMove
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveAir
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveAirValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveGround
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveGroundValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.ListValue
@@ -35,9 +40,7 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
     private val isIntave = (mc.currentScreen is GuiInventory || mc.currentScreen is GuiChest) && intave
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    // NoMove values are inserted here
     private val undetectable by BooleanValue("Undetectable", false)
 
     // If player violates nomove check and inventory is open, close inventory and reopen it when still
@@ -144,4 +147,14 @@ object InventoryMove : Module("InventoryMove", Category.MOVEMENT, gameDetecting 
 
     override val tag
         get() = mode
+
+    override val values = super.values.toMutableList().apply {
+        addAll(indexOfFirst { it.name == "Undetectable" },
+               listOf(
+                   noMoveValue,
+                   noMoveAirValue,
+                   noMoveGroundValue,
+               )
+        )
+    }
 }

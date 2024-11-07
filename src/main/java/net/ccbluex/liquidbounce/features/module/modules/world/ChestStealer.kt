@@ -21,6 +21,9 @@ import net.ccbluex.liquidbounce.utils.extensions.component2
 import net.ccbluex.liquidbounce.utils.extensions.shuffled
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveAirValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveGroundValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.countSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.hasSpaceInInventory
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
@@ -54,10 +57,7 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
     private val startDelay by IntValue("StartDelay", 50, 0..500)
     private val closeDelay by IntValue("CloseDelay", 50, 0..500)
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
-
+    // NoMove values are inserted here
     private val chestTitle by BooleanValue("ChestTitle", true)
 
     private val randomSlot by BooleanValue("RandomSlot", true)
@@ -323,5 +323,15 @@ object ChestStealer : Module("ChestStealer", Category.WORLD) {
                 stacks = packet.itemStacks.toList()
             }
         }
+    }
+
+    override val values = super.values.toMutableList().apply {
+        addAll(indexOfFirst { it.name == "ChestTitle" },
+               listOf(
+                   noMoveValue,
+                   noMoveAirValue,
+                   noMoveGroundValue,
+               )
+        )
     }
 }

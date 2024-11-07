@@ -11,8 +11,10 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.extensions.hasItemAgePassed
-import net.ccbluex.liquidbounce.utils.inventory.InventoryManager
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.canClickInventory
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveAirValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveGroundValue
+import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.noMoveValue
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.CLICK_TIMER
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverOpenInventory
 import net.ccbluex.liquidbounce.value.BooleanValue
@@ -32,9 +34,7 @@ object Refill : Module("Refill", Category.PLAYER) {
     private val invOpen by BooleanValue("InvOpen", false)
     private val simulateInventory by BooleanValue("SimulateInventory", false) { !invOpen }
 
-    private val noMove by InventoryManager.noMoveValue
-    private val noMoveAir by InventoryManager.noMoveAirValue
-    private val noMoveGround by InventoryManager.noMoveGroundValue
+    // NoMove values are inserted here
 
     @EventTarget
     fun onTick(event: TickEvent) {
@@ -103,6 +103,16 @@ object Refill : Module("Refill", Category.PLAYER) {
                 mc.thePlayer.openContainer.windowId, slot, button, mode, stack,
                 mc.thePlayer.openContainer.getNextTransactionID(mc.thePlayer.inventory)
             )
+        )
+    }
+
+    override val values = super.values.toMutableList().apply {
+        addAll(indexOfFirst { it.name == "SimulateInventory" } + 1,
+               listOf(
+                   noMoveValue,
+                   noMoveAirValue,
+                   noMoveGroundValue,
+               )
         )
     }
 }
