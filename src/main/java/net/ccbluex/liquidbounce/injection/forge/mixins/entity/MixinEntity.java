@@ -178,6 +178,7 @@ public abstract class MixinEntity {
 
     /**
      * @author SkidBounce/SkidBounce
+     * @author ManInMyVan
      * @reason BlockCollideEvent
      */
     @Overwrite
