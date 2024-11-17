@@ -238,6 +238,7 @@ object KillAura : Module("KillAura", Category.COMBAT) {
         arrayOf("Off", "Strict", "Silent"),
         "Off"
     ) { silentRotationValue.isActive() }
+    private val simulateShortStop by BooleanValue("SimulateShortStop", false)
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative")
 
     private val randomCenter by BooleanValue("RandomCenter", true)
@@ -830,6 +831,7 @@ object KillAura : Module("KillAura", Category.COMBAT) {
             minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
             angleThresholdUntilReset,
             smootherMode,
+            simulateShortStop
         )
 
         player.setPosAndPrevPos(currPos, oldPos)

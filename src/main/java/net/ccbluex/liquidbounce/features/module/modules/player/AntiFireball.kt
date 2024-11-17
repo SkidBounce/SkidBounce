@@ -34,6 +34,8 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { rotations }
     private val strafe by BooleanValue("Strafe", false) { rotations }
 
+    private val simulateShortStop by BooleanValue("SimulateShortStop", false) { rotations }
+
     private val maxHorizontalSpeedValue = object : FloatValue("MaxHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalSpeed)
         override fun isSupported() = rotations
@@ -95,7 +97,8 @@ object AntiFireball : Module("AntiFireball", Category.PLAYER) {
                     strafe = this.strafe,
                     turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
                     angleThresholdForReset = angleThresholdUntilReset,
-                    smootherMode = smootherMode
+                    smootherMode = smootherMode,
+                    simulateShortStop = simulateShortStop
                 )
             }
 

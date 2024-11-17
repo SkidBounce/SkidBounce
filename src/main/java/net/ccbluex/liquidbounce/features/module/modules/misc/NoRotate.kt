@@ -25,6 +25,8 @@ object NoRotate : Module("NoRotate", Category.MISC, gameDetecting = false) {
     private val strafe by ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off") { affectRotation }
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { affectRotation }
 
+    private val simulateShortStop by BooleanValue("SimulateShortStop", false) { affectRotation }
+
     private val maxHorizontalSpeedValue = object : FloatValue("MaxHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalSpeed)
         override fun isSupported() = affectRotation
@@ -64,7 +66,8 @@ object NoRotate : Module("NoRotate", Category.MISC, gameDetecting = false) {
             turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
             angleThresholdForReset = angleThresholdUntilReset,
             smootherMode = smootherMode,
-            prioritizeRequest = true
+            prioritizeRequest = true,
+            simulateShortStop = simulateShortStop
         )
     }
 }

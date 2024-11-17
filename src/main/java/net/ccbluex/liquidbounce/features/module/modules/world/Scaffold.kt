@@ -251,6 +251,7 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
     private val rotationMode by ListValue("Rotations", arrayOf("Off", "Normal", "Stabilized", "GodBridge"), "Normal")
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { rotationMode != "Off" }
     private val silentRotation by BooleanValue("SilentRotation", true) { rotationMode != "Off" }
+    private val simulateShortStop by BooleanValue("SimulateShortStop", false) { rotationMode != "Off" }
     private val strafe by BooleanValue("Strafe", false) { rotationMode != "Off" && silentRotation }
     private val keepRotation by BooleanValue("KeepRotation", true) { rotationMode != "Off" && silentRotation }
     private val keepTicks by object : IntValue("KeepTicks", 1, 1..20) {
@@ -587,9 +588,10 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
         if (keepRotation && lockRotation != null) {
             setTargetRotation(
                 lockRotation!!.fixedSensitivity(),
-                strafe =  strafe,
+                strafe = strafe,
                 turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
-                smootherMode = smootherMode
+                smootherMode = smootherMode,
+                simulateShortStop = simulateShortStop
             )
         }
 
@@ -1002,7 +1004,8 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
                 strafe,
                 turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
                 angleThresholdForReset = angleThresholdUntilReset,
-                smootherMode = smootherMode
+                smootherMode = smootherMode,
+                simulateShortStop = simulateShortStop
             )
 
         } else {
