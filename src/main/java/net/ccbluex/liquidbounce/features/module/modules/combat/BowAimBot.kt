@@ -55,15 +55,16 @@ object BowAimBot : Module("BowAimBot", Category.COMBAT) {
 
     private val simulateShortStop by BooleanValue("SimulateShortStop", false)
 
+    private val startFirstRotationSlow by BooleanValue("StartFirstRotationSlow", false)
+
     private val maxHorizontalSpeedValue = object : FloatValue("MaxHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalSpeed)
-        override fun isSupported() = silent
     }
     private val maxHorizontalSpeed by maxHorizontalSpeedValue
 
     private val minHorizontalSpeed: Float by object : FloatValue("MinHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxHorizontalSpeed)
-        override fun isSupported() = !maxHorizontalSpeedValue.isMinimal && silent
+        override fun isSupported() = !maxHorizontalSpeedValue.isMinimal
     }
 
     private val maxVerticalSpeedValue = object : FloatValue("MaxVerticalSpeed", 180f, 1f..180f) {
@@ -73,9 +74,9 @@ object BowAimBot : Module("BowAimBot", Category.COMBAT) {
 
     private val minVerticalSpeed: Float by object : FloatValue("MinVerticalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtMost(maxVerticalSpeed)
-        override fun isSupported() = !maxVerticalSpeedValue.isMinimal && silent
+        override fun isSupported() = !maxVerticalSpeedValue.isMinimal
     }
-    private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f) { silent }
+    private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f..180f)
 
     private var target: Entity? = null
 
@@ -119,13 +120,14 @@ object BowAimBot : Module("BowAimBot", Category.COMBAT) {
 
         setTargetRotation(
             targetRotation ?: return,
-            strafe = strafe != "Off",
-            strict = strafe == "Strict",
+            strafe = silent && strafe != "Off",
+            strict = silent && strafe == "Strict",
             applyClientSide = !silent,
             turnSpeed = minHorizontalSpeed..maxHorizontalSpeed to minVerticalSpeed..maxVerticalSpeed,
             angleThresholdForReset = angleThresholdUntilReset,
             smootherMode = smootherMode,
-            simulateShortStop = simulateShortStop
+            simulateShortStop = simulateShortStop,
+            startOffSlow = startFirstRotationSlow
         )
     }
 

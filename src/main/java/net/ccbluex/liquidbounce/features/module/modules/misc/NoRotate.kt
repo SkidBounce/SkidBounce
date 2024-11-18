@@ -26,7 +26,7 @@ object NoRotate : Module("NoRotate", Category.MISC, gameDetecting = false) {
     private val smootherMode by ListValue("SmootherMode", arrayOf("Linear", "Relative"), "Relative") { affectRotation }
 
     private val simulateShortStop by BooleanValue("SimulateShortStop", false) { affectRotation }
-
+    private val startFirstRotationSlow by BooleanValue("StartFirstRotationSlow", false) { affectRotation }
     private val maxHorizontalSpeedValue = object : FloatValue("MaxHorizontalSpeed", 180f, 1f..180f) {
         override fun onChange(oldValue: Float, newValue: Float) = newValue.coerceAtLeast(minHorizontalSpeed)
         override fun isSupported() = affectRotation
@@ -67,7 +67,8 @@ object NoRotate : Module("NoRotate", Category.MISC, gameDetecting = false) {
             angleThresholdForReset = angleThresholdUntilReset,
             smootherMode = smootherMode,
             prioritizeRequest = true,
-            simulateShortStop = simulateShortStop
+            simulateShortStop = simulateShortStop,
+            startOffSlow = startFirstRotationSlow
         )
     }
 }
