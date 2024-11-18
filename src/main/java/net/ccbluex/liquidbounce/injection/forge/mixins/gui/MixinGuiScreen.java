@@ -89,7 +89,7 @@ public abstract class MixinGuiScreen {
                 instance.draw();
 
                 BackgroundShader.Companion.getBACKGROUND_SHADER().stopShader();
-            }else{
+            } else {
                 // Use custom background
                 background.drawBackground(width, height);
             }

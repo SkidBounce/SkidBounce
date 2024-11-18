@@ -70,7 +70,7 @@ public class ForgeNetworkTransformer implements IClassTransformer {
                 });
 
                 return ClassUtils.INSTANCE.toBytes(classNode);
-            }catch(final Throwable throwable) {
+            } catch(final Throwable throwable) {
                 throwable.printStackTrace();
             }
         }
