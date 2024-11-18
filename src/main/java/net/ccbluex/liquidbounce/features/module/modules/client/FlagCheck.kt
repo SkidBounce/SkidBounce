@@ -12,16 +12,16 @@ import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
-import net.ccbluex.liquidbounce.utils.extensions.onPlayerRightClick
 import net.ccbluex.liquidbounce.value.BooleanValue
 import net.ccbluex.liquidbounce.value.FloatValue
 import net.ccbluex.liquidbounce.value.IntValue
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
+import net.minecraft.init.Blocks
 import net.minecraft.network.login.server.S00PacketDisconnect
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minecraft.util.BlockPos.ORIGIN
-import net.minecraft.util.EnumFacing.DOWN
-import net.minecraft.util.Vec3
+import net.minecraft.util.BlockPos
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlin.math.sqrt
@@ -36,13 +36,17 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
     private var lastYaw = 0F
     private var lastPitch = 0F
 
+    private var blockPlacementAttempts = mutableMapOf<BlockPos, Long>()
+    private var successfulPlacements = mutableSetOf<BlockPos>()
+
     private fun clearFlags() {
         flagCount = 0
+        blockPlacementAttempts.clear()
+        successfulPlacements.clear()
     }
 
     private var lagbackDetected = false
     private var forceRotateDetected = false
-    private var ghostBlockDetected = false
 
     private var lastMotionX = 0.0
     private var lastMotionY = 0.0
@@ -79,18 +83,7 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
                 forceRotateDetected = false
             }
 
-            // Idk still testing :/
-            // TODO: Make better check for ghostblock
-            if (player.onGround && player.onPlayerRightClick(ORIGIN, DOWN, Vec3(packet.x, packet.y, packet.z))
-                && player.lookVec.rotatePitch(-90f) != null) {
-                ghostBlockDetected = true
-                flagCount++
-                displayClientMessage("§dDetected §3GhostBlock §b(§eS08Packet§b) §b(§c${flagCount}x§b)")
-            } else {
-                ghostBlockDetected = false
-            }
-
-            if (!forceRotateDetected && !ghostBlockDetected) {
+            if (!forceRotateDetected) {
                 lagbackDetected = true
                 flagCount++
                 displayClientMessage("§dDetected §3Lagback §b(§c${flagCount}x§b)")
@@ -102,6 +95,12 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
 
             lastYaw = mc.thePlayer.rotationYawHead
             lastPitch = mc.thePlayer.rotationPitch
+        }
+
+        if (packet is C08PacketPlayerBlockPlacement) {
+            val blockPos = packet.position
+            blockPlacementAttempts[blockPos] = System.currentTimeMillis()
+            successfulPlacements.add(blockPos)
         }
 
         when (packet) {
@@ -119,11 +118,34 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
     }
 
     /**
-     * Rubberband Checks (Still Under Testing)
+     * Rubberband Checks (Still Under Testing) & GhostBlock Checks
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         val player = mc.thePlayer ?: return
+        val world = mc.theWorld ?: return
+
+        val currentTime = System.currentTimeMillis()
+        val iterator = blockPlacementAttempts.iterator()
+
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            val blockPos = entry.key
+            val timestamp = entry.value
+
+            if (currentTime - timestamp > 500) {
+                val block = world.getBlockState(blockPos).block
+                if (block == Blocks.air && player.isSwingInProgress
+                    && successfulPlacements != blockPos && !player.isBlocking
+                    && !KillAura.renderBlocking && !KillAura.blockStatus) {
+
+                    successfulPlacements.remove(blockPos)
+                    flagCount++
+                    displayClientMessage("§dDetected §3GhostBlock §b(§c${flagCount}x§b)")
+                }
+                iterator.remove()
+            }
+        }
 
         if (!rubberbandCheck || player.ticksExisted <= 100)
             return
