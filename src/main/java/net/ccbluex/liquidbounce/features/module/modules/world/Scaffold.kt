@@ -1707,10 +1707,6 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
 
             updatePlacedBlocksForTelly()
 
-            if (clickPos == placeRotation?.placeInfo?.blockPos) {
-                placeRotation = null
-            }
-
             if (stack.stackSize <= 0) {
                 thePlayer.inventory.mainInventory[serverSlot] = null
                 ForgeEventFactory.onPlayerDestroyItem(thePlayer, stack)
