@@ -31,13 +31,14 @@ object AimBot : Module("AimBot", Category.COMBAT) {
     private val horizontalAim by BooleanValue("HorizontalAim", true)
     private val verticalAim by BooleanValue("VerticalAim", true)
     private val range by FloatValue("Range", 4.4F, 1F..8F)
-    private val turnSpeed by FloatValue("TurnSpeed", 10f, 1F..180F)
-    private val inViewTurnSpeed by FloatValue("InViewTurnSpeed", 35f, 1f..180f)
+    private val startFirstRotationSlow by BooleanValue("StartFirstRotationSlow", true) { horizontalAim || verticalAim }
+    private val turnSpeed by FloatValue("TurnSpeed", 10f, 1F..180F) { horizontalAim || verticalAim }
+    private val inViewTurnSpeed by FloatValue("InViewTurnSpeed", 35f, 1f..180f) { horizontalAim || verticalAim }
     private val predictClientMovement by IntValue("PredictClientMovement", 2, 0..5)
     private val predictEnemyPosition by FloatValue("PredictEnemyPosition", 1.5f, -1f..2f)
     private val fov by FloatValue("FOV", 180F, 1F..180F)
-    private val lock by BooleanValue("Lock", true)
-    private val onClick by BooleanValue("OnClick", false)
+    private val lock by BooleanValue("Lock", true) { horizontalAim || verticalAim }
+    private val onClick by BooleanValue("OnClick", false) { horizontalAim || verticalAim }
     private val jitter by BooleanValue("Jitter", false)
     private val yawJitterMultiplier by FloatValue("JitterYawMultiplier", 1f, 0.1f..2.5f)
     private val pitchJitterMultiplier by FloatValue("JitterPitchMultiplier", 1f, 0.1f..2.5f)
@@ -168,7 +169,11 @@ object AimBot : Module("AimBot", Category.COMBAT) {
         val gaussian = random.nextGaussian()
 
         val realisticTurnSpeed = rotationDiff * ((supposedTurnSpeed + (gaussian - 0.5)) / 180)
-        val rotation = limitAngleChange(player.rotation, destinationRotation, realisticTurnSpeed.toFloat())
+        val rotation = limitAngleChange(player.rotation,
+            destinationRotation,
+            realisticTurnSpeed.toFloat(),
+            startOffSlow = startFirstRotationSlow
+        )
 
         rotation.toPlayer(player, horizontalAim, verticalAim)
 
