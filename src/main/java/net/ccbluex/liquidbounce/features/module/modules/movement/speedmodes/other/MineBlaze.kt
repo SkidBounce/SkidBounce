@@ -14,15 +14,18 @@ import net.ccbluex.liquidbounce.utils.extensions.jmp
  */
 object MineBlaze : SpeedMode("MineBlaze") {
     override fun onUpdate() {
-        mc.thePlayer ?: return
-        mc.thePlayer.run {
-            if (onGround && isMoving)
-                jmp()
-            if (motionY > 0.003) {
-                motionX *= 1.0015
-                motionZ *= 1.0015
-                mc.timer.timerSpeed = 1.06f
-            }
+        val player = mc.thePlayer ?: return
+
+        if (player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
+
+        if (player.onGround && isMoving) {
+            player.jmp()
+        }
+
+        if (player.motionY > 0.003) {
+            player.motionX *= 1.0015
+            player.motionZ *= 1.0015
+            mc.timer.timerSpeed = 1.06f
         }
     }
 }
