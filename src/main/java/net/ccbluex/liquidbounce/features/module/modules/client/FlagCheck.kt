@@ -118,7 +118,7 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
     }
 
     /**
-     * Rubberband Checks (Still Under Testing) & GhostBlock Checks
+     * Rubberband, Invalid Health/Hunger & GhostBlock Checks
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
@@ -128,6 +128,7 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
         val currentTime = System.currentTimeMillis()
         val iterator = blockPlacementAttempts.iterator()
 
+        // GhostBlock Checks
         while (iterator.hasNext()) {
             val entry = iterator.next()
             val blockPos = entry.key
@@ -147,6 +148,22 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
             }
         }
 
+        // Invalid Health/Hunger bar Checks (This is a known lagback by Intave AC)
+        if (!player.isDead && (player.health <= 0.0f || player.foodStats.foodLevel <= 0)) {
+
+            val invalidReason = mutableListOf<String>()
+            if (player.health <= 0.0f) invalidReason.add("Health")
+            if (player.foodStats.foodLevel <= 0) invalidReason.add("Hunger")
+
+            if (invalidReason.isNotEmpty()) {
+                flagCount++
+                val reasonString = invalidReason.joinToString(" §8|§e ")
+                displayClientMessage("§dDetected §3Invalid §e$reasonString §b(§c${flagCount}x§b)")
+                invalidReason.clear()
+            }
+        }
+
+        // Rubberband Checks
         if (!rubberbandCheck || player.ticksExisted <= 100)
             return
 
@@ -179,6 +196,7 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
             flagCount++
             val reasonString = rubberbandReason.joinToString(" §8|§e ")
             displayClientMessage("§dDetected §3Rubberband §8(§e$reasonString§8) §b(§c${flagCount}x§b)")
+            rubberbandReason.clear()
         }
 
         // Update last position and motion
