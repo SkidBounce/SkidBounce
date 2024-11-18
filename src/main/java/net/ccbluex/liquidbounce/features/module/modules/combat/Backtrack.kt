@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.features.module.modules.targets.Friends
 import net.ccbluex.liquidbounce.features.module.modules.targets.Teams
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.blink.FakePlayer
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.StringUtils.contains
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
@@ -105,7 +106,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     private val nonDelayedSoundSubstrings = arrayOf("game.player.hurt", "game.player.die")
 
-    private var backtrackFakePlayer: EntityOtherPlayerMP? = null
+    private var backtrackFakePlayer: FakePlayer? = null
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
@@ -385,7 +386,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                             }
                             "Player" -> {
                                 val targetRender = target as EntityPlayer
-                                val faker = EntityOtherPlayerMP(mc.theWorld, targetRender.gameProfile)
+                                val faker = FakePlayer(EntityOtherPlayerMP(mc.theWorld, targetRender.gameProfile))
 
                                 if (backtrackFakePlayer == null) {
                                     faker.rotationYawHead = targetRender.rotationYawHead
@@ -404,10 +405,6 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
                                         targetEntity.trueY,
                                         targetEntity.trueZ
                                     )
-
-                                    // Mark the faker as a fake player (To prevent KillAura attacking it)
-                                    faker.customNameTag = "FAKE_PLAYER"
-                                    faker.alwaysRenderNameTag = false
 
                                     mc.theWorld.addEntityToWorld(-1337, faker)
                                     backtrackFakePlayer = faker
