@@ -66,6 +66,8 @@
         "module.antiBot.description": "Prevents KillAura from attacking AntiCheat bots.",
         
         "module.antiFireball.description": "Automatically punches fireballs away from you.",
+
+        "module.antiVanish.description": "Automatically detects vanished players.",
         
         "module.atAllProvider.description": "Automatically mentions everyone on the server when using '@a' in your message.",
         
