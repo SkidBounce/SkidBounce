@@ -140,7 +140,8 @@ object Sprint : Module("Sprint", Category.MOVEMENT, gameDetecting = false) {
     private fun shouldStopSprinting(movementInput: MovementInput, isUsingItem: Boolean): Boolean {
         mc.thePlayer ?: return false
 
-        if (isUsingItem && (!usingItem || usingItemOnlyNoSlow && !NoSlow.doNoSlow())
+        if (!handleEvents()
+            || isUsingItem && (!usingItem || usingItemOnlyNoSlow && !NoSlow.doNoSlow())
             || !inventory && serverOpenInventory
             || !sneaking && mc.thePlayer.isSneaking
             || !collide && mc.thePlayer.isCollidedHorizontally

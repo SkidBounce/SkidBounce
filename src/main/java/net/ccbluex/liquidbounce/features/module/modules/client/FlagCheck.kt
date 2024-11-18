@@ -136,7 +136,7 @@ object FlagCheck : Module("FlagCheck", Category.CLIENT, gameDetecting = true) {
 
             if (currentTime - timestamp > 500) {
                 val block = world.getBlockState(blockPos).block
-                if (block == Blocks.air && player.isSwingInProgress
+                if (block == Blocks.air && player.swingProgressInt > 3
                     && successfulPlacements != blockPos && !player.isBlocking
                     && !KillAura.renderBlocking && !KillAura.blockStatus) {
 
