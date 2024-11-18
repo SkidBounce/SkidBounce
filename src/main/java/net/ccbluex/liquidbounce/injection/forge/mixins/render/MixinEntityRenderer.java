@@ -9,6 +9,7 @@ import com.google.common.base.Predicates;
 import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.Render3DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack;
+import net.ccbluex.liquidbounce.features.module.modules.misc.OverrideRaycast;
 import net.ccbluex.liquidbounce.features.module.modules.player.Reach;
 import net.ccbluex.liquidbounce.features.module.modules.render.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.CameraClip;
@@ -175,7 +176,7 @@ public abstract class MixinEntityRenderer {
             double d0 = reach.handleEvents() ? reach.getMaxReach() : mc.playerController.getBlockReachDistance();
             Vec3 eyes = entity.getPositionEyes(partialTicks);
             Rotation rotation = new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-            Vec3 rotationVector = RotationUtils.INSTANCE.getVectorForRotation(RotationUtils.INSTANCE.getCurrentRotation() != null ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
+            Vec3 rotationVector = RotationUtils.INSTANCE.getVectorForRotation(RotationUtils.INSTANCE.getCurrentRotation() != null && OverrideRaycast.INSTANCE.shouldOverride() ? RotationUtils.INSTANCE.getCurrentRotation() : rotation);
             double p_rayTrace_1_ = (reach.handleEvents() ? reach.getBuildReach() : d0);
             Vec3 vec32 = eyes.addVector(rotationVector.xCoord * p_rayTrace_1_, rotationVector.yCoord * p_rayTrace_1_, rotationVector.zCoord * p_rayTrace_1_);
             mc.objectMouseOver = entity.worldObj.rayTraceBlocks(eyes, vec32, false, false, true);

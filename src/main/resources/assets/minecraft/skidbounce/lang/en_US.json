@@ -309,6 +309,10 @@
         "module.zoot.description": "Removes all bad potion effects/fire.",
         "module.antiExploit": "Prevents server from crashing you.",
         "module.keepSprint.description": "Keeps you sprinting after attacking.",
-        "module.antiBounce.description": "Prevents bouncing on slime blocks."
+        "module.antiBounce.description": "Prevents bouncing on slime blocks.",
+
+        "module.disabler.description": "Disables either a server or a specific anticheat detection.",
+
+        "module.overrideRaycast.description": "Overrides your rotation-based raycast with the server rotation based raycast."
     }
 }

@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.event.events.GameLoopEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TickEvent
+import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.client.PacketDebugger
 import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag
@@ -112,6 +113,16 @@ object PacketUtils : MinecraftInstance(), Listenable {
             queuedPackets.clear()
         }
     }
+
+    @EventTarget(priority = -1)
+    fun onDisconnect(event: WorldEvent) {
+        if (event.worldClient == null) {
+            synchronized(queuedPackets) {
+                queuedPackets.clear()
+            }
+        }
+    }
+
     override fun handleEvents() = true
 
     @JvmStatic
