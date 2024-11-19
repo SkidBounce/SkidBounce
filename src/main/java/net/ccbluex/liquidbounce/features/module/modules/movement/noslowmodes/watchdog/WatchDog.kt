@@ -19,7 +19,7 @@ import net.minecraft.util.EnumFacing.DOWN
 /**
  * @author SkidderMC/FDPClient
  */
-class WatchDog : NoSlowMode("WatchDog", antiDesync = true, allowFood = false, allowDrink = false, allowBow = false) {
+class WatchDog : NoSlowMode("WatchDog", antiDesync = true, swordOnly = true) {
     override fun onMotion(event: MotionEvent) {
         if (!mc.thePlayer.onGround)
             return

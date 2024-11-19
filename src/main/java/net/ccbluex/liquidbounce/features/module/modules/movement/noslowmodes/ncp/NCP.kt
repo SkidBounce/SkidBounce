@@ -24,7 +24,7 @@ import net.minecraft.util.EnumFacing.byName
  * @author SkidBounce/SkidBounce
  * @author ManInMyVan
  */
-class NCP : NoSlowMode("NCP", allowFood = false, allowDrink = false, allowBow = false) {
+class NCP : NoSlowMode("NCP", swordOnly = true) {
     private val invalidUsePosition by BooleanValue("InvalidUsePosition", false)
     private val nullUseItem by BooleanValue("NullUseItem", false)
     private val invalidReleasePosition by BooleanValue("InvalidReleasePosition", false)

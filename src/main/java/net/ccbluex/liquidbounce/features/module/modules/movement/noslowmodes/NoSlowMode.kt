@@ -21,6 +21,15 @@ open class NoSlowMode(
     val allowDrink: Boolean = true,
     val allowBow: Boolean = true,
 ) : MinecraftInstance() {
+
+    constructor(
+        modeName: String,
+        allowNoMove: Boolean = true,
+        handlePacketEventOnNoMove: Boolean = false,
+        antiDesync: Boolean = false,
+        swordOnly: Boolean = false
+    ) : this(modeName, allowNoMove, handlePacketEventOnNoMove, antiDesync, true, !swordOnly, !swordOnly, !swordOnly)
+
     open fun onMotion(event: MotionEvent) {}
     open fun onUpdate() {}
     open fun onPacket(event: PacketEvent) {}

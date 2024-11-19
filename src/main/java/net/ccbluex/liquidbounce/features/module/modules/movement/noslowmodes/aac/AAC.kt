@@ -19,7 +19,7 @@ import net.minecraft.util.EnumFacing.DOWN
 /**
  * @author Aspw-w/NightX-Client
  */
-class AAC : NoSlowMode("AAC", antiDesync = true, allowFood = false, allowDrink = false, allowBow = false) {
+class AAC : NoSlowMode("AAC", antiDesync = true, swordOnly = true) {
     override fun onMotion(event: MotionEvent) {
         when (event.eventState) {
             PRE -> if (mc.thePlayer.ticksExisted % 3 == 0)
