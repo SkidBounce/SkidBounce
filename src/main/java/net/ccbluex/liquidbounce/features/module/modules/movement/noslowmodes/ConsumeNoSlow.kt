@@ -16,5 +16,6 @@ object ConsumeNoSlow : BaseNoSlow(
         Medusa,
         Drop(),
         Grim2365,
+        InvalidC08,
     )
 )
