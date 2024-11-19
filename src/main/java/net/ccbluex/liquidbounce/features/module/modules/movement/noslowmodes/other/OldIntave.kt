@@ -16,7 +16,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 /**
  * @author SkidderMC/FDPClient
  */
-object OldIntave : NoSlowMode("OldIntave") {
+class OldIntave : NoSlowMode("OldIntave") {
     override fun onMotion(event: MotionEvent) {
         when (event.eventState) {
             PRE -> {

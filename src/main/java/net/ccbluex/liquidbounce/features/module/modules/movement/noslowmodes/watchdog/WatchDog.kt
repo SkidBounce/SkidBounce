@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.timing.MSTimer
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
@@ -20,13 +19,12 @@ import net.minecraft.util.EnumFacing.DOWN
 /**
  * @author SkidderMC/FDPClient
  */
-object WatchDog : NoSlowMode("WatchDog", antiDesync = true) {
-    val timer = MSTimer()
+class WatchDog : NoSlowMode("WatchDog", antiDesync = true, allowFood = false, allowDrink = false, allowBow = false) {
     override fun onMotion(event: MotionEvent) {
         if (!mc.thePlayer.onGround)
             return
 
-        if (mc.thePlayer.ticksExisted % 2 == 0 && event.eventState == PRE && timer.hasTimePassed(50))
+        if (mc.thePlayer.ticksExisted % 2 == 0 && event.eventState == PRE)
             sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos(-1, -1, -1), DOWN))
 
         if (mc.thePlayer.ticksExisted % 2 != 0 && event.eventState == POST)

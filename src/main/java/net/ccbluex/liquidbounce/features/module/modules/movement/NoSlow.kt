@@ -14,10 +14,12 @@ import net.ccbluex.liquidbounce.event.events.SlowDownEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.*
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP.shouldSwap
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BowNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.DrinkNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.FoodNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.SwordNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP2
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.Vanilla
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPackets
@@ -35,10 +37,38 @@ import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SNEA
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAKING
 
 object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
-    private val sword by BooleanValue("Sword", true)
-    private val food by BooleanValue("Food", true)
-    private val drink by BooleanValue("Drink", true)
-    private val bow by BooleanValue("Bow", true)
+    private val sword by object : BooleanValue("Sword", true) {
+        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+            if (state) {
+                if (newValue) SwordNoSlow.mode.onEnable()
+                else SwordNoSlow.mode.onDisable()
+            }
+        }
+    }
+    private val food by object : BooleanValue("Food", true) {
+        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+            if (state) {
+                if (newValue) FoodNoSlow.mode.onEnable()
+                else FoodNoSlow.mode.onDisable()
+            }
+        }
+    }
+    private val drink by object : BooleanValue("Drink", true) {
+        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+            if (state) {
+                if (newValue) DrinkNoSlow.mode.onEnable()
+                else DrinkNoSlow.mode.onDisable()
+            }
+        }
+    }
+    private val bow by object : BooleanValue("Bow", true) {
+        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+            if (state) {
+                if (newValue) BowNoSlow.mode.onEnable()
+                else BowNoSlow.mode.onDisable()
+            }
+        }
+    }
 
     @JvmStatic val sneaking by BooleanValue("Sneak", true)
     private val sneakMode by ListValue("Sneak-Mode", arrayOf("Vanilla", "Switch", "MineSecure"), "Vanilla") { sneaking }
@@ -55,8 +85,12 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     private val slimeFriction by FloatValue("Slime-Friction", 0.6f, 0.6f..0.8f) { slime }
 
     override fun onDisable() {
-        shouldSwap = false
+        usedNoSlow?.mode?.onDisable()
         Blocks.slime_block.slipperiness = 0.8f
+    }
+
+    override fun onEnable() {
+        usedNoSlow?.mode?.onEnable()
     }
 
     @EventTarget
@@ -90,25 +124,27 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             }
         }
 
+        val shouldSwap = usedNoSlow?.mode?.let { it is UNCP  && it.shouldSwap } == true
+
         if (!shouldSwap && noMoveCheck) return
 
         if (isUsingItem || shouldSwap)
-            usedMode.onMotion(event)
+            usedNoSlow?.mode?.onMotion(event)
     }
 
     @EventTarget
     fun onUpdate() {
         antiDesync()
 
-        if (!noMoveCheck && isUsingItem) usedMode.onUpdate()
+        if (!noMoveCheck && isUsingItem) usedNoSlow?.mode?.onUpdate()
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (usedMode.handlePacketEventOnNoMove || !noMoveCheck) usedMode.onPacket(event)
+        if (usedNoSlow?.mode?.handlePacketEventOnNoMove == true || !noMoveCheck) usedNoSlow?.mode?.onPacket(event)
     }
 
-    fun doNoSlow() = handleEvents() && usedNoSlow != null && usedMode.canNoSlow
+    fun doNoSlow() = handleEvents() && usedNoSlow?.mode?.canNoSlow == true
 
     @EventTarget
     fun onSlowDown(event: SlowDownEvent) {
@@ -122,11 +158,11 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
         get() = usedNoSlow?.run { !isMoving && (onlyMove && mode.allowNoMove) } ?: false
 
     private fun antiDesync() {
-        if (usedMode.antiDesync && serverUsing && !isUsingItem)
+        if (usedNoSlow?.run { mode.antiDesync } == true && serverUsing && !isUsingItem)
             serverUsing = false
     }
 
-    private val usedNoSlow
+    val usedNoSlow
         get() = mc.thePlayer?.heldItem?.run {
             return@run when {
                 item is ItemSword && sword -> SwordNoSlow
@@ -136,9 +172,6 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
                 else -> null
             }
         }
-
-    val usedMode: NoSlowMode
-        get() = usedNoSlow?.mode ?: Vanilla
 
     fun isUNCPBlocking() = mc.gameSettings.keyBindUseItem.isKeyDown && usedNoSlow?.run { this == SwordNoSlow && mode is UNCP2 } ?: false
 

@@ -10,4 +10,4 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoS
 /**
  * @author CCBlueX/LiquidBounce
  */
-object Vanilla : NoSlowMode("Vanilla", allowNoMove = false)
+class Vanilla : NoSlowMode("Vanilla", allowNoMove = false)

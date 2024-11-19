@@ -15,7 +15,7 @@ import net.minecraft.util.BlockPos.ORIGIN
 /**
  * @author CCBlueX/LiquidBounce
  */
-object UNCP2 : NoSlowMode("UNCP2") {
+class UNCP2 : NoSlowMode("UNCP2") {
     override fun onMotion(event: MotionEvent) {
         if (event.eventState == POST)
             sendPacket(C08PacketPlayerBlockPlacement(ORIGIN, 255, mc.thePlayer.heldItem, 0f, 0f, 0f))

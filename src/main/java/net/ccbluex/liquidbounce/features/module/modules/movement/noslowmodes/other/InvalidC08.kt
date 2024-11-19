@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.BlockPos
 
-object InvalidC08 : NoSlowMode("InvalidC08") {
+class InvalidC08 : NoSlowMode("InvalidC08") {
     override fun onMotion(event: MotionEvent) {
         if (event.eventState == EventState.PRE) {
             sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), -1, mc.thePlayer.heldItem, -1f, -1f, -1f))

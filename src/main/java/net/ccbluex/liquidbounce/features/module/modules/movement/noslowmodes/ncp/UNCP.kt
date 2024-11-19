@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.nc
 import net.ccbluex.liquidbounce.event.EventState.PRE
 import net.ccbluex.liquidbounce.event.events.MotionEvent
 import net.ccbluex.liquidbounce.event.events.PacketEvent
-import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow.usedMode
+import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow.usedNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.inventory.InventoryUtils.serverSlot
@@ -18,9 +18,9 @@ import net.minecraft.util.BlockPos.ORIGIN
 /**
  * @author CCBlueX/LiquidBounce
  */
-object UNCP : NoSlowMode("UNCP") {
+class UNCP : NoSlowMode("UNCP") {
     var shouldSwap: Boolean = false
-        get() = usedMode == this && field
+        get() = usedNoSlow?.mode == this && field
 
     override fun onMotion(event: MotionEvent) {
         if (event.eventState == PRE && shouldSwap) {
@@ -38,10 +38,14 @@ object UNCP : NoSlowMode("UNCP") {
 
         if (packet is C08PacketPlayerBlockPlacement) {
             if (packet.stack?.item != null && mc.thePlayer.heldItem?.item != null && packet.stack.item == mc.thePlayer.heldItem?.item) {
-                if (usedMode == this) {
+                if (usedNoSlow?.mode == this) {
                     shouldSwap = true
                 }
             }
         }
+    }
+
+    override fun onDisable() {
+        shouldSwap = false;
     }
 }

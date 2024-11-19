@@ -19,7 +19,7 @@ import net.minecraft.util.EnumFacing.DOWN
 /**
  * @author SkidderMC/FDPClient
  */
-object AAC2 : NoSlowMode("AAC2", antiDesync = true) {
+class AAC2 : NoSlowMode("AAC2", antiDesync = true, allowFood = false, allowDrink = false, allowBow = false) {
     override fun onMotion(event: MotionEvent) {
         when {
             event.eventState == PRE && mc.thePlayer.ticksExisted % 3 == 0 ->

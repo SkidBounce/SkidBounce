@@ -14,7 +14,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SPRIN
 /**
  * @author SkidderMC/FDPClient
  */
-object Medusa : NoSlowMode("Medusa") {
+class Medusa : NoSlowMode("Medusa") {
     var sendPacket = true
     override fun onPacket(event: PacketEvent) {
         if ((mc.thePlayer.isUsingItem || mc.thePlayer.isBlocking) && sendPacket) {

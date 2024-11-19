@@ -15,11 +15,17 @@ open class NoSlowMode(
     val modeName: String,
     val allowNoMove: Boolean = true,
     val handlePacketEventOnNoMove: Boolean = false,
-    val antiDesync: Boolean = false
+    val antiDesync: Boolean = false,
+    val allowSword: Boolean = true,
+    val allowFood: Boolean = true,
+    val allowDrink: Boolean = true,
+    val allowBow: Boolean = true,
 ) : MinecraftInstance() {
     open fun onMotion(event: MotionEvent) {}
     open fun onUpdate() {}
     open fun onPacket(event: PacketEvent) {}
+    open fun onDisable() {}
+    open fun onEnable() {}
 
     open val values: List<Value<*>>
         get() = getValues(this)
