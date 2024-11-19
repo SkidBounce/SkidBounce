@@ -4,7 +4,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP2
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.*
 
-object ConsumeNoSlow : BaseNoSlow(
+object DrinkNoSlow : BaseNoSlow(
     arrayOf(
         Vanilla,
         SwitchItem(),

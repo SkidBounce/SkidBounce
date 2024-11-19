@@ -14,10 +14,7 @@ import net.ccbluex.liquidbounce.event.events.SlowDownEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.SwordNoSlow
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BowNoSlow
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ConsumeNoSlow
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP.shouldSwap
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp.UNCP2
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.Vanilla
@@ -39,7 +36,8 @@ import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAK
 
 object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     private val sword by BooleanValue("Sword", true)
-    private val consume by BooleanValue("Consume", true)
+    private val food by BooleanValue("Food", true)
+    private val drink by BooleanValue("Drink", true)
     private val bow by BooleanValue("Bow", true)
 
     @JvmStatic val sneaking by BooleanValue("Sneak", true)
@@ -133,7 +131,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             return@run when {
                 item is ItemSword && sword -> SwordNoSlow
                 item is ItemBow && bow -> BowNoSlow
-                (item is ItemPotion && !isSplashPotion || item is ItemFood || item is ItemBucketMilk) && consume -> ConsumeNoSlow
+                item is ItemFood && food -> FoodNoSlow
+                (item is ItemPotion && !isSplashPotion || item is ItemBucketMilk) && drink -> DrinkNoSlow
                 else -> null
             }
         }
@@ -151,9 +150,14 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
             value.name = "Sword-${value.name}"
         }
 
-        for (value in ConsumeNoSlow.values) {
-            value.isSupported += { consume }
-            value.name = "Consume-${value.name}"
+        for (value in FoodNoSlow.values) {
+            value.isSupported += { food }
+            value.name = "Food-${value.name}"
+        }
+
+        for (value in DrinkNoSlow.values) {
+            value.isSupported += { drink }
+            value.name = "Drink-${value.name}"
         }
 
         for (value in BowNoSlow.values) {
@@ -164,7 +168,8 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
     override val values: List<Value<*>> = super.values.toMutableList().apply {
         addAll(indexOfFirst { it.name == "Sword" } + 1, SwordNoSlow.values)
-        addAll(indexOfFirst { it.name == "Consume" } + 1, ConsumeNoSlow.values)
+        addAll(indexOfFirst { it.name == "Food" } + 1, FoodNoSlow.values)
+        addAll(indexOfFirst { it.name == "Drink" } + 1, DrinkNoSlow.values)
         addAll(indexOfFirst { it.name == "Bow" } + 1, BowNoSlow.values)
     }
 }
