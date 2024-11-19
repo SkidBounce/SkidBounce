@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ncp
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.other.*
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.watchdog.WatchDog
 
-object BlockingNoSlow : BaseNoSlow(
+object SwordNoSlow : BaseNoSlow(
     arrayOf(
         Vanilla,
         SwitchItem(),

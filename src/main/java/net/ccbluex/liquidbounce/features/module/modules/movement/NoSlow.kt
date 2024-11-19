@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.event.events.SlowDownEvent
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
-import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BlockingNoSlow
+import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.SwordNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.BowNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.ConsumeNoSlow
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
@@ -38,7 +38,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction.Action.START_SNEA
 import net.minecraft.network.play.client.C0BPacketEntityAction.Action.STOP_SNEAKING
 
 object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
-    private val blocking by BooleanValue("Blocking", true)
+    private val sword by BooleanValue("Sword", true)
     private val consume by BooleanValue("Consume", true)
     private val bow by BooleanValue("Bow", true)
 
@@ -131,7 +131,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     private val usedNoSlow
         get() = mc.thePlayer?.heldItem?.run {
             return@run when {
-                item is ItemSword && blocking -> BlockingNoSlow
+                item is ItemSword && sword -> SwordNoSlow
                 item is ItemBow && bow -> BowNoSlow
                 (item is ItemPotion && !isSplashPotion || item is ItemFood || item is ItemBucketMilk) && consume -> ConsumeNoSlow
                 else -> null
@@ -141,14 +141,14 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     val usedMode: NoSlowMode
         get() = usedNoSlow?.mode ?: Vanilla
 
-    fun isUNCPBlocking() = mc.gameSettings.keyBindUseItem.isKeyDown && usedNoSlow?.run { this == BlockingNoSlow && mode is UNCP2 } ?: false
+    fun isUNCPBlocking() = mc.gameSettings.keyBindUseItem.isKeyDown && usedNoSlow?.run { this == SwordNoSlow && mode is UNCP2 } ?: false
 
     private val isUsingItem get() = mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
 
     init {
-        for (value in BlockingNoSlow.values) {
-            value.isSupported += { blocking }
-            value.name = "Blocking-${value.name}"
+        for (value in SwordNoSlow.values) {
+            value.isSupported += { sword }
+            value.name = "Sword-${value.name}"
         }
 
         for (value in ConsumeNoSlow.values) {
@@ -163,7 +163,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
     }
 
     override val values: List<Value<*>> = super.values.toMutableList().apply {
-        addAll(indexOfFirst { it.name == "Blocking" } + 1, BlockingNoSlow.values)
+        addAll(indexOfFirst { it.name == "Sword" } + 1, SwordNoSlow.values)
         addAll(indexOfFirst { it.name == "Consume" } + 1, ConsumeNoSlow.values)
         addAll(indexOfFirst { it.name == "Bow" } + 1, BowNoSlow.values)
     }
