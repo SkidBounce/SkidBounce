@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.util.BlockPos
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.field_179726_a
 import net.minecraft.util.EnumFacing.DOWN
 
 /**
@@ -23,10 +23,11 @@ class AAC : NoSlowMode("AAC", antiDesync = true, swordOnly = true) {
     override fun onMotion(event: MotionEvent) {
         when (event.eventState) {
             PRE -> if (mc.thePlayer.ticksExisted % 3 == 0)
-                sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos(-1, -1, -1), DOWN))
+                sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, field_179726_a, DOWN))
 
             POST -> if (mc.thePlayer.ticksExisted % 3 != 0)
                 sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+
             else -> {}
         }
     }

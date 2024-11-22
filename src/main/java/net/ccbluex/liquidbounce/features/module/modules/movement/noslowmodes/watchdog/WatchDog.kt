@@ -13,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RELEASE_USE_ITEM
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
-import net.minecraft.util.BlockPos
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.field_179726_a
 import net.minecraft.util.EnumFacing.DOWN
 
 /**
@@ -25,9 +25,9 @@ class WatchDog : NoSlowMode("WatchDog", antiDesync = true, swordOnly = true) {
             return
 
         if (mc.thePlayer.ticksExisted % 2 == 0 && event.eventState == PRE)
-            sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, BlockPos(-1, -1, -1), DOWN))
+            sendPacket(C07PacketPlayerDigging(RELEASE_USE_ITEM, field_179726_a, DOWN))
 
         if (mc.thePlayer.ticksExisted % 2 != 0 && event.eventState == POST)
-            sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer.heldItem, 0f, 0f, 0f))
+            sendPacket(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
     }
 }
