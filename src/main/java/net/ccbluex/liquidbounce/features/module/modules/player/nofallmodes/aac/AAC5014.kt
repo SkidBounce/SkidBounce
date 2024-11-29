@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.aac
 
 import net.ccbluex.liquidbounce.features.module.modules.player.nofallmodes.NoFallMode
-import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_HEIGHT
+import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_MOTION
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
@@ -62,7 +62,7 @@ object AAC5014 : NoFallMode("AAC5.0.14") {
         sendPacket(
             C04PacketPlayerPosition(
                 mc.thePlayer.posX,
-                mc.thePlayer.posY + (if (mc.thePlayer.onGround) 0.5 else JUMP_HEIGHT),
+                mc.thePlayer.posY + (if (mc.thePlayer.onGround) 0.5 else JUMP_MOTION),
                 mc.thePlayer.posZ,
                 true
             )

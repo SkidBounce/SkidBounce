@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.Fly
 import net.ccbluex.liquidbounce.features.module.modules.movement.Speed
 import net.ccbluex.liquidbounce.utils.CPSCounter.MouseButton.RIGHT
 import net.ccbluex.liquidbounce.utils.CPSCounter.registerClick
-import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_HEIGHT
+import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_MOTION
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.speed
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
@@ -118,7 +118,7 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
     private val constantMotionJumpPacket by BooleanValue("JumpPacket", true) { towerMode == "ConstantMotion" }
 
     // Vanilla
-    private val vanillaMotion by DoubleValue("VanillaMotion", JUMP_HEIGHT, 0.1..1.0) { towerMode == "Vanilla" }
+    private val vanillaMotion by DoubleValue("VanillaMotion", JUMP_MOTION, 0.1..1.0) { towerMode == "Vanilla" }
     private val vanillaFakeJump by BooleanValue("VanillaFakeJump", true) { towerMode == "Vanilla" }
 
     // Teleport
@@ -321,7 +321,7 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
     private val autoJump by BooleanValue("AutoJump", false) { scaffoldMode != "GodBridge" }
     private val autoJumpOnlySprinting by BooleanValue("AutoJump-OnlySprinting", true) { scaffoldMode != "GodBridge" && autoJump && sprint }
     private val autoJumpInput by BooleanValue("AutoJump-Input", true) { scaffoldMode != "GodBridge" && autoJump }
-    private val autoJumpMotion by DoubleValue("AutoJump-Motion", JUMP_HEIGHT, 0.0..JUMP_HEIGHT) { scaffoldMode != "GodBridge" && autoJump && !autoJumpInput }
+    private val autoJumpMotion by DoubleValue("AutoJump-Motion", JUMP_MOTION, 0.0..JUMP_MOTION) { scaffoldMode != "GodBridge" && autoJump && !autoJumpInput }
     private val autoJumpIgnoreJumpBoost by BooleanValue("AutoJump-IgnoreJumpBoost", false) { scaffoldMode != "GodBridge" && autoJump && !autoJumpInput }
     private val autoJumpNoBoost by BooleanValue("AutoJump-NoBoost", false) { scaffoldMode != "GodBridge" && autoJump }
     private val autoJumpNoBoostForce by BooleanValue("AutoJump-NoBoost-Force", true) { scaffoldMode != "GodBridge" && autoJump && autoJumpNoBoost && !autoJumpInput }

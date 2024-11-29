@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils.extensions
 import net.ccbluex.liquidbounce.features.module.modules.movement.InventoryMove
 import net.ccbluex.liquidbounce.file.FileManager.friendsConfig
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
-import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_HEIGHT
+import net.ccbluex.liquidbounce.utils.MovementUtils.JUMP_MOTION
 import net.ccbluex.liquidbounce.utils.MovementUtils.getJumpBoostModifier
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.Rotation
@@ -390,7 +390,7 @@ fun EntityPlayer.fakeJump() {
 }
 
 fun EntityPlayer.jmp(
-    motion: Number = JUMP_HEIGHT,
+    motion: Number = JUMP_MOTION,
     boost: Boolean = true,
     ignoreJumpBoost: Boolean = false,
     ignoreGround: Boolean = false,
@@ -405,7 +405,7 @@ fun EntityPlayer.jmp(
     jump()
 
     // only change motion if the jump wasn't cancelled
-    if (motionY == getJumpBoostModifier(JUMP_HEIGHT))
+    if (motionY == getJumpBoostModifier(JUMP_MOTION))
         motionY = getJumpBoostModifier(motion.toDouble(), !ignoreJumpBoost)
 
     if (!boost) {

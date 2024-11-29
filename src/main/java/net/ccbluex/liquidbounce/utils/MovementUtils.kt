@@ -17,7 +17,7 @@ import net.minecraft.util.BlockPos
 import kotlin.math.*
 
 object MovementUtils : MinecraftInstance(), Listenable {
-    const val JUMP_HEIGHT = 0.41999998688697815
+    const val JUMP_MOTION = 0.41999998688697815
 
     val aboveVoid: Boolean
         get() {
