@@ -8,6 +8,10 @@ import net.ccbluex.liquidbounce.utils.extensions.stopXZ
 import net.ccbluex.liquidbounce.utils.extensions.update
 import net.minecraft.init.Blocks.*
 
+/**
+ * @author SkidBounce/SkidBounce
+ * @author ManInMyVan
+ */
 object Karhu : SpeedMode("Karhu") {
     private var wasSpeed = false
 
