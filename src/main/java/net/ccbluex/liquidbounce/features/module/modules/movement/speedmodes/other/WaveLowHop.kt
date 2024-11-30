@@ -5,13 +5,13 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.other
 
-import net.ccbluex.liquidbounce.features.module.modules.movement.Speed.wavelowhopTimer
 import net.ccbluex.liquidbounce.features.module.modules.movement.speedmodes.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
 import net.ccbluex.liquidbounce.utils.extensions.jmp
 import net.ccbluex.liquidbounce.utils.extensions.resetSpeed
 import net.ccbluex.liquidbounce.utils.extensions.stopXZ
+import net.ccbluex.liquidbounce.value.FloatValue
 import net.minecraft.potion.Potion.moveSpeed
 
 /**
@@ -19,6 +19,7 @@ import net.minecraft.potion.Potion.moveSpeed
  * @author ManInMyVan
  */
 object WaveLowHop : SpeedMode("WaveLowHop") {
+    private val timer by FloatValue("Timer", 1.25f, 1f..2f)
     private var wasGround = false
 
     override fun onUpdate() {
@@ -28,7 +29,7 @@ object WaveLowHop : SpeedMode("WaveLowHop") {
             return
         }
 
-        mc.timer.timerSpeed = wavelowhopTimer
+        mc.timer.timerSpeed = timer
 
         if (mc.thePlayer.onGround) {
             wasGround = true
