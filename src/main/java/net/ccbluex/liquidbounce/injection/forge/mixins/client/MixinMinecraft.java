@@ -52,7 +52,7 @@ import static net.ccbluex.liquidbounce.utils.MinecraftInstance.mc;
 
 @Mixin(Minecraft.class)
 @SideOnly(Side.CLIENT)
-public abstract class MixinMinecraft {
+public class MixinMinecraft {
     @Shadow @Final private static Logger logger = LogManager.getLogger();
     @Shadow public GuiScreen currentScreen;
     @Shadow public boolean skipRenderWorld;
@@ -66,7 +66,6 @@ public abstract class MixinMinecraft {
     @Shadow public int displayHeight;
     @Shadow public int rightClickDelayTimer;
     @Shadow public GameSettings gameSettings;
-    @Shadow public abstract void displayGuiScreen(GuiScreen guiScreenIn);
 
     private long lastFrame = getTime();
     public long getTime() {
