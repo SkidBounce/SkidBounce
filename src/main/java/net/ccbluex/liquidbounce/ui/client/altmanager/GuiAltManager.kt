@@ -13,6 +13,7 @@ import me.liuli.elixir.account.MicrosoftAccount
 import me.liuli.elixir.account.MinecraftAccount
 import me.liuli.elixir.account.MojangAccount
 import net.ccbluex.liquidbounce.LiquidBounce.CLIENT_CLOUD
+import net.ccbluex.liquidbounce.LiquidBounce.originalSession
 import net.ccbluex.liquidbounce.event.EventManager.callEvent
 import net.ccbluex.liquidbounce.event.events.SessionEvent
 import net.ccbluex.liquidbounce.file.FileManager.accountsConfig
@@ -82,17 +83,18 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
             add(GuiButton(12, width - 80, startPositionY + 24 * 4, 70, 20, "Export"))
             add(GuiButton(8, width - 80, startPositionY + 24 * 5, 70, 20, "Copy").also { copyButton = it })
             add(GuiButton(0, width - 80, height - 65, 70, 20, "Back"))
-            add(GuiButton(3, 5, startPositionY + 24, 90, 20, "Login").also { loginButton = it })
-            add(GuiButton(4, 5, startPositionY + 24 * 2, 90, 20, "Random Alt").also { randomAltButton = it })
-            add(GuiButton(5, 5, startPositionY + 24 * 3, 90, 20, "Random Name").also { randomNameButton = it })
-            add(GuiButton(6, 5, startPositionY + 24 * 4, 90, 20, "Direct Login"))
-            add(GuiButton(10, 5, startPositionY + 24 * 5, 90, 20, "Session Login"))
+            add(GuiButton(13, 5, startPositionY + 24, 90, 20, "Original Session"))
+            add(GuiButton(3, 5, startPositionY + 24 * 2, 90, 20, "Login").also { loginButton = it })
+            add(GuiButton(4, 5, startPositionY + 24 * 3, 90, 20, "Random Alt").also { randomAltButton = it })
+            add(GuiButton(5, 5, startPositionY + 24 * 4, 90, 20, "Random Name").also { randomNameButton = it })
+            add(GuiButton(6, 5, startPositionY + 24 * 5, 90, 20, "Direct Login"))
+            add(GuiButton(10, 5, startPositionY + 24 * 6, 90, 20, "Session Login"))
 
             if (activeGenerators.getOrDefault("thealtening", true)) {
-                add(GuiButton(9, 5, startPositionY + 24 * 6, 90, 20, "TheAltening"))
+                add(GuiButton(9, 5, startPositionY + 24 * 7, 90, 20, "TheAltening"))
             }
 
-            add(GuiButton(11, 5, startPositionY + 24 * 7, 90, 20, "Cape"))
+            add(GuiButton(11, 5, startPositionY + 24 * 8, 90, 20, "Cape"))
         }
     }
 
@@ -209,6 +211,38 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 status = "§aThe accounts were imported successfully."
             }
 
+            8 -> {
+                val currentAccount = altsList.selectedAccount
+
+                if (currentAccount == null) {
+                    status = "§cSelect an account."
+                    return
+                }
+
+                // Format data for other tools
+                val formattedData = when (currentAccount) {
+                    is MojangAccount -> "${currentAccount.email}:${currentAccount.password}" // EMAIL:PASSWORD
+                    is MicrosoftAccount -> "${currentAccount.name}:${currentAccount.session.token}" // NAME:SESSION
+                    else -> currentAccount.name
+                }
+
+                // Copy to clipboard
+                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(formattedData), null)
+                status = "§aCopied account into your clipboard."
+            }
+
+            9 -> { // Altening Button
+                mc.displayGuiScreen(GuiTheAltening(this))
+            }
+
+            10 -> { // Session Login Button
+                mc.displayGuiScreen(GuiSessionLogin(this))
+            }
+
+            11 -> { // Donator Cape Button
+                mc.displayGuiScreen(GuiDonatorCape(this))
+            }
+
             12 -> { // Export button
                 if (accountsConfig.accounts.isEmpty()) {
                     status = "§cYou do not have any accounts to export."
@@ -240,36 +274,8 @@ class GuiAltManager(private val prevGui: GuiScreen) : GuiScreen() {
                 }
             }
 
-            8 -> {
-                val currentAccount = altsList.selectedAccount
-
-                if (currentAccount == null) {
-                    status = "§cSelect an account."
-                    return
-                }
-
-                // Format data for other tools
-                val formattedData = when (currentAccount) {
-                    is MojangAccount -> "${currentAccount.email}:${currentAccount.password}" // EMAIL:PASSWORD
-                    is MicrosoftAccount -> "${currentAccount.name}:${currentAccount.session.token}" // NAME:SESSION
-                    else -> currentAccount.name
-                }
-
-                // Copy to clipboard
-                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(formattedData), null)
-                status = "§aCopied account into your clipboard."
-            }
-
-            9 -> { // Altening Button
-                mc.displayGuiScreen(GuiTheAltening(this))
-            }
-
-            10 -> { // Session Login Button
-                mc.displayGuiScreen(GuiSessionLogin(this))
-            }
-
-            11 -> { // Donator Cape Button
-                mc.displayGuiScreen(GuiDonatorCape(this))
+            13 -> { // Original Session
+                mc.session = originalSession
             }
         }
     }
