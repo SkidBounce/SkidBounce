@@ -9,7 +9,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.field_179
 
 class InvalidC08 : NoSlowMode("InvalidC08") {
     override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE) {
+        if (event.eventState == EventState.PRE && mc.thePlayer.ticksExisted % 2 == 0) {
             sendPacket(C08PacketPlayerBlockPlacement(field_179726_a, -1, mc.thePlayer.heldItem, -1f, -1f, -1f))
         }
     }

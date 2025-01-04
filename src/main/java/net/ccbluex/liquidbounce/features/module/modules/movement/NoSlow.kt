@@ -175,7 +175,7 @@ object NoSlow : Module("NoSlow", Category.MOVEMENT, gameDetecting = false) {
 
     fun isUNCPBlocking() = mc.gameSettings.keyBindUseItem.isKeyDown && usedNoSlow?.run { this == SwordNoSlow && mode is UNCP2 } ?: false
 
-    private val isUsingItem get() = mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
+    val isUsingItem get() = mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockStatus) || isUNCPBlocking())
 
     init {
         for (value in SwordNoSlow.values) {
