@@ -12,7 +12,6 @@ import net.ccbluex.liquidbounce.event.events.Render3DEvent
 import net.ccbluex.liquidbounce.event.events.WorldEvent
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.render.Breadcrumbs
-import net.ccbluex.liquidbounce.utils.ClientUtils.displayClientMessage
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.PacketType
 import net.ccbluex.liquidbounce.utils.PacketUtils.queuedPackets
@@ -32,7 +31,6 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.util.concurrent.LinkedBlockingQueue
-import kotlin.random.Random
 
 object BlinkHandler : Listenable {
     private var fakePlayer: FakePlayer? = null
