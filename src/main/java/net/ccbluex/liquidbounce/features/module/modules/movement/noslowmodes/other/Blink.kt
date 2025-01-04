@@ -5,11 +5,13 @@ import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow.isUsingItem
 import net.ccbluex.liquidbounce.features.module.modules.movement.noslowmodes.NoSlowMode
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
+import net.ccbluex.liquidbounce.utils.blink.BlinkHandler
 import net.ccbluex.liquidbounce.utils.blink.IBlink
+import net.ccbluex.liquidbounce.utils.timing.TickTimer
+import net.ccbluex.liquidbounce.value.IntValue
 import net.minecraft.item.ItemSword
 import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.network.status.client.C00PacketServerQuery
@@ -17,15 +19,21 @@ import net.minecraft.network.status.client.C01PacketPing
 import net.minecraft.network.status.server.S01PacketPong
 
 class Blink : NoSlowMode("Blink", swordOnly = true, allowNoMove = false), IBlink {
+    private val reblinkTicks by IntValue("ReblinkTicks", 10, 1..20)
+    private val blinkTimer = TickTimer()
+
     override fun onPacket(event: PacketEvent) {
         when (val packet = event.packet) {
             is C00Handshake, is C00PacketServerQuery, is C01PacketPing, is C01PacketChatMessage, is S01PacketPong -> return
 
-            // Flush on doing action, getting action
-            is S08PacketPlayerPosLook, is C07PacketPlayerDigging, is C02PacketUseEntity, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
-                if (blinkingClient) {
+            is C07PacketPlayerDigging, is C02PacketUseEntity, is C12PacketUpdateSign, is C19PacketResourcePackStatus -> {
+                blinkTimer.update()
+                if (blinkingClient && blinkTimer.hasTimePassed(reblinkTicks) && BlinkHandler.packets.isNotEmpty()) {
                     release(client = true, server = false)
+                    blinkTimer.reset()
                     blinkingClient = false
+                } else if (!blinkTimer.hasTimePassed(reblinkTicks)) {
+                    blinkingClient = true
                 }
                 return
             }
@@ -57,5 +65,10 @@ class Blink : NoSlowMode("Blink", swordOnly = true, allowNoMove = false), IBlink
                 }
             }
         }
+    }
+
+    override fun onDisable() {
+        blinkTimer.reset()
+        release(client = true, server = false)
     }
 }
