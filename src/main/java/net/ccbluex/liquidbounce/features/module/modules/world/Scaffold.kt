@@ -185,7 +185,6 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
     }
 
     // GodBridge mode subvalues
-    private val useStaticRotation by BooleanValue("GodBridge-UseStaticRotation", false) { scaffoldMode == "GodBridge" }
     private val godBridgeAutoJump by BooleanValue("GodBridge-AutoJump", true) { scaffoldMode == "GodBridge" }
     private val jumpAutomatically by BooleanValue("GodBridge-JumpAutomatically", true) { scaffoldMode == "GodBridge" && godBridgeAutoJump }
     private val maxBlocksToJump: IntValue = object : IntValue("GodBridge-MaxBlocksToJump", 4, 1..8) {
@@ -557,7 +556,7 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
             if (rotationMode != "Off" && rotation != null) {
                 val placeRotation = this.placeRotation?.rotation ?: rotation
 
-                val pitch = if (scaffoldMode == "GodBridge" && useStaticRotation) {
+                val pitch = if (scaffoldMode == "GodBridge") {
                     if (placeRotation == this.placeRotation?.rotation) {
                         if (isLookingDiagonally) 75.6f else 73.5f
                     } else placeRotation.pitch
@@ -1397,7 +1396,7 @@ object Scaffold : Module("Scaffold", Category.WORLD) {
 
         placeRotation ?: return false
 
-        if (useStaticRotation && scaffoldMode == "GodBridge") {
+        if (scaffoldMode == "GodBridge") {
             placeRotation = PlaceRotation(
                 placeRotation.placeInfo,
                 Rotation(placeRotation.rotation.yaw, if (isLookingDiagonally) 75.6f else 73.5f)
