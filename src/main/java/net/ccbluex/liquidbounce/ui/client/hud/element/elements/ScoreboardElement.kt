@@ -102,7 +102,7 @@ class ScoreboardElement(x: Double = 5.0, y: Double = 0.0, scale: Float = 1F,
         val maxHeight = scoreCollection.size * fontRenderer.FONT_HEIGHT
         val l1 = -maxWidth - 3 - if (rect) 3 else 0
 
-        drawRoundedRectInt(l1 - 2, -2, 5, (maxHeight + fontRenderer.FONT_HEIGHT), backColor, roundedRectRadius)
+        drawRoundedRectInt(l1 - 3, -3, 6, (1 + maxHeight + fontRenderer.FONT_HEIGHT), backColor, roundedRectRadius)
 
         scoreCollection.forEachIndexed { index, score ->
             val team = scoreboard.getPlayersTeam(score.playerName)
@@ -117,15 +117,20 @@ class ScoreboardElement(x: Double = 5.0, y: Double = 0.0, scale: Float = 1F,
 
             if (serverIp != "Normal") {
                 runCatching {
-                    val nameWithoutFormatting = name?.replace(EnumChatFormatting.RESET.toString(), "")?.replace(Regex("\u00a7[0-9a-fk-r]"), "")
+                    val nameWithoutFormatting = name?.replace(EnumChatFormatting.RESET.toString(), "")
+                        ?.replace(Regex("[\u00a7&][0-9a-fk-or]"), "")?.trim()
                     val trimmedServerIP = mc.currentServerData?.serverIP?.trim()?.lowercase()
 
+                    val domainRegex = Regex("\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}\\b")
+                    val containsDomain = nameWithoutFormatting?.let { domainRegex.containsMatchIn(it) } ?: false
+
                     runCatching {
-                        if (nameWithoutFormatting == trimmedServerIP) {
+                        if (nameWithoutFormatting?.lowercase() == trimmedServerIP || containsDomain) {
+                            val colorCode = name?.substring(0, 2) ?: "§9"
                             name = when (serverIp.lowercase()) {
                                 "none" -> ""
-                                "client" -> "§9§l$CLIENT_NAME"
-                                "website" -> "§9§l$CLIENT_WEBSITE"
+                                "client" -> "$colorCode$CLIENT_NAME"
+                                "website" -> "$colorCode$CLIENT_WEBSITE"
                                 else -> return null
                             }
                         }
